@@ -13,10 +13,10 @@ import { personalize } from "@/lib/stories/personalize";
 import { fontCss, sizeCss, type ReadingFontId, type ReadingSizeId } from "@/lib/reading-prefs";
 
 export function StoryReader({
-  slug, startKey, graph, childName, initialFont, initialSize,
+  slug, startKey, graph, childName, initialFont, initialSize, preview = false,
 }: {
   slug: string; startKey: string; graph: StoryGraph; childName: string;
-  initialFont: ReadingFontId; initialSize: ReadingSizeId;
+  initialFont: ReadingFontId; initialSize: ReadingSizeId; preview?: boolean;
 }) {
   const searchParams = useSearchParams();
   const urlKey = searchParams.get("p");
@@ -38,8 +38,8 @@ export function StoryReader({
   }, [currentKey, searchParams]);
 
   useEffect(() => {
-    if (current.isEnding) recordEnding(slug, current.key).then((p) => { if (p) setProgress(p); });
-  }, [current.isEnding, current.key, slug]);
+    if (!preview && current.isEnding) recordEnding(slug, current.key).then((p) => { if (p) setProgress(p); });
+  }, [preview, current.isEnding, current.key, slug]);
 
   const chooseFont = (f: ReadingFontId) => setFont(f);
   const chooseSize = (s: ReadingSizeId) => setSize(s);
@@ -63,6 +63,11 @@ export function StoryReader({
         className="sticky top-14 z-20 -mx-4 mb-4 flex items-center gap-2 px-4 py-2 backdrop-blur sm:top-16"
         style={{ background: "color-mix(in srgb, var(--pc-sky) 85%, transparent)" }}
       >
+        {preview && (
+          <span className="rounded-full bg-[var(--pc-sun)] px-3 py-1 text-xs font-extrabold text-[#3a2d00]">
+            Preview
+          </span>
+        )}
         <span className="flex-1" />
         <button
           onClick={() => setSettingsOpen(true)}
