@@ -1,7 +1,7 @@
 // components/story/story-reader.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import type { StoryGraph } from "@/lib/stories/graph";
 import { recordEnding } from "@/lib/stories/actions";
@@ -39,9 +39,18 @@ export function StoryReader({
     if (current.isEnding) recordEnding(slug, current.key).then((p) => { if (p) setProgress(p); });
   }, [current.isEnding, current.key, slug]);
 
-  const persist = useCallback((f: ReadingFontId, s: ReadingSizeId) => { void setReadingPrefs(f, s); }, []);
-  const chooseFont = (f: ReadingFontId) => { setFont(f); persist(f, size); };
-  const chooseSize = (s: ReadingSizeId) => { setSize(s); persist(font, s); };
+  const chooseFont = (f: ReadingFontId) => setFont(f);
+  const chooseSize = (s: ReadingSizeId) => setSize(s);
+
+  // Persist whichever prefs are current after any change (skip the initial mount).
+  const prefsMounted = useRef(false);
+  useEffect(() => {
+    if (!prefsMounted.current) {
+      prefsMounted.current = true;
+      return;
+    }
+    void setReadingPrefs(font, size);
+  }, [font, size]);
 
   const goTo = useCallback((key: string) => { setProgress(null); setCurrentKey(key); }, []);
   const readAgain = useCallback(() => goTo(startKey), [goTo, startKey]);
