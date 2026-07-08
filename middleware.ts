@@ -1,8 +1,11 @@
 // middleware.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
 
-const PUBLIC_PATHS = ["/sign-in", "/api/auth"];
+// The session cookie name (kept as a literal so this Edge-runtime file does not
+// import lib/auth, which uses node:crypto). Presence-only check here; real
+// signature verification happens in getReader() on the server.
+const SESSION_COOKIE = "story_session";
+const PUBLIC_PATHS = ["/sign-in"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,8 +14,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const sessionCookie = getSessionCookie(request);
-  if (!sessionCookie) {
+  const session = request.cookies.get(SESSION_COOKIE);
+  if (!session) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     return NextResponse.redirect(url);

@@ -1,6 +1,9 @@
 // lib/session.ts
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { cookies } from "next/headers";
+import { eq } from "drizzle-orm";
+import { verifySession, SESSION_COOKIE } from "@/lib/auth";
+import { db } from "@/db/client";
+import { user } from "@/db/schema";
 
 export type Reader = {
   id: string;
@@ -9,15 +12,31 @@ export type Reader = {
   theme: string;
 };
 
-/** Returns the signed-in reader, or null. Safe to call in Server Components. */
+/**
+ * Returns the signed-in reader, or null. Safe to call in Server Components.
+ * The session cookie carries the login username, which maps to a reader row.
+ */
 export async function getReader(): Promise<Reader | null> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return null;
-  const u = session.user as unknown as Reader & Record<string, unknown>;
+  const jar = await cookies();
+  const username = verifySession(jar.get(SESSION_COOKIE)?.value);
+  if (!username) return null;
+
+  const [row] = await db
+    .select({
+      id: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      theme: user.theme,
+    })
+    .from(user)
+    .where(eq(user.username, username))
+    .limit(1);
+
+  if (!row) return null;
   return {
-    id: u.id,
-    username: u.username,
-    displayName: u.displayName,
-    theme: u.theme ?? "cozy",
+    id: row.id,
+    username: row.username,
+    displayName: row.displayName,
+    theme: row.theme ?? "cozy",
   };
 }

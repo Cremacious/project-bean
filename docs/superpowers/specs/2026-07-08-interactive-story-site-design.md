@@ -20,7 +20,10 @@ family).
 - **Next.js** (App Router) + **TypeScript**
 - **Tailwind CSS** + **shadcn/ui**
 - **Neon** (serverless Postgres) via **Drizzle ORM**
-- **BetterAuth** (email/password)
+- **Auth:** single credential in `.env.local` (`AUTH_USERNAME` / `AUTH_PASSWORD`) verified
+  against a signed, httpOnly session cookie (HMAC via Node `crypto`, `SESSION_SECRET`).
+  _(v1 simplification — the app was initially built on BetterAuth email/password; for a
+  single-nephew launch it was reduced to one env credential. See "Auth revision" below.)_
 - Single standalone app in `project-bean` (no relation to the neighboring
   `beehive-books-online` project).
 
@@ -29,7 +32,7 @@ family).
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | Auth purpose | Per-reader profiles | Story visibility depends on the signed-in reader. |
-| Account model | One account per reader | Adult signs in as the child. (Revisit household+profiles later if needed.) |
+| Account model | Single env credential (v1) | One `AUTH_USERNAME`/`AUTH_PASSWORD` in `.env.local`; the login username maps to one reader row. (Was per-reader BetterAuth accounts; simplified for the single-nephew launch. Multi-reader auth can return later.) |
 | Story authoring | Hybrid (C) | Author stories as in-repo files; a seed script upserts them into Neon; the app reads from the DB. |
 | Branching model | Branching graph (B) | Choices point to page IDs; different choices may converge on the same page. 2–4 choices per page. |
 | State/variables | None (not a stateful engine) | YAGNI for read-aloud children's stories. |
@@ -50,6 +53,22 @@ Single Next.js App Router application.
 - **Seed pipeline:** `scripts/seed-stories.ts` reads story files from
   `/content/stories/*`, validates them, and upserts into Neon. The DB is the runtime
   source of truth; files are the authoring source of truth.
+
+### Auth revision (v1, single credential)
+
+The app was built with BetterAuth (email/password, DB-backed accounts) and then simplified
+for a single-nephew launch:
+
+- Login credential lives in `.env.local` as `AUTH_USERNAME` / `AUTH_PASSWORD`.
+- `signInAction` (server action) constant-time-compares the submitted credentials; on match
+  it sets a signed, httpOnly cookie (`story_session`) — payload HMAC-SHA256'd with
+  `SESSION_SECRET`. `signOutAction` clears it.
+- `middleware.ts` gates routes on cookie presence (Edge-safe); `getReader()` verifies the
+  cookie signature and loads the matching reader row from the `user` table.
+- The `user` table (and its BetterAuth-era columns) is retained as the reader table; the
+  `session` / `account` / `verification` tables are now unused (harmless; droppable later).
+- Readers are provisioned with `scripts/add-reader.ts <username> <displayName>`.
+- The login username must equal the `username` of the reader whose stories should appear.
 
 ## Data Model (Drizzle)
 
