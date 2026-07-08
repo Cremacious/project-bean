@@ -1,15 +1,33 @@
-// components/app-header.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "@/lib/auth-client";
+import { clearActiveChild } from "@/lib/active-child-actions";
 
-export function AppHeader({ displayName }: { displayName: string }) {
+export function AppHeader({
+  parentName,
+  activeChildName,
+}: {
+  parentName: string;
+  activeChildName: string | null;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const initial = displayName.trim().charAt(0).toUpperCase() || "?";
+  const initial = parentName.trim().charAt(0).toUpperCase() || "?";
+
+  async function handleSwitch() {
+    await clearActiveChild();
+    router.push("/");
+    router.refresh();
+  }
+
+  async function handleSignOut() {
+    await signOut();
+    router.push("/sign-in");
+    router.refresh();
+  }
 
   return (
     <header
@@ -23,7 +41,32 @@ export function AppHeader({ displayName }: { displayName: string }) {
           </span>
           Storytime
         </Link>
+
         <div className="flex-1" />
+
+        {activeChildName && (
+          <div className="hidden items-center gap-2 rounded-full border border-[var(--pc-line)] bg-white py-1 pl-3 pr-1 sm:flex">
+            <span className="text-sm text-[var(--pc-sub)]">
+              Reading: <b className="font-display text-[var(--pc-ink)]">{activeChildName}</b>
+            </span>
+            <button
+              onClick={handleSwitch}
+              className="min-h-[32px] rounded-full px-3 py-1 text-xs font-bold text-[var(--pc-plum-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] hover:bg-[var(--accent)]"
+            >
+              Switch
+            </button>
+          </div>
+        )}
+
+        {activeChildName && (
+          <button
+            onClick={handleSwitch}
+            className="min-h-[44px] rounded-full border border-[var(--pc-line)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--pc-plum-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:hidden"
+          >
+            Switch
+          </button>
+        )}
+
         <div className="relative">
           <button
             onClick={() => setOpen((v) => !v)}
@@ -37,11 +80,21 @@ export function AppHeader({ displayName }: { displayName: string }) {
           {open && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-              <div role="menu" className="absolute right-0 z-20 mt-2 w-48 rounded-2xl border border-[var(--pc-line)] bg-white p-1.5 shadow-xl">
-                <p className="px-3 py-2 text-sm text-[var(--pc-sub)]">Reading as <b className="text-[var(--pc-ink)]">{displayName}</b></p>
+              <div role="menu" className="absolute right-0 z-20 mt-2 w-52 rounded-2xl border border-[var(--pc-line)] bg-white p-1.5 shadow-xl">
+                <p className="px-3 py-2 text-sm text-[var(--pc-sub)]">
+                  Signed in as <b className="text-[var(--pc-ink)]">{parentName}</b>
+                </p>
+                <Link
+                  href="/family"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] hover:bg-[var(--muted)]"
+                >
+                  Family
+                </Link>
                 <button
                   role="menuitem"
-                  onClick={async () => { await signOut(); router.push("/sign-in"); router.refresh(); }}
+                  onClick={handleSignOut}
                   className="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] hover:bg-[var(--muted)]"
                 >
                   Sign out
