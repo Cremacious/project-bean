@@ -53,7 +53,7 @@ Single Next.js App Router application.
 
 ## Data Model (Drizzle)
 
-- **`reader`** — auth user (managed by BetterAuth) + `displayName`, `theme` (default `"cozy"`).
+- **`reader`** — auth user (managed by BetterAuth) + `username` (unique, stable handle used in story files, e.g. `milo`), `displayName`, `theme` (default `"cozy"`).
 - **`story`** — `id`, `slug`, `title`, `description`, `startPageId`, `coverImageUrl` (nullable), `createdAt`, `updatedAt`.
 - **`page`** — `id`, `storyId`, `key` (author-friendly string ID, unique within a story, e.g. `forest-edge`), `body` (story text), `imageUrl` (nullable; unused in v1 UI), `isEnding` (boolean), `endingLabel` (nullable, e.g. "The Snug Ending").
 - **`choice`** — `id`, `pageId` (from-page), `toPageKey` (to-page, within the same story), `label` (button text), `order` (int). Graph: multiple choices may share a `toPageKey`.
@@ -95,7 +95,7 @@ export default defineStory({
 
 The seed script validates: `start` exists, every choice `to` points to a real page, every
 non-ending page has at least one choice, every ending page has zero choices, and every
-`readers` entry maps to a known reader. Then it upserts story/pages/choices/access.
+`readers` entry maps to a known reader by `username`. Then it upserts story/pages/choices/access.
 
 ## Reader Experience & Flow
 
