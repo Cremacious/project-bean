@@ -634,11 +634,22 @@ git commit -m "content: add sample story Bean and the Whispering Woods"
 
 The seed script is verified by running it against Neon and re-running it (idempotency), not by a unit test — its pure logic (`validateStory`) is already tested.
 
-- [ ] **Step 1: Write `scripts/seed-stories.ts`**
+- [ ] **Step 1a: Create `scripts/_env.ts` (env loader for standalone scripts)**
+
+Standalone `tsx` scripts do NOT get Next.js's automatic `.env.local` loading, and a plain `import "dotenv/config"` only reads `.env`. This side-effect module loads `.env.local` first. It MUST be imported before any module that reads `process.env` at load time (e.g. `db/client`, which throws if `DATABASE_URL` is unset). Because ES module imports are evaluated in source order, a bare side-effect import placed first runs before `db/client` is evaluated.
+
+```ts
+// scripts/_env.ts
+import { config } from "dotenv";
+config({ path: ".env.local" });
+config(); // also load .env if present (does not override already-set vars)
+```
+
+- [ ] **Step 1b: Write `scripts/seed-stories.ts`**
 
 ```ts
 // scripts/seed-stories.ts
-import "dotenv/config";
+import "./_env"; // MUST be first: loads .env.local before db/client reads DATABASE_URL
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { eq, and, inArray } from "drizzle-orm";
@@ -767,9 +778,9 @@ main().catch((err) => {
 
 The sample story references reader `milo`, and readers are BetterAuth users created in the next plan. For now, insert a placeholder reader row directly so seeding can be verified:
 
-Run:
+Run (uses raw `neon` and reads `DATABASE_URL` at call time — after `config()` — to sidestep the module-load-order trap; loads `.env.local` explicitly):
 ```bash
-npx tsx -e "import 'dotenv/config'; import {db} from './db/client'; import {user} from './db/schema'; await db.insert(user).values({id:'seed-milo',name:'Milo',email:'milo@example.com',username:'milo',displayName:'Milo'}).onConflictDoNothing(); console.log('ok');"
+npx tsx -e "import {config} from 'dotenv'; import {neon} from '@neondatabase/serverless'; config({path:'.env.local'}); const sql=neon(process.env.DATABASE_URL); await sql\`insert into \"user\" (id,name,email,email_verified,username,display_name,theme) values ('seed-milo','Milo','milo@example.com',false,'milo','Milo','cozy') on conflict do nothing\`; console.log('ok');"
 ```
 Expected: prints `ok`.
 

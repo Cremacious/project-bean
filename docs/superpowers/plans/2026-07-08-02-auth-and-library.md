@@ -149,7 +149,7 @@ Because readers are children whose accounts an adult manages, accounts are creat
 
 ```ts
 // scripts/create-reader.ts
-import "dotenv/config";
+import "./_env"; // MUST be first: loads .env.local before lib/auth -> db/client reads env
 import { auth } from "@/lib/auth";
 
 // Usage: npx tsx scripts/create-reader.ts <email> <password> <username> <displayName>
