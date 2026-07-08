@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed-stories.ts",
+    "create-reader": "tsx scripts/create-reader.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
