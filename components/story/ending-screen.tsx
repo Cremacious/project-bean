@@ -22,12 +22,13 @@ const EXTRA_CONFETTI = [
 type Progress = { goodFound: number; goodTotal: number; complete: boolean };
 
 export function EndingScreen({
-  endingType, endingLabel, progress, onReadAgain,
+  endingType, endingLabel, progress, onReadAgain, preview = false,
 }: {
   endingType: string;
   endingLabel: string | null;
   progress: Progress | null;
   onReadAgain: () => void;
+  preview?: boolean;
 }) {
   if (endingType === "game_over") {
     return (
@@ -92,12 +93,14 @@ export function EndingScreen({
         </>
       )}
       <div className="mt-2 flex w-full max-w-xs flex-col gap-3">
-        <Link
-          href="/collection"
-          className="rounded-2xl bg-[var(--pc-plum)] py-3.5 text-center font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
-        >
-          See my endings
-        </Link>
+        {!preview && (
+          <Link
+            href="/collection"
+            className="rounded-2xl bg-[var(--pc-plum)] py-3.5 text-center font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
+          >
+            See my endings
+          </Link>
+        )}
         <button
           onClick={onReadAgain}
           className="rounded-2xl border border-[var(--pc-line)] bg-white py-3 text-center font-display font-bold text-[var(--pc-ink)] shadow-[0_5px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"

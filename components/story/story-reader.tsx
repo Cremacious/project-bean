@@ -84,6 +84,7 @@ export function StoryReader({
           endingLabel={current.endingLabel}
           progress={progress}
           onReadAgain={readAgain}
+          preview={preview}
         />
       ) : (
         <article className="mx-auto max-w-[38rem]">
