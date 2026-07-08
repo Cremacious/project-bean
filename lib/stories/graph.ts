@@ -111,3 +111,12 @@ export async function countEndingsFound(childId: number, storyId: number): Promi
     .where(and(eq(endingFound.childId, childId), eq(endingFound.storyId, storyId)));
   return rows.length;
 }
+
+/** All ending pages for a story, with their kind (good/game_over). */
+export async function loadStoryEndings(storyId: number): Promise<{ pageId: number; endingType: string }[]> {
+  const rows = await db
+    .select({ pageId: pageTable.id, endingType: pageTable.endingType })
+    .from(pageTable)
+    .where(and(eq(pageTable.storyId, storyId), eq(pageTable.isEnding, true)));
+  return rows;
+}
