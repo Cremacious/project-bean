@@ -20,3 +20,6 @@
 *.pem
 npm-debug.log*
 *.tsbuildinfo
+
+# next.js generated (regenerated on every build/dev)
+next-env.d.ts
