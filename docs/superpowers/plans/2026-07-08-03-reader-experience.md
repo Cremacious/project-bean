@@ -286,7 +286,7 @@ git commit -m "feat: add recordEnding server action"
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export function EndingScreen({
   endingLabel,
@@ -309,9 +309,9 @@ export function EndingScreen({
       )}
       <div className="flex items-center justify-center gap-3">
         <Button onClick={onReadAgain}>Read again</Button>
-        <Button variant="outline" asChild>
-          <Link href="/">Back to library</Link>
-        </Button>
+        <Link href="/" className={buttonVariants({ variant: "outline" })}>
+          Back to library
+        </Link>
       </div>
     </div>
   );
