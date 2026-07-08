@@ -39,6 +39,7 @@ async function seedStory(input: StoryInput) {
       description: input.description ?? "",
       ageBand: input.ageBand ?? null,
       coverImageUrl: input.coverImageUrl ?? null,
+      published: true,
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
@@ -48,6 +49,7 @@ async function seedStory(input: StoryInput) {
         description: input.description ?? "",
         ageBand: input.ageBand ?? null,
         coverImageUrl: input.coverImageUrl ?? null,
+        published: true,
         updatedAt: new Date(),
       },
     })

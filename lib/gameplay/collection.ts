@@ -32,7 +32,9 @@ export function buildCollection(stories: StoryRow[], endingPages: EndingRow[], f
 }
 
 export async function getCollection(childId: number): Promise<Collection> {
-  const stories = await db.select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand }).from(story).orderBy(asc(story.title));
+  const stories = await db
+    .select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand })
+    .from(story).where(eq(story.published, true)).orderBy(asc(story.title));
   const ids = stories.map((s) => s.id);
   const endingPages = ids.length
     ? await db.select({ id: page.id, storyId: page.storyId, endingType: page.endingType, isEnding: page.isEnding }).from(page).where(inArray(page.storyId, ids))

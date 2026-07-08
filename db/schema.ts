@@ -69,6 +69,7 @@ export const story = pgTable("story", {
   ageBand: text("age_band"), // "2-4" | "5-7" | "8+" | null
   startPageId: integer("start_page_id"),
   coverImageUrl: text("cover_image_url"),
+  published: boolean("published").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
