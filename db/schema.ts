@@ -1,0 +1,123 @@
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  boolean,
+  timestamp,
+  uniqueIndex,
+  primaryKey,
+} from "drizzle-orm/pg-core";
+
+// --- BetterAuth core tables (schema per BetterAuth Drizzle adapter) ---
+// The `user` table is our "reader". Extra columns (username, displayName, theme)
+// are added below and configured in BetterAuth via additionalFields.
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
+  // Reader-specific fields:
+  username: text("username").notNull().unique(),
+  displayName: text("display_name").notNull(),
+  theme: text("theme").notNull().default("cozy"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const session = pgTable("session", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const account = pgTable("account", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const verification = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// --- Domain tables ---
+export const story = pgTable("story", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull().default(""),
+  startPageId: integer("start_page_id"),
+  coverImageUrl: text("cover_image_url"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const page = pgTable(
+  "page",
+  {
+    id: serial("id").primaryKey(),
+    storyId: integer("story_id").notNull().references(() => story.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    body: text("body").notNull(),
+    imageUrl: text("image_url"),
+    isEnding: boolean("is_ending").notNull().default(false),
+    endingLabel: text("ending_label"),
+  },
+  (t) => ({
+    storyKeyUnq: uniqueIndex("page_story_key_unq").on(t.storyId, t.key),
+  }),
+);
+
+export const choice = pgTable("choice", {
+  id: serial("id").primaryKey(),
+  pageId: integer("page_id").notNull().references(() => page.id, { onDelete: "cascade" }),
+  toPageKey: text("to_page_key").notNull(),
+  label: text("label").notNull(),
+  order: integer("order").notNull().default(0),
+});
+
+export const storyAccess = pgTable(
+  "story_access",
+  {
+    storyId: integer("story_id").notNull().references(() => story.id, { onDelete: "cascade" }),
+    readerId: text("reader_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.storyId, t.readerId] }),
+  }),
+);
+
+export const endingFound = pgTable(
+  "ending_found",
+  {
+    readerId: text("reader_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+    storyId: integer("story_id").notNull().references(() => story.id, { onDelete: "cascade" }),
+    pageId: integer("page_id").notNull().references(() => page.id, { onDelete: "cascade" }),
+    foundAt: timestamp("found_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.readerId, t.pageId] }),
+  }),
+);
