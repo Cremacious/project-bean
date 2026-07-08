@@ -67,6 +67,16 @@ export function AppHeader({
           </button>
         )}
 
+        {activeChildName && (
+          <Link
+            href="/collection"
+            className="min-h-[44px] rounded-full px-3 py-2 text-center text-xs font-extrabold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 sm:px-4 sm:text-sm"
+            style={{ background: "var(--pc-plum)" }}
+          >
+            My Collection
+          </Link>
+        )}
+
         <div className="relative">
           <button
             onClick={() => setOpen((v) => !v)}
