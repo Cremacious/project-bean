@@ -49,72 +49,54 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Paper Cut palette */
+  --background: #EAF2FB;
+  --foreground: #16283A;
+  --card: #FFFFFF;
+  --card-foreground: #16283A;
+  --popover: #FFFFFF;
+  --popover-foreground: #16283A;
+  --primary: #574BC0;            /* plum-ink: white text passes AA */
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFFFFF;
+  --secondary-foreground: #16283A;
+  --muted: #DCEAFB;
+  --muted-foreground: #5A7089;
+  --accent: #F0EEFF;
+  --accent-foreground: #574BC0;
+  --destructive: #E14A2B;
+  --border: #D4E3F2;
+  --input: #D4E3F2;
+  --ring: #6C5CE7;
+  --radius: 0.9rem;
+
+  /* Paper Cut brights (decoration) + ink variants (white-text fills) */
+  --pc-sky: #EAF2FB;
+  --pc-ink: #16283A;
+  --pc-sub: #5A7089;
+  --pc-line: #D4E3F2;
+  --pc-poppy: #FF6B4A;   --pc-poppy-ink: #E14A2B;
+  --pc-leaf: #2FB98A;    --pc-leaf-ink: #1E8F6A;
+  --pc-sun: #FFC24B;
+  --pc-plum: #6C5CE7;    --pc-plum-ink: #574BC0;
+
+  /* Fonts */
+  --font-sans: var(--font-nunito);
+  --font-display: var(--font-baloo);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Story prose — size & font are set inline by the reader via these vars */
+.reader-prose {
+  font-family: var(--reading-font, var(--font-nunito));
+  font-size: var(--reading-size, 1.125rem);
+  line-height: var(--reading-lh, 1.6);
+  font-weight: 600;
+  color: var(--pc-ink);
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 
 @layer base {
@@ -129,78 +111,4 @@
   }
 }
 
-/* ---- Storytime themes (override shadcn oklch tokens per data-theme) ---- */
-:root,
-[data-theme="cozy"] {
-  --background: oklch(0.95 0.018 83);
-  --foreground: oklch(0.32 0.035 55);
-  --card: oklch(0.97 0.015 83);
-  --card-foreground: oklch(0.32 0.035 55);
-  --popover: oklch(0.97 0.015 83);
-  --popover-foreground: oklch(0.32 0.035 55);
-  --primary: oklch(0.68 0.10 65);
-  --primary-foreground: oklch(0.99 0.01 83);
-  --secondary: oklch(0.90 0.045 80);
-  --secondary-foreground: oklch(0.36 0.035 55);
-  --muted: oklch(0.92 0.03 83);
-  --muted-foreground: oklch(0.52 0.03 60);
-  --accent: oklch(0.90 0.045 80);
-  --accent-foreground: oklch(0.36 0.035 55);
-  --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.86 0.04 78);
-  --input: oklch(0.86 0.04 78);
-  --ring: oklch(0.68 0.10 65);
-  --radius: 1rem;
-  --font-body: Georgia, "Times New Roman", serif;
-}
-
-[data-theme="playful"] {
-  --background: oklch(0.97 0.025 245);
-  --foreground: oklch(0.30 0.09 275);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.30 0.09 275);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.30 0.09 275);
-  --primary: oklch(0.58 0.23 295);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.86 0.16 92);
-  --secondary-foreground: oklch(0.34 0.06 80);
-  --muted: oklch(0.93 0.03 245);
-  --muted-foreground: oklch(0.50 0.06 275);
-  --accent: oklch(0.78 0.14 350);
-  --accent-foreground: oklch(0.30 0.08 350);
-  --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.88 0.035 245);
-  --input: oklch(0.88 0.035 245);
-  --ring: oklch(0.58 0.23 295);
-  --radius: 1.25rem;
-  --font-body: "Trebuchet MS", "Segoe UI", sans-serif;
-}
-
-[data-theme="calm"] {
-  --background: oklch(0.985 0.004 250);
-  --foreground: oklch(0.32 0.02 255);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.32 0.02 255);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.32 0.02 255);
-  --primary: oklch(0.60 0.11 262);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.95 0.012 250);
-  --secondary-foreground: oklch(0.36 0.02 255);
-  --muted: oklch(0.955 0.01 250);
-  --muted-foreground: oklch(0.55 0.02 255);
-  --accent: oklch(0.93 0.03 165);
-  --accent-foreground: oklch(0.36 0.03 165);
-  --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.91 0.008 250);
-  --input: oklch(0.91 0.008 250);
-  --ring: oklch(0.60 0.11 262);
-  --radius: 0.5rem;
-  --font-body: "Segoe UI", system-ui, sans-serif;
-}
-
-/* Apply the per-theme body font to the themed subtree. */
-[data-theme] {
-  font-family: var(--font-body);
-}
+.font-display { font-family: var(--font-display); }
