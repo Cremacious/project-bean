@@ -9,6 +9,7 @@ export type PageRow = {
   body: string;
   isEnding: boolean;
   endingLabel: string | null;
+  endingType: string;
   imageUrl: string | null;
 };
 
@@ -28,18 +29,20 @@ export type GraphPage = {
   imageUrl: string | null;
   isEnding: boolean;
   endingLabel: string | null;
+  endingType: string;
   choices: GraphChoice[];
 };
 
 export type StoryGraph = {
   pages: Record<string, GraphPage>;
   totalEndings: number;
+  goodEndings: number;
 };
 
 /** Pure: turn flat page/choice rows into a keyed graph. */
 export function buildStoryGraph(pages: PageRow[], choices: ChoiceRow[]): StoryGraph {
   const byId = new Map<number, GraphPage>();
-  const graph: StoryGraph = { pages: {}, totalEndings: 0 };
+  const graph: StoryGraph = { pages: {}, totalEndings: 0, goodEndings: 0 };
 
   for (const p of pages) {
     const gp: GraphPage = {
@@ -49,11 +52,13 @@ export function buildStoryGraph(pages: PageRow[], choices: ChoiceRow[]): StoryGr
       imageUrl: p.imageUrl,
       isEnding: p.isEnding,
       endingLabel: p.endingLabel,
+      endingType: p.endingType,
       choices: [],
     };
     graph.pages[p.key] = gp;
     byId.set(p.id, gp);
     if (p.isEnding) graph.totalEndings += 1;
+    if (p.isEnding && p.endingType === "good") graph.goodEndings += 1;
   }
 
   const sorted = [...choices].sort((a, b) => a.order - b.order);
@@ -74,6 +79,7 @@ export async function loadStoryGraph(storyId: number): Promise<StoryGraph> {
       body: pageTable.body,
       isEnding: pageTable.isEnding,
       endingLabel: pageTable.endingLabel,
+      endingType: pageTable.endingType,
       imageUrl: pageTable.imageUrl,
     })
     .from(pageTable)

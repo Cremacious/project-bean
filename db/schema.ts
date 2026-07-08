@@ -83,6 +83,7 @@ export const page = pgTable(
     imageUrl: text("image_url"),
     isEnding: boolean("is_ending").notNull().default(false),
     endingLabel: text("ending_label"),
+    endingType: text("ending_type").notNull().default("good"), // "good" | "game_over"
   },
   (t) => ({ storyKeyUnq: uniqueIndex("page_story_key_unq").on(t.storyId, t.key) }),
 );

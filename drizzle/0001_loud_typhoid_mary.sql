@@ -1,0 +1,1 @@
+ALTER TABLE "page" ADD COLUMN "ending_type" text DEFAULT 'good' NOT NULL;
