@@ -13,11 +13,12 @@ import { personalize } from "@/lib/stories/personalize";
 import { fontCss, sizeCss, type ReadingFontId, type ReadingSizeId } from "@/lib/reading-prefs";
 
 export function StoryReader({
-  slug, startKey, graph, childName, initialFont, initialSize, preview = false,
+  slug, startKey, graph, childName, readingMode = "read_to_me", initialFont, initialSize, preview = false,
 }: {
-  slug: string; startKey: string; graph: StoryGraph; childName: string;
+  slug: string; startKey: string; graph: StoryGraph; childName: string; readingMode?: string;
   initialFont: ReadingFontId; initialSize: ReadingSizeId; preview?: boolean;
 }) {
+  const canRead = readingMode === "can_read";
   const searchParams = useSearchParams();
   const urlKey = searchParams.get("p");
   const initialKey = urlKey && graph.pages[urlKey] ? urlKey : startKey;
@@ -91,14 +92,19 @@ export function StoryReader({
           <p className="reader-prose mb-8" style={{ ["--reading-font" as string]: fontCss(font), ["--reading-size" as string]: fSize, ["--reading-lh" as string]: lh }}>
             {personalize(current.body, childName)}
           </p>
+          {current.choices.length > 0 && (
+            <p className={`mb-3 font-display font-bold text-[var(--pc-ink)] ${canRead ? "text-lg" : "text-sm"}`}>
+              {canRead ? "Your turn. Pick one!" : "Let them choose what happens next."}
+            </p>
+          )}
           <div className="flex flex-col gap-3">
             {current.choices.map((c, i) => (
               <button
                 key={`${c.to}-${i}`}
                 onClick={() => goTo(c.to)}
-                className={`rounded-2xl p-4 text-left font-display text-base font-bold text-[var(--pc-ink)] shadow-[0_5px_0_rgba(22,40,58,0.16)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 ${
-                  i % 2 === 0 ? "bg-[var(--pc-leaf)]" : "bg-[var(--pc-poppy)]"
-                }`}
+                className={`rounded-2xl text-left font-display font-bold text-[var(--pc-ink)] shadow-[0_5px_0_rgba(22,40,58,0.16)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 ${
+                  canRead ? "p-5 text-lg" : "p-4 text-base"
+                } ${i % 2 === 0 ? "bg-[var(--pc-leaf)]" : "bg-[var(--pc-poppy)]"}`}
               >
                 {personalize(c.label, childName)}
               </button>
