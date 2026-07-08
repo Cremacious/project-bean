@@ -7,13 +7,14 @@ import type { StoryGraph } from "@/lib/stories/graph";
 import { recordEnding } from "@/lib/stories/actions";
 import { EndingScreen } from "@/components/story/ending-screen";
 import { ReadingSettings } from "@/components/story/reading-settings";
-import { setReadingPrefs } from "@/lib/reading-prefs-actions";
+import { setChildReadingPrefs } from "@/lib/children-actions";
+import { personalize } from "@/lib/stories/personalize";
 import { fontCss, sizeCss, type ReadingFontId, type ReadingSizeId } from "@/lib/reading-prefs";
 
 export function StoryReader({
-  slug, startKey, graph, initialFont, initialSize,
+  slug, startKey, graph, childName, initialFont, initialSize,
 }: {
-  slug: string; startKey: string; graph: StoryGraph;
+  slug: string; startKey: string; graph: StoryGraph; childName: string;
   initialFont: ReadingFontId; initialSize: ReadingSizeId;
 }) {
   const searchParams = useSearchParams();
@@ -49,7 +50,7 @@ export function StoryReader({
       prefsMounted.current = true;
       return;
     }
-    void setReadingPrefs(font, size);
+    void setChildReadingPrefs(font, size);
   }, [font, size]);
 
   const goTo = useCallback((key: string) => { setProgress(null); setCurrentKey(key); }, []);
@@ -76,7 +77,7 @@ export function StoryReader({
       ) : (
         <article className="mx-auto max-w-[38rem]">
           <p className="reader-prose mb-8" style={{ ["--reading-font" as string]: fontCss(font), ["--reading-size" as string]: fSize, ["--reading-lh" as string]: lh }}>
-            {current.body}
+            {personalize(current.body, childName)}
           </p>
           <div className="flex flex-col gap-3">
             {current.choices.map((c, i) => (
@@ -87,7 +88,7 @@ export function StoryReader({
                   i % 2 === 0 ? "bg-[var(--pc-leaf)]" : "bg-[var(--pc-poppy)]"
                 }`}
               >
-                {c.label}
+                {personalize(c.label, childName)}
               </button>
             ))}
           </div>
