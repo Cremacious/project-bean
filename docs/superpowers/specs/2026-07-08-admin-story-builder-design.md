@@ -15,7 +15,8 @@ a **forms-based MVP**; the planning wizard and visual graph canvas are deferred.
 
 **In:** admin-gated `/admin`; story CRUD + metadata; draft vs published; a forms-based
 page/scene editor (scene body as plain paragraphs with an "Insert {{name}}" button, ending
-toggle + type + label, a choices editor, start-page selector); reuse of the existing
+toggle + type + label, a choices editor, start-page selector); an **admin-only draft preview**
+(open the story in the reader in a non-recording preview mode); reuse of the existing
 validation on save/publish; publish gated on validity.
 
 **Out (deferred to later specs):** the question-asking wizard/scaffolder, a visual
@@ -71,6 +72,24 @@ Routes under `/admin` (all admin-gated by the layout):
     non-ending pages a **choices editor** (rows of `label` + target-page dropdown; add /
     remove / reorder). Delete page.
 
+## Admin preview (draft preview)
+
+Admins can preview any story (including unpublished drafts) without publishing and without
+polluting a child's progress:
+
+- Route **`/admin/stories/[slug]/preview`** (admin-gated by the `/admin` layout). Loads the
+  story regardless of `published`, builds the graph, and renders the real `StoryReader` in a
+  **preview mode**.
+- `StoryReader` gains a `preview?: boolean` prop. In preview mode it **does not call
+  `recordEnding`** (no progress writes), and the ending screen shows the ending label without
+  progress numbers or the "See my endings" link (progress is null in preview). A small
+  "Preview" indicator is shown.
+- `{{name}}` is filled with a fixed **sample name** ("Sam") so personalization is visible
+  without an active child. No active child is required for the preview route.
+- The story editor has a **"Preview"** button linking to this route (opens in a new tab).
+- The public reader route (`/story/[slug]`) is unchanged: still published-only, still requires
+  an active child, still records progress.
+
 ## Server actions (admin-gated)
 
 All in `lib/admin-actions.ts` (`"use server"`); each re-checks `isAdmin(getParent().email)`
@@ -100,8 +119,9 @@ expected error).
 ## Reused / touched
 
 Reader, catalog, `personalize()`, `StoryCover`, gameplay/collection all unchanged except the
-`published` filter on the public catalog/reader/collection queries. Paper Cut design system
-for admin chrome.
+`published` filter on the public catalog/reader/collection queries. `StoryReader` gains a
+`preview` prop (non-recording, sample name) reused by the admin preview route. Paper Cut
+design system for admin chrome.
 
 ## Testing
 
@@ -119,7 +139,8 @@ for admin chrome.
 2. **Story CRUD + metadata:** list, create (new draft), edit metadata, delete, publish toggle
    (validity-gated), start-page selector.
 3. **Page/scene editor:** pages list; page form (body + Insert {{name}}, ending toggle/type/
-   label); choices editor; deletes.
+   label); choices editor; deletes. Add the `StoryReader` `preview` prop + the
+   `/admin/stories/[slug]/preview` route + a "Preview" button in the editor.
 4. **Validation surfacing:** `story-to-input` + reuse `validateStory`; live validity + publish
    gating.
 5. **Polish + compliance:** UI rules pass over the admin surface; verify end to end.
