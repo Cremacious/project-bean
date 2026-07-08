@@ -48,7 +48,10 @@ export function StoryReader({
 
   return (
     <div>
-      <div className="sticky top-14 z-20 -mx-4 mb-4 flex items-center gap-2 bg-[var(--pc-sky)]/80 px-4 py-2 backdrop-blur sm:top-16">
+      <div
+        className="sticky top-14 z-20 -mx-4 mb-4 flex items-center gap-2 px-4 py-2 backdrop-blur sm:top-16"
+        style={{ background: "color-mix(in srgb, var(--pc-sky) 85%, transparent)" }}
+      >
         <span className="flex-1" />
         <button
           onClick={() => setSettingsOpen(true)}
@@ -71,12 +74,11 @@ export function StoryReader({
               <button
                 key={`${c.to}-${i}`}
                 onClick={() => goTo(c.to)}
-                className={`flex items-center gap-3 rounded-2xl p-4 text-left font-display text-base font-bold text-white shadow-[0_5px_0_rgba(0,0,0,0.14)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
-                  i % 2 === 0 ? "bg-[var(--pc-leaf-ink)]" : "bg-[var(--pc-poppy-ink)]"
+                className={`rounded-2xl p-4 text-left font-display text-base font-bold text-[var(--pc-ink)] shadow-[0_5px_0_rgba(22,40,58,0.16)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 ${
+                  i % 2 === 0 ? "bg-[var(--pc-leaf)]" : "bg-[var(--pc-poppy)]"
                 }`}
               >
-                <span className="grid h-8 w-8 flex-none place-items-center rounded-xl bg-white/25 text-lg">{i % 2 === 0 ? "🌿" : "🏠"}</span>
-                <span>{c.label}</span>
+                {c.label}
               </button>
             ))}
           </div>
