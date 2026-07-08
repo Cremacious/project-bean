@@ -128,3 +128,79 @@
     @apply font-sans;
   }
 }
+
+/* ---- Storytime themes (override shadcn oklch tokens per data-theme) ---- */
+:root,
+[data-theme="cozy"] {
+  --background: oklch(0.95 0.018 83);
+  --foreground: oklch(0.32 0.035 55);
+  --card: oklch(0.97 0.015 83);
+  --card-foreground: oklch(0.32 0.035 55);
+  --popover: oklch(0.97 0.015 83);
+  --popover-foreground: oklch(0.32 0.035 55);
+  --primary: oklch(0.68 0.10 65);
+  --primary-foreground: oklch(0.99 0.01 83);
+  --secondary: oklch(0.90 0.045 80);
+  --secondary-foreground: oklch(0.36 0.035 55);
+  --muted: oklch(0.92 0.03 83);
+  --muted-foreground: oklch(0.52 0.03 60);
+  --accent: oklch(0.90 0.045 80);
+  --accent-foreground: oklch(0.36 0.035 55);
+  --destructive: oklch(0.58 0.22 25);
+  --border: oklch(0.86 0.04 78);
+  --input: oklch(0.86 0.04 78);
+  --ring: oklch(0.68 0.10 65);
+  --radius: 1rem;
+  --font-body: Georgia, "Times New Roman", serif;
+}
+
+[data-theme="playful"] {
+  --background: oklch(0.97 0.025 245);
+  --foreground: oklch(0.30 0.09 275);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.30 0.09 275);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.30 0.09 275);
+  --primary: oklch(0.58 0.23 295);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.86 0.16 92);
+  --secondary-foreground: oklch(0.34 0.06 80);
+  --muted: oklch(0.93 0.03 245);
+  --muted-foreground: oklch(0.50 0.06 275);
+  --accent: oklch(0.78 0.14 350);
+  --accent-foreground: oklch(0.30 0.08 350);
+  --destructive: oklch(0.58 0.22 25);
+  --border: oklch(0.88 0.035 245);
+  --input: oklch(0.88 0.035 245);
+  --ring: oklch(0.58 0.23 295);
+  --radius: 1.25rem;
+  --font-body: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+[data-theme="calm"] {
+  --background: oklch(0.985 0.004 250);
+  --foreground: oklch(0.32 0.02 255);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.32 0.02 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.32 0.02 255);
+  --primary: oklch(0.60 0.11 262);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.95 0.012 250);
+  --secondary-foreground: oklch(0.36 0.02 255);
+  --muted: oklch(0.955 0.01 250);
+  --muted-foreground: oklch(0.55 0.02 255);
+  --accent: oklch(0.93 0.03 165);
+  --accent-foreground: oklch(0.36 0.03 165);
+  --destructive: oklch(0.58 0.22 25);
+  --border: oklch(0.91 0.008 250);
+  --input: oklch(0.91 0.008 250);
+  --ring: oklch(0.60 0.11 262);
+  --radius: 0.5rem;
+  --font-body: "Segoe UI", system-ui, sans-serif;
+}
+
+/* Apply the per-theme body font to the themed subtree. */
+[data-theme] {
+  font-family: var(--font-body);
+}
