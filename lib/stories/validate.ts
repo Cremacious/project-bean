@@ -6,8 +6,8 @@ export function validateStory(story: StoryInput): string[] {
   const errors: string[] = [];
   const keys = Object.keys(story.pages);
 
-  if (story.readers.length === 0) {
-    errors.push("readers list is empty");
+  if (story.ageBand !== undefined && !["2-4", "5-7", "8+"].includes(story.ageBand)) {
+    errors.push(`age band "${story.ageBand}" is not one of 2-4, 5-7, 8+`);
   }
 
   if (!(story.start in story.pages)) {

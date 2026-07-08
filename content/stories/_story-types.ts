@@ -16,7 +16,7 @@ export type StoryInput = {
   slug: string;
   title: string;
   description?: string;
-  readers: string[]; // reader usernames who may see this story
+  ageBand?: "2-4" | "5-7" | "8+";
   start: string;     // page key to start on
   coverImageUrl?: string;
   pages: Record<string, PageInput>; // keyed by page key

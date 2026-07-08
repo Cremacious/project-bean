@@ -3,9 +3,9 @@ import "./_env"; // MUST be first: loads .env.local before db/client reads DATAB
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
-import { user, story, page, choice, storyAccess } from "@/db/schema";
+import { story, page, choice } from "@/db/schema";
 import { validateStory } from "@/lib/stories/validate";
 import type { StoryInput } from "@/content/stories/_story-types";
 
@@ -30,17 +30,6 @@ async function seedStory(input: StoryInput) {
     throw new Error(`Story "${input.slug}" is invalid:\n - ${errors.join("\n - ")}`);
   }
 
-  // Map reader usernames -> user ids. Missing readers are a hard error.
-  const readers = await db
-    .select({ id: user.id, username: user.username })
-    .from(user)
-    .where(inArray(user.username, input.readers));
-  const foundUsernames = new Set(readers.map((r) => r.username));
-  const missing = input.readers.filter((u) => !foundUsernames.has(u));
-  if (missing.length > 0) {
-    throw new Error(`Story "${input.slug}" references unknown readers: ${missing.join(", ")}`);
-  }
-
   // Upsert story row.
   const [storyRow] = await db
     .insert(story)
@@ -48,6 +37,7 @@ async function seedStory(input: StoryInput) {
       slug: input.slug,
       title: input.title,
       description: input.description ?? "",
+      ageBand: input.ageBand ?? null,
       coverImageUrl: input.coverImageUrl ?? null,
       updatedAt: new Date(),
     })
@@ -56,6 +46,7 @@ async function seedStory(input: StoryInput) {
       set: {
         title: input.title,
         description: input.description ?? "",
+        ageBand: input.ageBand ?? null,
         coverImageUrl: input.coverImageUrl ?? null,
         updatedAt: new Date(),
       },
@@ -102,13 +93,7 @@ async function seedStory(input: StoryInput) {
     }
   }
 
-  // Reset access rows for this story, then insert.
-  await db.delete(storyAccess).where(eq(storyAccess.storyId, storyRow.id));
-  for (const r of readers) {
-    await db.insert(storyAccess).values({ storyId: storyRow.id, readerId: r.id });
-  }
-
-  console.log(`Seeded "${input.slug}" (${Object.keys(input.pages).length} pages, ${readers.length} readers)`);
+  console.log(`Seeded "${input.slug}" (${Object.keys(input.pages).length} pages)`);
 }
 
 async function main() {

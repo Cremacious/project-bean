@@ -6,7 +6,6 @@ import type { StoryInput } from "@/content/stories/_story-types";
 const base: StoryInput = {
   slug: "s",
   title: "S",
-  readers: ["milo"],
   start: "a",
   pages: {
     a: { body: "start", choices: [{ label: "go", to: "b" }] },
@@ -48,7 +47,12 @@ describe("validateStory", () => {
     expect(validateStory(s)).toContain('page "b" is an ending but has choices');
   });
 
-  it("flags an empty readers list", () => {
-    expect(validateStory({ ...base, readers: [] })).toContain("readers list is empty");
+  it("flags a bad age band", () => {
+    const errors = validateStory({ ...base, ageBand: "9-12" as StoryInput["ageBand"] });
+    expect(errors).toContain('age band "9-12" is not one of 2-4, 5-7, 8+');
+  });
+
+  it("allows a good age band", () => {
+    expect(validateStory({ ...base, ageBand: "5-7" })).toEqual([]);
   });
 });
