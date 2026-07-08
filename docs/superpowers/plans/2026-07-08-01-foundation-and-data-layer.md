@@ -652,6 +652,7 @@ config(); // also load .env if present (does not override already-set vars)
 import "./_env"; // MUST be first: loads .env.local before db/client reads DATABASE_URL
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { eq, and, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { user, story, page, choice, storyAccess } from "@/db/schema";
@@ -666,7 +667,8 @@ async function loadStories(): Promise<StoryInput[]> {
   );
   const stories: StoryInput[] = [];
   for (const file of files) {
-    const mod = await import(join(STORIES_DIR, file));
+    // pathToFileURL is required so Windows absolute paths (C:\...) import correctly under ESM.
+    const mod = await import(pathToFileURL(join(STORIES_DIR, file)).href);
     stories.push(mod.default as StoryInput);
   }
   return stories;
