@@ -8,6 +8,7 @@ import { db } from "@/db/client";
 import { page as pageTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { StoryReader } from "@/components/story/story-reader";
+import type { ReadingFontId, ReadingSizeId } from "@/lib/reading-prefs";
 
 export default async function StoryPage({
   params,
@@ -37,7 +38,13 @@ export default async function StoryPage({
     <div className="max-w-2xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6">{story.title}</h1>
       <Suspense>
-        <StoryReader slug={slug} startKey={startKey} graph={graph} />
+        <StoryReader
+          slug={slug}
+          startKey={startKey}
+          graph={graph}
+          initialFont={reader.readerFont as ReadingFontId}
+          initialSize={reader.readerFontSize as ReadingSizeId}
+        />
       </Suspense>
     </div>
   );
