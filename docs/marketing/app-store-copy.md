@@ -57,10 +57,12 @@ MADE FOR FAMILIES, BUILT FOR TRUST
 Bedtime Quests is designed to be safe for young children. We personalize stories using your child's first name only. We never ask for photos, birthdays, or other personal details. There is no chat, and no third party tracking of your child. Just stories.
 
 BEDTIME QUESTS PREMIUM
-Unlock the full library, every new monthly quest, all endings and achievements, and a completely ad free experience.
+Unlock the full library, every new monthly quest, and all endings and achievements.
 • Monthly: $4.99
 • Yearly: $29.99, our best value at about $2.50 a month
 Start with a free trial. Cancel anytime.
+
+Always ad free. No tracking. Just stories.
 
 Tuck in, choose the path, and drift off. Download Bedtime Quests and make tonight's story their own.
 
@@ -127,7 +129,7 @@ SAFE AND MADE FOR FAMILIES
 We personalize stories using your child's first name only. We never ask for photos, birthdays, or other personal details. There is no chat, and no third party tracking of your child. Just stories, made for young children.
 
 BEDTIME QUESTS PREMIUM
-Unlock the full library, every new monthly quest, all endings and achievements, and an ad free experience.
+Unlock the full library, every new monthly quest, and all endings and achievements. Always ad free, with no tracking.
 • Monthly: $4.99
 • Yearly: $29.99, our best value at about $2.50 a month
 Start with a free trial and cancel anytime.
@@ -164,17 +166,17 @@ Unlock every Bedtime Quest
 **Subhead**
 
 ```
-The full library, all endings, and new stories every month. Ad free.
+The full library, all endings, and new stories every month.
 ```
 
 **Benefit bullets** (each with a checkmark)
 
 ```
-✓  The complete story library
+✓  The complete story library, unlocked
 ✓  New quests added every month
-✓  Their name in every story
-✓  Every happy ending and achievement
-✓  Ad free, made just for bedtime
+✓  Every happy ending and achievement to collect
+✓  Their name woven into every story
+✓  Always ad free. No tracking. Just stories.
 ```
 
 **Plan options** (annual selected by default, visibly the better deal)
@@ -223,7 +225,8 @@ Maybe later
 ## Notes
 
 - **Placeholders:** replace `[your-terms-URL]` and `[your-privacy-URL]`. Apple requires a privacy policy URL for a kids audience app, and the auto renew text in the description is effectively mandatory.
-- **Ad free line:** the copy assumes the free tier carries ads. If you go subscription only (no ads anywhere), change "a completely ad free experience" to "the complete Bedtime Quests experience" so you are not implying ads exist.
+- **Ads decision: OUT (subscription-first).** The free tier is limited by content (a few free stories), not ads. There are no third party ads anywhere in the app, which keeps the "no third party tracking" trust claim clean and removes the COPPA ad risk. First party promos for Premium are fine. "Always ad free. No tracking." is used as a brand trust line, not a Premium exclusive.
+- **Free tier:** roughly 4 full, personalized stories (at least one per age band). The rest of the ~20 to 30 launch stories sit behind the paywall, with new quests added every month.
 - **First 3 lines matter most** on both stores (all a user sees before "more"), so the hook is front loaded.
 - **Screenshots outsell text.** The top two should show the choose the path moment and the child's name printed in the story.
 - **Paywall timing:** trigger the paywall after a free user finishes their 2nd or 3rd story, once they have felt the value, not on first launch.
