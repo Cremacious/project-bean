@@ -5,7 +5,7 @@ import { db } from "@/db/client";
 import { story, page, choice } from "@/db/schema";
 import { getParent } from "@/lib/session";
 import { isAdmin } from "@/lib/admin";
-import { isValidSlug } from "@/lib/admin/slugs";
+import { isValidSlug, isValidSlug as isValidKey } from "@/lib/admin/slugs";
 import { buildStoryInput } from "@/lib/admin/story-to-input";
 import { validateStory } from "@/lib/stories/validate";
 
@@ -73,5 +73,50 @@ export async function setPublished(storyId: number, published: boolean): Promise
     if (errors.length) return { ok: false, errors };
   }
   await db.update(story).set({ published, updatedAt: new Date() }).where(eq(story.id, storyId));
+  return { ok: true };
+}
+
+export async function createPage(storyId: number, key: string): Promise<{ ok: boolean; error?: string }> {
+  if (!(await requireAdmin())) return { ok: false, error: "Not allowed" };
+  if (!isValidKey(key)) return { ok: false, error: "Key must be lowercase words joined by single hyphens" };
+  const [dupe] = await db.select({ id: page.id }).from(page).where(and(eq(page.storyId, storyId), eq(page.key, key))).limit(1);
+  if (dupe) return { ok: false, error: "That page key is already used in this story" };
+  await db.insert(page).values({ storyId, key, body: "", isEnding: false });
+  return { ok: true };
+}
+
+type PageEdit = { key: string; body: string; isEnding: boolean; endingType: string; endingLabel: string | null };
+
+export async function updatePage(pageId: number, edit: PageEdit): Promise<{ ok: boolean; error?: string }> {
+  if (!(await requireAdmin())) return { ok: false, error: "Not allowed" };
+  if (!isValidKey(edit.key)) return { ok: false, error: "Invalid page key" };
+  if (edit.isEnding && !["good", "game_over"].includes(edit.endingType)) return { ok: false, error: "Invalid ending type" };
+  const [self] = await db.select({ storyId: page.storyId }).from(page).where(eq(page.id, pageId)).limit(1);
+  if (!self) return { ok: false };
+  const [dupe] = await db.select({ id: page.id }).from(page)
+    .where(and(eq(page.storyId, self.storyId), eq(page.key, edit.key))).limit(1);
+  if (dupe && dupe.id !== pageId) return { ok: false, error: "That page key is already used in this story" };
+  await db.update(page).set({
+    key: edit.key, body: edit.body, isEnding: edit.isEnding,
+    endingType: edit.isEnding ? edit.endingType : "good",
+    endingLabel: edit.isEnding ? (edit.endingLabel?.trim() || null) : null,
+  }).where(eq(page.id, pageId));
+  if (edit.isEnding) await db.delete(choice).where(eq(choice.pageId, pageId)); // endings have no choices
+  return { ok: true };
+}
+
+export async function deletePage(pageId: number): Promise<{ ok: boolean }> {
+  if (!(await requireAdmin())) return { ok: false };
+  await db.delete(page).where(eq(page.id, pageId)); // choices cascade
+  return { ok: true };
+}
+
+/** Replace a page's choices with the given ordered list. */
+export async function setChoices(pageId: number, rows: { label: string; toPageKey: string }[]): Promise<{ ok: boolean }> {
+  if (!(await requireAdmin())) return { ok: false };
+  await db.delete(choice).where(eq(choice.pageId, pageId));
+  const clean = rows.map((r, i) => ({ pageId, label: r.label.trim(), toPageKey: r.toPageKey.trim(), order: i }))
+    .filter((r) => r.label && r.toPageKey);
+  if (clean.length) await db.insert(choice).values(clean);
   return { ok: true };
 }
