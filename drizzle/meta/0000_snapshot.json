@@ -1,5 +1,5 @@
 {
-  "id": "9171d0f7-e3f6-42be-8b36-9918d8634ae2",
+  "id": "b9e94d95-a6f6-4dee-90c3-8240ea189aa1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -111,6 +111,79 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.child": {
+      "name": "child",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reading_mode": {
+          "name": "reading_mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'read_to_me'"
+        },
+        "reader_font": {
+          "name": "reader_font",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'rounded'"
+        },
+        "reader_font_size": {
+          "name": "reader_font_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'md'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "child_parent_id_user_id_fk": {
+          "name": "child_parent_id_user_id_fk",
+          "tableFrom": "child",
+          "tableTo": "user",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.choice": {
       "name": "choice",
       "schema": "",
@@ -173,9 +246,9 @@
       "name": "ending_found",
       "schema": "",
       "columns": {
-        "reader_id": {
-          "name": "reader_id",
-          "type": "text",
+        "child_id": {
+          "name": "child_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -201,12 +274,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "ending_found_reader_id_user_id_fk": {
-          "name": "ending_found_reader_id_user_id_fk",
+        "ending_found_child_id_child_id_fk": {
+          "name": "ending_found_child_id_child_id_fk",
           "tableFrom": "ending_found",
-          "tableTo": "user",
+          "tableTo": "child",
           "columnsFrom": [
-            "reader_id"
+            "child_id"
           ],
           "columnsTo": [
             "id"
@@ -242,10 +315,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "ending_found_reader_id_page_id_pk": {
-          "name": "ending_found_reader_id_page_id_pk",
+        "ending_found_child_id_page_id_pk": {
+          "name": "ending_found_child_id_page_id_pk",
           "columns": [
-            "reader_id",
+            "child_id",
             "page_id"
           ]
         }
@@ -461,6 +534,12 @@
           "notNull": true,
           "default": "''"
         },
+        "age_band": {
+          "name": "age_band",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "start_page_id": {
           "name": "start_page_id",
           "type": "integer",
@@ -504,66 +583,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.story_access": {
-      "name": "story_access",
-      "schema": "",
-      "columns": {
-        "story_id": {
-          "name": "story_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "reader_id": {
-          "name": "reader_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "story_access_story_id_story_id_fk": {
-          "name": "story_access_story_id_story_id_fk",
-          "tableFrom": "story_access",
-          "tableTo": "story",
-          "columnsFrom": [
-            "story_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "story_access_reader_id_user_id_fk": {
-          "name": "story_access_reader_id_user_id_fk",
-          "tableFrom": "story_access",
-          "tableTo": "user",
-          "columnsFrom": [
-            "reader_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "story_access_story_id_reader_id_pk": {
-          "name": "story_access_story_id_reader_id_pk",
-          "columns": [
-            "story_id",
-            "reader_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.user": {
       "name": "user",
       "schema": "",
@@ -599,25 +618,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "username": {
-          "name": "username",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "display_name": {
-          "name": "display_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "theme": {
-          "name": "theme",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'cozy'"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -642,13 +642,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "email"
-          ]
-        },
-        "user_username_unique": {
-          "name": "user_username_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "username"
           ]
         }
       },

@@ -1,29 +1,14 @@
 import {
-  pgTable,
-  serial,
-  text,
-  integer,
-  boolean,
-  timestamp,
-  uniqueIndex,
-  primaryKey,
+  pgTable, serial, text, integer, boolean, timestamp, uniqueIndex, primaryKey,
 } from "drizzle-orm/pg-core";
 
-// --- BetterAuth core tables (schema per BetterAuth Drizzle adapter) ---
-// The `user` table is our "reader". Extra columns (username, displayName, theme)
-// are added below and configured in BetterAuth via additionalFields.
+// --- BetterAuth core tables. `user` is the PARENT account. ---
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
-  // Reader-specific fields:
-  username: text("username").notNull().unique(),
-  displayName: text("display_name").notNull(),
-  theme: text("theme").notNull().default("cozy"),
-  readerFont: text("reader_font").notNull().default("rounded"),
-  readerFontSize: text("reader_font_size").notNull().default("md"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -64,12 +49,24 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// --- Domain tables ---
+// --- Child profiles (nested under a parent; no login). ---
+export const child = pgTable("child", {
+  id: serial("id").primaryKey(),
+  parentId: text("parent_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  readingMode: text("reading_mode").notNull().default("read_to_me"), // read_to_me | can_read
+  readerFont: text("reader_font").notNull().default("rounded"),
+  readerFontSize: text("reader_font_size").notNull().default("md"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// --- Story catalog (global; no per-user access). ---
 export const story = pgTable("story", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
   description: text("description").notNull().default(""),
+  ageBand: text("age_band"), // "2-4" | "5-7" | "8+" | null
   startPageId: integer("start_page_id"),
   coverImageUrl: text("cover_image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -87,9 +84,7 @@ export const page = pgTable(
     isEnding: boolean("is_ending").notNull().default(false),
     endingLabel: text("ending_label"),
   },
-  (t) => ({
-    storyKeyUnq: uniqueIndex("page_story_key_unq").on(t.storyId, t.key),
-  }),
+  (t) => ({ storyKeyUnq: uniqueIndex("page_story_key_unq").on(t.storyId, t.key) }),
 );
 
 export const choice = pgTable("choice", {
@@ -100,26 +95,14 @@ export const choice = pgTable("choice", {
   order: integer("order").notNull().default(0),
 });
 
-export const storyAccess = pgTable(
-  "story_access",
-  {
-    storyId: integer("story_id").notNull().references(() => story.id, { onDelete: "cascade" }),
-    readerId: text("reader_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.storyId, t.readerId] }),
-  }),
-);
-
+// --- Per-child ending progress. ---
 export const endingFound = pgTable(
   "ending_found",
   {
-    readerId: text("reader_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+    childId: integer("child_id").notNull().references(() => child.id, { onDelete: "cascade" }),
     storyId: integer("story_id").notNull().references(() => story.id, { onDelete: "cascade" }),
     pageId: integer("page_id").notNull().references(() => page.id, { onDelete: "cascade" }),
     foundAt: timestamp("found_at").notNull().defaultNow(),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.readerId, t.pageId] }),
-  }),
+  (t) => ({ pk: primaryKey({ columns: [t.childId, t.pageId] }) }),
 );
