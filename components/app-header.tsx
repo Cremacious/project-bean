@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signOutAction } from "@/lib/auth-actions";
+import { signOut } from "@/lib/auth-client";
 
 export function AppHeader({ displayName }: { displayName: string }) {
   const router = useRouter();
@@ -41,7 +41,7 @@ export function AppHeader({ displayName }: { displayName: string }) {
                 <p className="px-3 py-2 text-sm text-[var(--pc-sub)]">Reading as <b className="text-[var(--pc-ink)]">{displayName}</b></p>
                 <button
                   role="menuitem"
-                  onClick={async () => { await signOutAction(); router.push("/sign-in"); router.refresh(); }}
+                  onClick={async () => { await signOut(); router.push("/sign-in"); router.refresh(); }}
                   className="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] hover:bg-[var(--muted)]"
                 >
                   Sign out

@@ -1,60 +1,38 @@
 // lib/auth.ts
-// Minimal single-credential auth for a private, single-reader site.
-// Credentials live in .env.local (AUTH_USERNAME / AUTH_PASSWORD). On success we
-// issue a signed, httpOnly session cookie (HMAC-SHA256 with SESSION_SECRET) so
-// the session cannot be forged. No database-backed accounts.
-import crypto from "node:crypto";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "@/db/client";
+import * as schema from "@/db/schema";
 
-export const SESSION_COOKIE = "story_session";
-
-function sessionSecret(): string {
-  const s = process.env.SESSION_SECRET;
-  if (!s) throw new Error("SESSION_SECRET is not set");
-  return s;
+type Social = NonNullable<Parameters<typeof betterAuth>[0]["socialProviders"]>;
+const socialProviders: Social = {};
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  socialProviders.google = {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  };
+}
+if (process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET) {
+  socialProviders.apple = {
+    clientId: process.env.APPLE_CLIENT_ID,
+    clientSecret: process.env.APPLE_CLIENT_SECRET,
+  };
 }
 
-function safeEqual(a: string, b: string): boolean {
-  const ab = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (ab.length !== bb.length) return false;
-  return crypto.timingSafeEqual(ab, bb);
-}
+export const auth = betterAuth({
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      user: schema.user,
+      session: schema.session,
+      account: schema.account,
+      verification: schema.verification,
+    },
+  }),
+  emailAndPassword: { enabled: true },
+  socialProviders,
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
+});
 
-/** True if the supplied credentials match the ones configured in the environment. */
-export function verifyCredentials(username: string, password: string): boolean {
-  const u = process.env.AUTH_USERNAME ?? "";
-  const p = process.env.AUTH_PASSWORD ?? "";
-  if (!u || !p) return false;
-  // Evaluate both comparisons to avoid short-circuit timing leaks.
-  const okUser = safeEqual(username, u);
-  const okPass = safeEqual(password, p);
-  return okUser && okPass;
-}
-
-/** Produce a signed session token carrying the reader's username. */
-export function signSession(username: string): string {
-  const payload = Buffer.from(JSON.stringify({ u: username })).toString("base64url");
-  const sig = crypto.createHmac("sha256", sessionSecret()).update(payload).digest("base64url");
-  return `${payload}.${sig}`;
-}
-
-/** Verify a session token; returns the username it carries, or null if invalid. */
-export function verifySession(token: string | undefined): string | null {
-  if (!token) return null;
-  const [payload, sig] = token.split(".");
-  if (!payload || !sig) return null;
-
-  const expected = crypto.createHmac("sha256", sessionSecret()).update(payload).digest("base64url");
-  const sigBuf = Buffer.from(sig);
-  const expBuf = Buffer.from(expected);
-  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
-    return null;
-  }
-
-  try {
-    const data = JSON.parse(Buffer.from(payload, "base64url").toString()) as { u?: unknown };
-    return typeof data.u === "string" ? data.u : null;
-  } catch {
-    return null;
-  }
-}
+export type Session = typeof auth.$Infer.Session;
