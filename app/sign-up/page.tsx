@@ -1,16 +1,17 @@
-// app/sign-in/page.tsx
+// app/sign-up/page.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,10 +21,10 @@ export default function SignInPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const { error } = await signIn.email({ email, password });
+    const { error } = await signUp.email({ name, email, password });
     setLoading(false);
     if (error) {
-      setError(error.message ?? "Could not sign in.");
+      setError(error.message ?? "Could not create your account.");
       return;
     }
     router.push("/");
@@ -37,9 +38,22 @@ export default function SignInPage() {
           <span className="relative h-9 w-9 -rotate-6 rounded-xl" style={{ background: "var(--pc-poppy)" }}>
             <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full" style={{ background: "var(--pc-sun)" }} />
           </span>
-          <h1 className="font-display text-2xl font-extrabold tracking-tight text-[var(--pc-ink)]">Storytime</h1>
+          <h1 className="font-display text-2xl font-extrabold tracking-tight text-[var(--pc-ink)]">Create your account</h1>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="name" className="font-semibold text-[var(--pc-ink)]">Your name</Label>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            />
+          </div>
           <div className="space-y-1.5">
             <Label htmlFor="email" className="font-semibold text-[var(--pc-ink)]">Email</Label>
             <Input
@@ -59,7 +73,7 @@ export default function SignInPage() {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -72,7 +86,7 @@ export default function SignInPage() {
             disabled={loading}
             className="w-full rounded-xl bg-[var(--pc-plum)] py-3 font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-60"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
@@ -84,9 +98,9 @@ export default function SignInPage() {
         <SocialButtons />
 
         <p className="mt-6 text-center text-sm text-[var(--pc-sub)]">
-          New here?{" "}
-          <Link href="/sign-up" className="font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline">
-            Create an account
+          Already have an account?{" "}
+          <Link href="/sign-in" className="font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline">
+            Sign in
           </Link>
         </p>
       </div>
