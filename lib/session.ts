@@ -10,6 +10,8 @@ export type Reader = {
   username: string;
   displayName: string;
   theme: string;
+  readerFont: string;
+  readerFontSize: string;
 };
 
 /**
@@ -27,6 +29,8 @@ export async function getReader(): Promise<Reader | null> {
       username: user.username,
       displayName: user.displayName,
       theme: user.theme,
+      readerFont: user.readerFont,
+      readerFontSize: user.readerFontSize,
     })
     .from(user)
     .where(eq(user.username, username))
@@ -38,5 +42,7 @@ export async function getReader(): Promise<Reader | null> {
     username: row.username,
     displayName: row.displayName,
     theme: row.theme ?? "cozy",
+    readerFont: row.readerFont ?? "rounded",
+    readerFontSize: row.readerFontSize ?? "md",
   };
 }

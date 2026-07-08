@@ -22,6 +22,8 @@ export const user = pgTable("user", {
   username: text("username").notNull().unique(),
   displayName: text("display_name").notNull(),
   theme: text("theme").notNull().default("cozy"),
+  readerFont: text("reader_font").notNull().default("rounded"),
+  readerFontSize: text("reader_font_size").notNull().default("md"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
