@@ -97,11 +97,11 @@ export async function loadStoryGraph(storyId: number): Promise<StoryGraph> {
   return buildStoryGraph(pages, choices.filter((c) => idSet.has(c.pageId)));
 }
 
-/** How many distinct endings this reader has found in this story. */
-export async function countEndingsFound(readerId: string, storyId: number): Promise<number> {
+/** How many distinct endings this child has found in this story. */
+export async function countEndingsFound(childId: number, storyId: number): Promise<number> {
   const rows = await db
     .select({ pageId: endingFound.pageId })
     .from(endingFound)
-    .where(and(eq(endingFound.readerId, readerId), eq(endingFound.storyId, storyId)));
+    .where(and(eq(endingFound.childId, childId), eq(endingFound.storyId, storyId)));
   return rows.length;
 }

@@ -2,6 +2,8 @@
 "use server";
 import { and, eq } from "drizzle-orm";
 import { getParent } from "@/lib/session";
+import { getActiveChild } from "@/lib/active-child";
+import { isFontId, isSizeId } from "@/lib/reading-prefs";
 import { db } from "@/db/client";
 import { child } from "@/db/schema";
 
@@ -29,5 +31,13 @@ export async function removeChild(childId: number): Promise<{ ok: boolean }> {
   const parent = await getParent();
   if (!parent) return { ok: false };
   await db.delete(child).where(and(eq(child.id, childId), eq(child.parentId, parent.id)));
+  return { ok: true };
+}
+
+export async function setChildReadingPrefs(font: string, size: string): Promise<{ ok: boolean }> {
+  if (!isFontId(font) || !isSizeId(size)) return { ok: false };
+  const active = await getActiveChild(); // already ownership-validated
+  if (!active) return { ok: false };
+  await db.update(child).set({ readerFont: font, readerFontSize: size }).where(eq(child.id, active.id));
   return { ok: true };
 }
