@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import type { StoryGraph } from "@/lib/stories/graph";
 import { recordEnding } from "@/lib/stories/actions";
+import type { StoryProgress } from "@/lib/gameplay/progress";
 import { EndingScreen } from "@/components/story/ending-screen";
 import { ReadingSettings } from "@/components/story/reading-settings";
 import { setChildReadingPrefs } from "@/lib/children-actions";
@@ -22,7 +23,7 @@ export function StoryReader({
   const initialKey = urlKey && graph.pages[urlKey] ? urlKey : startKey;
 
   const [currentKey, setCurrentKey] = useState(initialKey);
-  const [progress, setProgress] = useState<{ found: number; total: number } | null>(null);
+  const [progress, setProgress] = useState<StoryProgress & { endingType: string } | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [font, setFont] = useState<ReadingFontId>(initialFont);
   const [size, setSize] = useState<ReadingSizeId>(initialSize);
@@ -73,7 +74,12 @@ export function StoryReader({
       </div>
 
       {current.isEnding ? (
-        <EndingScreen endingLabel={current.endingLabel} progress={progress} onReadAgain={readAgain} />
+        <EndingScreen
+          endingType={current.endingType}
+          endingLabel={current.endingLabel}
+          progress={progress}
+          onReadAgain={readAgain}
+        />
       ) : (
         <article className="mx-auto max-w-[38rem]">
           <p className="reader-prose mb-8" style={{ ["--reading-font" as string]: fontCss(font), ["--reading-size" as string]: fSize, ["--reading-lh" as string]: lh }}>
