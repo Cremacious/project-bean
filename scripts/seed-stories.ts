@@ -68,6 +68,7 @@ async function seedStory(input: StoryInput) {
         imageUrl: p.imageUrl ?? null,
         isEnding: p.ending !== undefined,
         endingLabel: p.ending ?? null,
+        endingType: p.endingKind ?? "good",
       })
       .returning({ id: page.id });
     keyToId.set(key, pageRow.id);

@@ -24,6 +24,9 @@ export function validateStory(story: StoryInput): string[] {
     if (!isEnding && choices.length === 0) {
       errors.push(`page "${key}" is not an ending but has no choices`);
     }
+    if (isEnding && pageData.endingKind !== undefined && !["good", "game_over"].includes(pageData.endingKind)) {
+      errors.push(`page "${key}" endingKind "${pageData.endingKind}" is not good or game_over`);
+    }
     for (const c of choices) {
       if (!keys.includes(c.to)) {
         errors.push(`page "${key}" choice -> "${c.to}" targets a missing page`);

@@ -9,6 +9,7 @@ export type PageInput = {
   body: string;
   choices?: ChoiceInput[];
   ending?: string;   // presence marks this page as an ending; value is the ending label
+  endingKind?: "good" | "game_over"; // only meaningful when `ending` is set; defaults to "good"
   imageUrl?: string; // nullable; unused in v1 UI
 };
 

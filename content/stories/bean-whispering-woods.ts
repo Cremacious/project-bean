@@ -20,7 +20,13 @@ export default defineStory({
       choices: [
         { label: "👋 Say hello to Glimmer", to: "glimmer-friend" },
         { label: "🍄 Follow the glowing mushrooms", to: "mushroom-path" },
+        { label: "🦉 Follow the big owl", to: "owl-mixup" },
       ],
+    },
+    "owl-mixup": {
+      body: "The owl led {{name}} in a big sleepy circle, right back to the start. Let's try again!",
+      ending: "The Sleepy Mix Up",
+      endingKind: "game_over",
     },
     "mushroom-path": {
       body: "The glowing mushrooms led {{name}} and Bean to a warm little clearing where Glimmer was waiting with a picnic of honey and berries.",

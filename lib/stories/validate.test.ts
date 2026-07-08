@@ -55,4 +55,26 @@ describe("validateStory", () => {
   it("allows a good age band", () => {
     expect(validateStory({ ...base, ageBand: "5-7" })).toEqual([]);
   });
+
+  it("allows a valid endingKind on an ending page", () => {
+    const s: StoryInput = {
+      ...base,
+      pages: {
+        a: { body: "start", choices: [{ label: "go", to: "b" }] },
+        b: { body: "the end", ending: "The End", endingKind: "game_over" },
+      },
+    };
+    expect(validateStory(s)).toEqual([]);
+  });
+
+  it("flags a bad endingKind on an ending page", () => {
+    const s: StoryInput = {
+      ...base,
+      pages: {
+        a: { body: "start", choices: [{ label: "go", to: "b" }] },
+        b: { body: "the end", ending: "The End", endingKind: "bad" as StoryInput["pages"][string]["endingKind"] },
+      },
+    };
+    expect(validateStory(s)).toContain('page "b" endingKind "bad" is not good or game_over');
+  });
 });
