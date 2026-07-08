@@ -7,7 +7,7 @@ import { loadStoryGraph } from "@/lib/stories/graph";
 import { db } from "@/db/client";
 import { page as pageTable } from "@/db/schema";
 import { StoryReader } from "@/components/story/story-reader";
-import type { ReadingFontId, ReadingSizeId } from "@/lib/reading-prefs";
+import { initialSizeForMode, type ReadingFontId } from "@/lib/reading-prefs";
 
 export default async function StoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -34,8 +34,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           startKey={startKey}
           graph={graph}
           childName={active.name}
+          readingMode={active.readingMode}
           initialFont={active.readerFont as ReadingFontId}
-          initialSize={active.readerFontSize as ReadingSizeId}
+          initialSize={initialSizeForMode(active.readingMode, active.readerFontSize)}
         />
       </Suspense>
     </div>
