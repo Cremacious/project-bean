@@ -53,7 +53,7 @@ export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: b
               type="button"
               onClick={() => pick(kid.id)}
               disabled={pendingId !== null}
-              className="flex min-h-[44px] flex-col items-center gap-2 rounded-3xl border border-[var(--pc-line)] bg-white p-5 outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] hover:-translate-y-0.5 disabled:opacity-60"
+              className="flex min-h-[44px] flex-col items-center gap-2 rounded-3xl border border-[var(--pc-line)] bg-white p-5 shadow-[0_5px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 disabled:opacity-60"
             >
               <span
                 className="grid h-14 w-14 place-items-center rounded-full font-display text-2xl font-bold text-white"

@@ -5,10 +5,17 @@ import { getCatalog } from "@/lib/stories/queries";
 import { StoryCover } from "@/components/story/story-cover";
 
 const AGE_BANDS = [
-  { id: "2-4", label: "2–4" },
-  { id: "5-7", label: "5–7" },
-  { id: "8+", label: "8+" },
+  { id: "2-4", label: "2 to 4" },
+  { id: "5-7", label: "5 to 7" },
+  { id: "8+", label: "8 and up" },
 ] as const;
+
+// Maps a stored ageBand KEY (e.g. "2-4") to a dash-free display label (rule 1).
+// The keys themselves (and the `?age=` query param) are unchanged.
+function ageBandLabel(ageBand: string): string {
+  const match = AGE_BANDS.find((band) => band.id === ageBand);
+  return match ? match.label : ageBand;
+}
 
 export async function Library({ activeChild, ageBand }: { activeChild: Child; ageBand?: string }) {
   const stories = await getCatalog(ageBand);
@@ -71,7 +78,7 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
             <Link
               key={s.id}
               href={`/story/${s.slug}`}
-              className="group flex overflow-hidden rounded-3xl border border-[var(--pc-line)] bg-white shadow-[0_10px_22px_-14px_rgba(22,40,58,0.45)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] hover:-translate-y-0.5 sm:flex-col"
+              className="group flex overflow-hidden rounded-3xl border border-[var(--pc-line)] bg-white shadow-[0_5px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 sm:flex-col"
             >
               <StoryCover slug={s.slug} className="h-full min-h-[7rem] w-24 flex-none sm:h-28 sm:w-full" />
               <div className="flex flex-col gap-2 p-4">
@@ -80,7 +87,7 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
                 <div className="mt-auto flex flex-wrap items-center gap-1.5">
                   {s.ageBand && (
                     <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#F0EEFF] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-plum-ink)]">
-                      Ages {s.ageBand}
+                      Ages {ageBandLabel(s.ageBand)}
                     </span>
                   )}
                   <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#E6F7F0] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-leaf-ink)]">
