@@ -1,5 +1,10 @@
 import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
+import { config } from "dotenv";
+
+// Load .env.local so modules that read process.env at import time (e.g. db/client.ts)
+// don't throw when pulled in transitively by unit tests.
+config({ path: fileURLToPath(new URL("./.env.local", import.meta.url)) });
 
 export default defineConfig({
   test: {
