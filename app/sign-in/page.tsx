@@ -8,24 +8,41 @@ import { signIn } from "@/lib/auth-client";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FieldError } from "@/components/ui/field-error";
+import { isValidEmail } from "@/lib/validation";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
+
+type Errors = { email?: string; password?: string };
 
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function validate(): Errors {
+    const next: Errors = {};
+    if (!email.trim()) next.email = "Please enter your email.";
+    else if (!isValidEmail(email)) next.email = "That email does not look right. Please check for typos.";
+    if (!password) next.password = "Please enter your password.";
+    return next;
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setFormError(null);
+    const found = validate();
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+
     setLoading(true);
-    setError(null);
     const { error } = await signIn.email({ email, password });
     setLoading(false);
     if (error) {
-      setError(error.message ?? "Could not sign in.");
+      setFormError(error.message?.trim() || "We could not sign you in. Please check your email and password, then try again.");
       return;
     }
     router.push("/");
@@ -44,7 +61,7 @@ export default function SignInPage() {
             <p className="text-sm font-semibold text-[var(--pc-sub)]">{BRAND.subtitle}</p>
           </div>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} noValidate className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="font-semibold text-[var(--pc-ink)]">Email</Label>
             <Input
@@ -53,10 +70,15 @@ export default function SignInPage() {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+              }}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
               className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             />
+            <FieldError id="email-error">{errors.email}</FieldError>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="password" className="font-semibold text-[var(--pc-ink)]">Password</Label>
@@ -66,16 +88,21 @@ export default function SignInPage() {
               type="password"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) setErrors((p) => ({ ...p, password: undefined }));
+              }}
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? "password-error" : undefined}
               className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             />
+            <FieldError id="password-error">{errors.password}</FieldError>
           </div>
-          {error && <p className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{error}</p>}
+          {formError && <p role="alert" className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{formError}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-[var(--pc-plum)] py-3 font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-60"
+            className="w-full cursor-pointer rounded-xl bg-[var(--pc-plum)] py-3 font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>

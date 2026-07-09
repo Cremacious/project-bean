@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateStoryMeta, setStartPage, deleteStory } from "@/lib/admin-actions";
 import { field, labelCls } from "@/components/admin/styles";
+import { FieldError } from "@/components/ui/field-error";
+import { isValidHttpUrl } from "@/lib/validation";
 
 const AGE_OPTIONS = [
   { value: "", label: "No age band" },
@@ -11,6 +13,8 @@ const AGE_OPTIONS = [
   { value: "5-7", label: "Ages 5 to 7" },
   { value: "8+", label: "Ages 8 and up" },
 ];
+
+type Errors = { title?: string; cover?: string; form?: string };
 
 export function StoryMetadataPanel({
   story, pageKeys, startKey,
@@ -24,14 +28,24 @@ export function StoryMetadataPanel({
   const [description, setDescription] = useState(story.description);
   const [ageBand, setAgeBand] = useState(story.ageBand ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(story.coverImageUrl ?? "");
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Errors>({});
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [startPending, startStartTransition] = useTransition();
 
+  function validate(): Errors {
+    const next: Errors = {};
+    if (!title.trim()) next.title = "Please give the story a title.";
+    if (coverImageUrl.trim() && !isValidHttpUrl(coverImageUrl)) next.cover = "Please use a full web address that starts with http or https.";
+    return next;
+  }
+
   function save() {
-    setError(null);
+    setErrors({});
     setSaved(false);
+    const found = validate();
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
     startTransition(async () => {
       const res = await updateStoryMeta(story.id, {
         title, description, ageBand: ageBand || null, coverImageUrl: coverImageUrl.trim() || null,
@@ -40,7 +54,9 @@ export function StoryMetadataPanel({
         setSaved(true);
         router.refresh();
       } else {
-        setError(res.error ?? "Something went wrong");
+        const message = res.error ?? "We could not save these details. Please try again.";
+        if (/title/i.test(message)) setErrors({ title: message });
+        else setErrors({ form: message });
       }
     });
   }
@@ -67,7 +83,17 @@ export function StoryMetadataPanel({
       <div className="max-w-lg space-y-4">
         <div className="space-y-1.5">
           <label htmlFor="m-title" className={labelCls}>Title</label>
-          <input id="m-title" className={field} value={title} maxLength={80} disabled={isPending} onChange={(e) => { setTitle(e.target.value); setSaved(false); }} />
+          <input
+            id="m-title"
+            className={field}
+            value={title}
+            maxLength={80}
+            disabled={isPending}
+            onChange={(e) => { setTitle(e.target.value); setSaved(false); if (errors.title) setErrors((p) => ({ ...p, title: undefined })); }}
+            aria-invalid={!!errors.title}
+            aria-describedby={errors.title ? "m-title-error" : undefined}
+          />
+          <FieldError id="m-title-error">{errors.title}</FieldError>
         </div>
         <div className="space-y-1.5">
           <label htmlFor="m-desc" className={labelCls}>Description</label>
@@ -83,7 +109,17 @@ export function StoryMetadataPanel({
         </div>
         <div className="space-y-1.5">
           <label htmlFor="m-cover" className={labelCls}>Cover image address</label>
-          <input id="m-cover" className={field} value={coverImageUrl} placeholder="https://…" disabled={isPending} onChange={(e) => { setCoverImageUrl(e.target.value); setSaved(false); }} />
+          <input
+            id="m-cover"
+            className={field}
+            value={coverImageUrl}
+            placeholder="https://…"
+            disabled={isPending}
+            onChange={(e) => { setCoverImageUrl(e.target.value); setSaved(false); if (errors.cover) setErrors((p) => ({ ...p, cover: undefined })); }}
+            aria-invalid={!!errors.cover}
+            aria-describedby={errors.cover ? "m-cover-error" : undefined}
+          />
+          <FieldError id="m-cover-error">{errors.cover}</FieldError>
         </div>
         <div className="space-y-1.5">
           <label htmlFor="m-start" className={labelCls}>Start page</label>
@@ -101,14 +137,14 @@ export function StoryMetadataPanel({
           </select>
         </div>
 
-        {error && <p className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{error}</p>}
+        {errors.form && <p role="alert" className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{errors.form}</p>}
 
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={save}
             disabled={isPending}
-            className="rounded-2xl bg-[var(--pc-plum)] px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-60"
+            className="cursor-pointer rounded-2xl bg-[var(--pc-plum)] px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? "Saving…" : "Save details"}
           </button>
@@ -117,7 +153,7 @@ export function StoryMetadataPanel({
             type="button"
             onClick={remove}
             disabled={isPending}
-            className="ml-auto rounded-2xl border border-[var(--pc-poppy-ink)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--pc-poppy-ink)] shadow-[0_4px_0_var(--pc-poppy-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50"
+            className="ml-auto cursor-pointer rounded-2xl border border-[var(--pc-poppy-ink)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--pc-poppy-ink)] shadow-[0_4px_0_var(--pc-poppy-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
           >
             Delete story
           </button>

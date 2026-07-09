@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createChild, updateChild } from "@/lib/children-actions";
+import { FieldError } from "@/components/ui/field-error";
 
 type Mode = "create" | "edit";
 
@@ -31,7 +32,7 @@ export function ChildForm({
     setError(null);
     const clean = name.trim();
     if (!clean) {
-      setError("Please enter a name.");
+      setError("Please enter a name so we can personalize the stories.");
       return;
     }
     startTransition(async () => {
@@ -43,7 +44,7 @@ export function ChildForm({
         onDone?.();
         router.refresh();
       } else {
-        setError("Something went wrong. Please try again.");
+        setError("We could not save this reader. Please check the name and try again.");
       }
     });
   }
@@ -59,8 +60,10 @@ export function ChildForm({
           type="text"
           value={name}
           maxLength={40}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => { setName(e.target.value); if (error) setError(null); }}
           placeholder="Their name"
+          aria-invalid={!!error}
+          aria-describedby={error ? "child-name-error" : undefined}
           className="h-12 w-full rounded-2xl border border-[var(--pc-line)] bg-white px-4 text-base font-semibold text-[var(--pc-ink)] outline-none placeholder:text-[var(--pc-sub)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           disabled={isPending}
         />
@@ -78,7 +81,7 @@ export function ChildForm({
                 onClick={() => setReadingMode(m.id)}
                 disabled={isPending}
                 aria-pressed={selected}
-                className="flex min-h-[44px] flex-col items-start gap-0.5 rounded-2xl border-2 px-4 py-2.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-50"
+                className="flex min-h-[44px] cursor-pointer flex-col items-start gap-0.5 rounded-2xl border-2 px-4 py-2.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
                 style={
                   selected
                     ? { borderColor: "var(--pc-plum)", background: "var(--accent)" }
@@ -93,12 +96,12 @@ export function ChildForm({
         </div>
       </div>
 
-      {error && <p className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{error}</p>}
+      <FieldError id="child-name-error">{error}</FieldError>
 
       <button
         type="submit"
         disabled={isPending}
-        className="min-h-[44px] w-full rounded-2xl px-4 py-3 text-base font-bold text-white outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-60"
+        className="min-h-[44px] w-full cursor-pointer rounded-2xl px-4 py-3 text-base font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
         style={{ background: "var(--pc-plum)" }}
       >
         {isPending ? "Saving…" : mode === "edit" ? "Save changes" : "Add reader"}

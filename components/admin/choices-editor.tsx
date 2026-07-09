@@ -4,13 +4,14 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setChoices } from "@/lib/admin-actions";
 import { field, labelCls } from "@/components/admin/styles";
+import { FieldError } from "@/components/ui/field-error";
 
 export type ChoiceRow = { label: string; toPageKey: string };
 
 const btnBase =
-  "rounded-xl px-3 py-2 text-xs font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50";
+  "cursor-pointer rounded-xl px-3 py-2 text-xs font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
 const iconBtn =
-  "grid h-9 w-9 place-items-center rounded-xl border border-[var(--pc-line)] bg-white text-sm font-extrabold text-[var(--pc-ink)] shadow-[0_3px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50";
+  "grid h-9 w-9 cursor-pointer place-items-center rounded-xl border border-[var(--pc-line)] bg-white text-sm font-extrabold text-[var(--pc-ink)] shadow-[0_3px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
 
 /** Editor for one page's ordered outgoing choices. Save submits the FULL ordered list (setChoices replaces all rows). */
 export function ChoicesEditor({
@@ -24,9 +25,11 @@ export function ChoicesEditor({
   const [rows, setRows] = useState<ChoiceRow[]>(initialRows.length ? initialRows : [{ label: "", toPageKey: "" }]);
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function update(i: number, patch: Partial<ChoiceRow>) {
     setSaved(false);
+    setError(null);
     setRows((r) => r.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
   }
   function addRow() {
@@ -57,6 +60,19 @@ export function ChoicesEditor({
   }
 
   function save() {
+    setSaved(false);
+    // A row with a label but no destination (or the reverse) would be dropped silently.
+    // Catch it here so the editor never loses half-finished work without saying so.
+    const partial = rows.some((r) => {
+      const hasLabel = r.label.trim().length > 0;
+      const hasTarget = r.toPageKey.trim().length > 0;
+      return hasLabel !== hasTarget;
+    });
+    if (partial) {
+      setError("Each choice needs both text and a destination page. Please finish or remove the blank ones.");
+      return;
+    }
+    setError(null);
     startTransition(async () => {
       await setChoices(pageId, rows);
       setSaved(true);
@@ -101,6 +117,7 @@ export function ChoicesEditor({
           </div>
         ))}
       </div>
+      <FieldError>{error}</FieldError>
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" onClick={addRow} disabled={isPending} className={`${btnBase} border border-[var(--pc-line)] bg-white text-[var(--pc-ink)] shadow-[0_3px_0_var(--pc-line)]`}>
           Add choice

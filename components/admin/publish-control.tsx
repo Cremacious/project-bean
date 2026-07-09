@@ -21,7 +21,7 @@ export function PublishControl({ storyId, published, errors }: { storyId: number
         type="button"
         onClick={toggle}
         disabled={isPending || blocked}
-        className="rounded-2xl px-4 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_rgba(0,0,0,0.18)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50"
+        className="cursor-pointer rounded-2xl px-4 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_rgba(0,0,0,0.18)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
         style={{ background: published ? "var(--pc-poppy-ink)" : "var(--pc-leaf-ink)" }}
       >
         {isPending ? "Saving…" : published ? "Unpublish" : "Publish"}

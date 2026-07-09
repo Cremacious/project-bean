@@ -4,6 +4,8 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updatePage, deletePage } from "@/lib/admin-actions";
 import { field, labelCls } from "@/components/admin/styles";
+import { FieldError } from "@/components/ui/field-error";
+import { isValidSlug } from "@/lib/admin/slugs";
 import { ChoicesEditor, type ChoiceRow } from "@/components/admin/choices-editor";
 
 type EndingType = "good" | "game_over";
@@ -21,6 +23,7 @@ export function PageEditor({
   const [isEnding, setIsEnding] = useState(page.isEnding);
   const [endingType, setEndingType] = useState<EndingType>(page.endingType === "game_over" ? "game_over" : "good");
   const [endingLabel, setEndingLabel] = useState(page.endingLabel ?? "");
+  const [keyError, setKeyError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -46,10 +49,20 @@ export function PageEditor({
 
   function save() {
     setError(null);
+    setKeyError(null);
     setSaved(false);
+    const cleanKey = key.trim();
+    if (!cleanKey) {
+      setKeyError("Please give this page a key.");
+      return;
+    }
+    if (!isValidSlug(cleanKey)) {
+      setKeyError("Use lowercase words joined by single hyphens, like forest-path.");
+      return;
+    }
     startTransition(async () => {
       const res = await updatePage(page.id, {
-        key: key.trim(),
+        key: cleanKey,
         body,
         isEnding,
         endingType,
@@ -59,7 +72,9 @@ export function PageEditor({
         setSaved(true);
         router.refresh();
       } else {
-        setError(res.error ?? "Something went wrong");
+        const message = res.error ?? "We could not save this page. Please try again.";
+        if (/key/i.test(message)) setKeyError(message);
+        else setError(message);
       }
     });
   }
@@ -76,19 +91,23 @@ export function PageEditor({
     <div className="space-y-4 rounded-2xl border border-[var(--pc-line)] bg-white p-4 shadow-[0_4px_0_var(--pc-line)]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-[10rem] flex-1 space-y-1.5">
-          <label className={labelCls}>Page key</label>
+          <label htmlFor={`page-key-${page.id}`} className={labelCls}>Page key</label>
           <input
+            id={`page-key-${page.id}`}
             className={field}
             value={key}
             disabled={isPending}
-            onChange={(e) => { setKey(e.target.value); setSaved(false); }}
+            onChange={(e) => { setKey(e.target.value); setSaved(false); if (keyError) setKeyError(null); }}
+            aria-invalid={!!keyError}
+            aria-describedby={keyError ? `page-key-${page.id}-error` : undefined}
           />
+          <FieldError id={`page-key-${page.id}-error`}>{keyError}</FieldError>
         </div>
         <button
           type="button"
           onClick={remove}
           disabled={isPending}
-          className="rounded-2xl border border-[var(--pc-poppy-ink)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--pc-poppy-ink)] shadow-[0_4px_0_var(--pc-poppy-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50"
+          className="cursor-pointer rounded-2xl border border-[var(--pc-poppy-ink)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--pc-poppy-ink)] shadow-[0_4px_0_var(--pc-poppy-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
         >
           Delete page
         </button>
@@ -101,7 +120,7 @@ export function PageEditor({
             type="button"
             onClick={insertName}
             disabled={isPending}
-            className="rounded-xl border border-[var(--pc-line)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--pc-ink)] shadow-[0_3px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50"
+            className="cursor-pointer rounded-xl border border-[var(--pc-line)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--pc-ink)] shadow-[0_3px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
           >
             Insert {"{{name}}"}
           </button>
@@ -123,7 +142,7 @@ export function PageEditor({
           aria-pressed={isEnding}
           onClick={() => { setIsEnding((v) => !v); setSaved(false); }}
           disabled={isPending}
-          className={`rounded-2xl px-4 py-2.5 text-sm font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50 ${
+          className={`cursor-pointer rounded-2xl px-4 py-2.5 text-sm font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 ${
             isEnding
               ? "bg-[var(--pc-plum)] text-white shadow-[0_4px_0_var(--pc-plum-ink)]"
               : "border border-[var(--pc-line)] bg-white text-[var(--pc-ink)] shadow-[0_4px_0_var(--pc-line)]"
@@ -146,7 +165,7 @@ export function PageEditor({
                 aria-pressed={endingType === "good"}
                 onClick={() => { setEndingType("good"); setSaved(false); }}
                 disabled={isPending}
-                className={`rounded-2xl px-4 py-2.5 text-sm font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50 ${
+                className={`cursor-pointer rounded-2xl px-4 py-2.5 text-sm font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 ${
                   endingType === "good"
                     ? "bg-[var(--pc-leaf-ink)] text-white shadow-[0_4px_0_rgba(0,0,0,0.18)]"
                     : "border border-[var(--pc-line)] bg-white text-[var(--pc-ink)] shadow-[0_4px_0_var(--pc-line)]"
@@ -159,7 +178,7 @@ export function PageEditor({
                 aria-pressed={endingType === "game_over"}
                 onClick={() => { setEndingType("game_over"); setSaved(false); }}
                 disabled={isPending}
-                className={`rounded-2xl px-4 py-2.5 text-sm font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-50 ${
+                className={`cursor-pointer rounded-2xl px-4 py-2.5 text-sm font-bold outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 ${
                   endingType === "game_over"
                     ? "bg-[var(--pc-poppy-ink)] text-white shadow-[0_4px_0_rgba(0,0,0,0.18)]"
                     : "border border-[var(--pc-line)] bg-white text-[var(--pc-ink)] shadow-[0_4px_0_var(--pc-line)]"
@@ -192,7 +211,7 @@ export function PageEditor({
           type="button"
           onClick={save}
           disabled={isPending}
-          className="rounded-2xl bg-[var(--pc-plum)] px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:opacity-60"
+          className="cursor-pointer rounded-2xl bg-[var(--pc-plum)] px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Saving…" : "Save page"}
         </button>
