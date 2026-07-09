@@ -31,7 +31,7 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--pc-sky)] p-4">
+    <main className="flex min-h-dvh items-center justify-center bg-[var(--pc-sky)] p-4">
       <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-[0_20px_44px_-18px_rgba(22,40,58,0.4)] sm:p-8">
         <div className="mb-6 flex flex-col items-center gap-2.5">
           <span className="relative h-9 w-9 -rotate-6 rounded-xl" style={{ background: "var(--pc-poppy)" }}>

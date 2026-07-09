@@ -7,26 +7,28 @@ const AGE_LABELS: Record<string, string> = { "2-4": "2 to 4", "5-7": "5 to 7", "
 export default async function AdminHome() {
   const stories = await listAdminStories();
   return (
-    <section className="space-y-5">
+    <section className="flex flex-1 flex-col gap-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-extrabold">Stories</h1>
         <Link
           href="/admin/stories/new"
-          className="rounded-2xl bg-[var(--pc-plum)] px-4 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px"
+          className="rounded-2xl bg-[var(--pc-plum)] px-4 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
         >
           New story
         </Link>
       </div>
 
       {stories.length === 0 ? (
-        <p className="text-[var(--pc-sub)]">No stories yet. Create your first one.</p>
+        <div className="grid flex-1 place-items-center text-center">
+          <p className="text-[var(--pc-sub)]">No stories yet. Create your first one.</p>
+        </div>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex-1 space-y-2">
           {stories.map((s) => (
             <li key={s.id}>
               <Link
                 href={`/admin/stories/${s.slug}`}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-3 shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px"
+                className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-3 shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
               >
                 <span className="min-w-0">
                   <span className="block truncate font-display text-base font-bold">{s.title}</span>

@@ -18,14 +18,14 @@ export default async function StoryEditorPage({ params }: { params: Promise<{ sl
   const startKey = pages.find((p) => p.id === story.startPageId)?.key ?? null;
 
   return (
-    <section className="space-y-6">
+    <section className="flex flex-1 flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
         <Link href="/admin" className="text-sm font-bold text-[var(--pc-plum-ink)] underline">Back to stories</Link>
         <div className="flex items-center gap-3">
           <Link
             href={`/admin/stories/${slug}/preview`}
             target="_blank"
-            className="rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--pc-ink)] shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px"
+            className="rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--pc-ink)] shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
           >
             Preview
           </Link>

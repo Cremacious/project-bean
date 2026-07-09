@@ -11,7 +11,7 @@ export default async function FamilyPage() {
   const kids = await listChildren(parent.id);
 
   return (
-    <section className="mx-auto max-w-2xl space-y-6 py-2">
+    <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6">
       <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
         Your family
       </h1>
