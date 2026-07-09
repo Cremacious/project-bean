@@ -26,7 +26,7 @@ export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: b
 
   if (needsFirst) {
     return (
-      <section className="mx-auto max-w-md space-y-6 py-8">
+      <section className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6">
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
           Let&apos;s add your first reader
         </h1>
@@ -38,7 +38,7 @@ export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: b
   }
 
   return (
-    <section className="mx-auto max-w-2xl space-y-6 py-8">
+    <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6">
       <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
         Who&apos;s reading tonight?
       </h1>

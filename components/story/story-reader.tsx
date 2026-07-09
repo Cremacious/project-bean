@@ -59,9 +59,9 @@ export function StoryReader({
   const readAgain = useCallback(() => goTo(startKey), [goTo, startKey]);
 
   return (
-    <div>
+    <div className="flex flex-1 flex-col">
       <div
-        className="sticky top-14 z-20 -mx-4 mb-4 flex items-center gap-2 px-4 py-2 backdrop-blur sm:top-16"
+        className="sticky top-14 z-20 -mx-4 mb-4 flex flex-none items-center gap-2 px-4 py-2 backdrop-blur sm:top-16"
         style={{ background: "color-mix(in srgb, var(--pc-sky) 85%, transparent)" }}
       >
         {preview && (
@@ -79,6 +79,7 @@ export function StoryReader({
         </button>
       </div>
 
+      <div className="flex flex-1 flex-col justify-center">
       {current.isEnding ? (
         <EndingScreen
           endingType={current.endingType}
@@ -88,7 +89,7 @@ export function StoryReader({
           preview={preview}
         />
       ) : (
-        <article className="mx-auto max-w-[38rem]">
+        <article className="mx-auto w-full max-w-[38rem]">
           <p className="reader-prose mb-8" style={{ ["--reading-font" as string]: fontCss(font), ["--reading-size" as string]: fSize, ["--reading-lh" as string]: lh }}>
             {personalize(current.body, childName)}
           </p>
@@ -112,6 +113,7 @@ export function StoryReader({
           </div>
         </article>
       )}
+      </div>
 
       <ReadingSettings
         open={settingsOpen} onOpenChange={setSettingsOpen}

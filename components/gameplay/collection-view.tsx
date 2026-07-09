@@ -7,7 +7,7 @@ export function CollectionView({ childName, data }: { childName: string; data: C
   const { stats, stories, badges } = data;
 
   return (
-    <section className="space-y-6">
+    <section className="flex flex-1 flex-col gap-6">
       <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
         {childName}&apos;s Collection
       </h1>
@@ -31,7 +31,7 @@ export function CollectionView({ childName, data }: { childName: string; data: C
         )}
       </div>
 
-      <div className="space-y-3">
+      <div className="flex flex-1 flex-col gap-3">
         <h2 className="font-display text-xl font-bold text-[var(--pc-ink)]">Badges</h2>
         <BadgeGrid badges={badges} />
       </div>

@@ -26,7 +26,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   if (!startKey) startKey = Object.keys(graph.pages)[0];
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
       <h1 className="mb-6 font-display text-2xl font-bold">{story.title}</h1>
       <Suspense>
         <StoryReader

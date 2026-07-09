@@ -24,7 +24,7 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
   const nameLead = nameParts.slice(0, -1).join(" ");
 
   return (
-    <section className="space-y-6">
+    <section className="flex flex-1 flex-col gap-6">
       <div>
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
           What shall we read,{" "}
@@ -71,9 +71,11 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
       </nav>
 
       {stories.length === 0 ? (
-        <p className="text-[var(--pc-sub)]">No stories yet.</p>
+        <div className="grid flex-1 place-items-center text-center">
+          <p className="text-[var(--pc-sub)]">No stories yet.</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid flex-1 content-start grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stories.map((s) => (
             <Link
               key={s.id}

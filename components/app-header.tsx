@@ -31,10 +31,10 @@ export function AppHeader({
 
   return (
     <header
-      className="sticky top-0 z-30 border-b border-[var(--pc-line)] backdrop-blur"
+      className="sticky top-0 z-30 flex-none border-b border-[var(--pc-line)] backdrop-blur"
       style={{ background: "color-mix(in srgb, var(--pc-sky) 85%, transparent)" }}
     >
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-3 px-4 sm:h-16 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-extrabold tracking-tight text-[var(--pc-ink)]">
           <span className="relative h-6 w-6 -rotate-6 rounded-lg" style={{ background: "var(--pc-poppy)" }}>
             <span className="absolute right-1 top-1 h-2 w-2 rounded-full" style={{ background: "var(--pc-sun)" }} />
