@@ -1,6 +1,7 @@
 // app/admin/page.tsx
 import Link from "next/link";
 import { listAdminStories } from "@/lib/admin/queries";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const AGE_LABELS: Record<string, string> = { "2-4": "2 to 4", "5-7": "5 to 7", "8+": "8 and up" };
 
@@ -19,9 +20,12 @@ export default async function AdminHome() {
       </div>
 
       {stories.length === 0 ? (
-        <div className="grid flex-1 place-items-center text-center">
-          <p className="text-[var(--pc-sub)]">No stories yet. Create your first one.</p>
-        </div>
+        <EmptyState
+          emoji="📚"
+          title="No stories yet"
+          description="Create your first story to get the library started."
+          action={{ href: "/admin/stories/new", label: "New story" }}
+        />
       ) : (
         <ul className="flex-1 space-y-2">
           {stories.map((s) => (

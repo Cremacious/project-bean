@@ -2,6 +2,7 @@
 import type { Collection } from "@/lib/gameplay/collection";
 import { StoryProgressCard } from "@/components/gameplay/story-progress-card";
 import { BadgeGrid } from "@/components/gameplay/badge-grid";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export function CollectionView({ childName, data }: { childName: string; data: Collection }) {
   const { stats, stories, badges } = data;
@@ -21,7 +22,13 @@ export function CollectionView({ childName, data }: { childName: string; data: C
       <div className="space-y-3">
         <h2 className="font-display text-xl font-bold text-[var(--pc-ink)]">Your stories</h2>
         {stories.length === 0 ? (
-          <p className="text-[var(--pc-sub)]">No stories yet.</p>
+          <EmptyState
+            fill={false}
+            emoji="📖"
+            title="No adventures yet"
+            description="Pick a story and finish it to fill your collection with endings and badges."
+            action={{ href: "/", label: "Find a story" }}
+          />
         ) : (
           <div className="space-y-3">
             {stories.map((s) => (

@@ -4,6 +4,7 @@ import { getParent } from "@/lib/session";
 import { listChildren } from "@/lib/children";
 import { ChildRow } from "@/components/profiles/child-row";
 import { ChildForm } from "@/components/profiles/child-form";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default async function FamilyPage() {
   const parent = await getParent();
@@ -17,7 +18,12 @@ export default async function FamilyPage() {
       </h1>
 
       {kids.length === 0 ? (
-        <p className="text-[var(--pc-sub)]">No readers yet. Add your first one below.</p>
+        <EmptyState
+          fill={false}
+          emoji="👋"
+          title="No readers yet"
+          description="Add your first reader below and they will star in every story by their own name."
+        />
       ) : (
         <div className="space-y-3">
           {kids.map((kid) => (

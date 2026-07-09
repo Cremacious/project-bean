@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Child } from "@/lib/children";
 import { getCatalog } from "@/lib/stories/queries";
 import { StoryCover } from "@/components/story/story-cover";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const AGE_BANDS = [
   { id: "2-4", label: "2 to 4" },
@@ -71,9 +72,20 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
       </nav>
 
       {stories.length === 0 ? (
-        <div className="grid flex-1 place-items-center text-center">
-          <p className="text-[var(--pc-sub)]">No stories yet.</p>
-        </div>
+        ageBand ? (
+          <EmptyState
+            emoji="🔍"
+            title="No stories in this age group yet"
+            description="Try a different age, or peek at all of the stories we have so far."
+            action={{ href: "/", label: "See all stories" }}
+          />
+        ) : (
+          <EmptyState
+            emoji="🌙"
+            title="New stories are on the way"
+            description="Fresh adventures are being written right now. Check back soon for your next bedtime quest."
+          />
+        )
       ) : (
         <div className="grid flex-1 content-start grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stories.map((s) => (
