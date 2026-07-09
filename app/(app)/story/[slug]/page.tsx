@@ -27,10 +27,10 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
-      <h1 className="mb-6 font-display text-2xl font-bold">{story.title}</h1>
       <Suspense>
         <StoryReader
           slug={slug}
+          title={story.title}
           startKey={startKey}
           graph={graph}
           childName={active.name}

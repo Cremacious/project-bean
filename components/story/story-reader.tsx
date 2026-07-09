@@ -1,7 +1,8 @@
 // components/story/story-reader.tsx
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import type { CSSProperties } from "react";
 import { useSearchParams } from "next/navigation";
 import type { StoryGraph } from "@/lib/stories/graph";
 import { recordEnding } from "@/lib/stories/actions";
@@ -12,112 +13,167 @@ import { setChildReadingPrefs } from "@/lib/children-actions";
 import { personalize } from "@/lib/stories/personalize";
 import { fontCss, sizeCss, type ReadingFontId, type ReadingSizeId } from "@/lib/reading-prefs";
 
+type EndingProgress = StoryProgress & { endingType: string };
+
 export function StoryReader({
-  slug, startKey, graph, childName, readingMode = "read_to_me", initialFont, initialSize, preview = false,
+  slug,
+  title,
+  startKey,
+  graph,
+  childName,
+  readingMode = "read_to_me",
+  initialFont,
+  initialSize,
+  preview = false,
 }: {
-  slug: string; startKey: string; graph: StoryGraph; childName: string; readingMode?: string;
-  initialFont: ReadingFontId; initialSize: ReadingSizeId; preview?: boolean;
+  slug: string;
+  title: string;
+  startKey: string;
+  graph: StoryGraph;
+  childName: string;
+  readingMode?: string;
+  initialFont: ReadingFontId;
+  initialSize: ReadingSizeId;
+  preview?: boolean;
 }) {
   const canRead = readingMode === "can_read";
   const searchParams = useSearchParams();
-  const urlKey = searchParams.get("p");
-  const initialKey = urlKey && graph.pages[urlKey] ? urlKey : startKey;
 
-  const [currentKey, setCurrentKey] = useState(initialKey);
-  const [progress, setProgress] = useState<StoryProgress & { endingType: string } | null>(null);
+  // Resolve the starting page once: from the URL (?p=) if valid, else the story start.
+  const [currentKey, setCurrentKey] = useState<string>(() => {
+    const fromUrl = searchParams.get("p");
+    return fromUrl && graph.pages[fromUrl] ? fromUrl : startKey;
+  });
+  const [progress, setProgress] = useState<EndingProgress | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [font, setFont] = useState<ReadingFontId>(initialFont);
   const [size, setSize] = useState<ReadingSizeId>(initialSize);
 
-  const current = graph.pages[currentKey] ?? graph.pages[startKey];
-  const { size: fSize, lh } = sizeCss(size);
+  const pageData = graph.pages[currentKey] ?? graph.pages[startKey];
+  const { size: fontSize, lh } = sizeCss(size);
 
+  // Keep the URL (?p=) in step with the current page. Depends only on currentKey,
+  // so it never loops on searchParams identity churn.
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("p", currentKey);
-    window.history.replaceState(null, "", `?${params.toString()}`);
-  }, [currentKey, searchParams]);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("p") !== currentKey) {
+      url.searchParams.set("p", currentKey);
+      window.history.replaceState(null, "", url.toString());
+    }
+  }, [currentKey]);
 
+  // Record the ending the first time the reader lands on an ending page.
   useEffect(() => {
-    if (!preview && current.isEnding) recordEnding(slug, current.key).then((p) => { if (p) setProgress(p); });
-  }, [preview, current.isEnding, current.key, slug]);
+    if (preview || !pageData.isEnding) return;
+    let live = true;
+    recordEnding(slug, pageData.key).then((p) => {
+      if (live && p) setProgress(p);
+    });
+    return () => {
+      live = false;
+    };
+  }, [preview, pageData.isEnding, pageData.key, slug]);
 
-  const chooseFont = (f: ReadingFontId) => setFont(f);
-  const chooseSize = (s: ReadingSizeId) => setSize(s);
-
-  // Persist whichever prefs are current after any change (skip the initial mount).
-  const prefsMounted = useRef(false);
+  // Persist font/size for this child after a change (skip the first mount).
+  const mounted = useRef(false);
   useEffect(() => {
-    if (!prefsMounted.current) {
-      prefsMounted.current = true;
+    if (!mounted.current) {
+      mounted.current = true;
       return;
     }
     void setChildReadingPrefs(font, size);
   }, [font, size]);
 
-  const goTo = useCallback((key: string) => { setProgress(null); setCurrentKey(key); }, []);
+  const goTo = useCallback((key: string) => {
+    setProgress(null);
+    setCurrentKey(key);
+  }, []);
   const readAgain = useCallback(() => goTo(startKey), [goTo, startKey]);
 
+  const proseStyle = {
+    "--reading-font": fontCss(font),
+    "--reading-size": fontSize,
+    "--reading-lh": lh,
+  } as CSSProperties;
+
   return (
-    <div className="flex flex-1 flex-col">
-      <div
-        className="sticky top-14 z-20 -mx-4 mb-4 flex flex-none items-center gap-2 px-4 py-2 backdrop-blur sm:top-16"
-        style={{ background: "color-mix(in srgb, var(--pc-sky) 85%, transparent)" }}
-      >
+    <div className="relative flex flex-1 flex-col">
+      {/* Top bar: story title on the left, the accessibility control on the right. */}
+      <div className="sticky top-14 z-10 -mx-4 mb-6 flex flex-none items-center gap-3 border-b border-[var(--pc-line)] bg-[var(--pc-sky)] px-4 py-3 sm:top-16 sm:px-6">
         {preview && (
-          <span className="rounded-full bg-[var(--pc-sun)] px-3 py-1 text-xs font-extrabold text-[#3a2d00]">
+          <span className="flex-none rounded-full bg-[var(--pc-sun)] px-2.5 py-1 text-xs font-extrabold text-[#3a2d00]">
             Preview
           </span>
         )}
-        <span className="flex-1" />
+        <h1 className="min-w-0 flex-1 truncate font-display text-base font-extrabold text-[var(--pc-ink)] sm:text-lg">
+          {title}
+        </h1>
         <button
+          type="button"
           onClick={() => setSettingsOpen(true)}
-          aria-label="Reading settings"
-          className="grid h-9 w-11 place-items-center rounded-xl bg-[var(--pc-ink)] font-display font-bold text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          aria-haspopup="dialog"
+          aria-expanded={settingsOpen}
+          aria-label="Reading settings: text size and font"
+          className="inline-flex flex-none cursor-pointer items-center gap-2 rounded-xl border border-[var(--pc-line)] bg-white py-1.5 pl-1.5 pr-3 font-display font-bold text-[var(--pc-ink)] shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
         >
-          A<span className="text-[0.7em]">a</span>
+          <span aria-hidden className="grid h-7 w-7 flex-none place-items-center rounded-lg bg-[var(--pc-plum)] leading-none text-white">
+            <span className="text-sm font-extrabold">
+              A<span className="text-[0.7em]">a</span>
+            </span>
+          </span>
+          <span className="text-sm">Reading settings</span>
         </button>
       </div>
 
+      {/* Body: the story page, or the ending screen. */}
       <div className="flex flex-1 flex-col justify-center">
-      {current.isEnding ? (
-        <EndingScreen
-          endingType={current.endingType}
-          endingLabel={current.endingLabel}
-          progress={progress}
-          onReadAgain={readAgain}
-          preview={preview}
-        />
-      ) : (
-        <article className="mx-auto w-full max-w-[38rem]">
-          <p className="reader-prose mb-8" style={{ ["--reading-font" as string]: fontCss(font), ["--reading-size" as string]: fSize, ["--reading-lh" as string]: lh }}>
-            {personalize(current.body, childName)}
-          </p>
-          {current.choices.length > 0 && (
-            <p className={`mb-3 font-display font-bold text-[var(--pc-ink)] ${canRead ? "text-lg" : "text-sm"}`}>
-              {canRead ? "Your turn. Pick one!" : "Let them choose what happens next."}
+        {pageData.isEnding ? (
+          <EndingScreen
+            endingType={pageData.endingType}
+            endingLabel={pageData.endingLabel}
+            progress={progress}
+            onReadAgain={readAgain}
+            preview={preview}
+          />
+        ) : (
+          <article className="mx-auto w-full max-w-[38rem]">
+            <p className="reader-prose mb-10" style={proseStyle}>
+              {personalize(pageData.body, childName)}
             </p>
-          )}
-          <div className="flex flex-col gap-3">
-            {current.choices.map((c, i) => (
-              <button
-                key={`${c.to}-${i}`}
-                onClick={() => goTo(c.to)}
-                className={`rounded-2xl text-left font-display font-bold text-[var(--pc-ink)] shadow-[0_5px_0_rgba(22,40,58,0.16)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 ${
-                  canRead ? "p-5 text-lg" : "p-4 text-base"
-                } ${i % 2 === 0 ? "bg-[var(--pc-leaf)]" : "bg-[var(--pc-poppy)]"}`}
-              >
-                {personalize(c.label, childName)}
-              </button>
-            ))}
-          </div>
-        </article>
-      )}
+
+            {pageData.choices.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <p className={`font-display font-bold text-[var(--pc-ink)] ${canRead ? "text-lg" : "text-sm"}`}>
+                  {canRead ? "Your turn. Pick one!" : "Let them choose what happens next."}
+                </p>
+                {pageData.choices.map((choice, i) => (
+                  <button
+                    key={`${choice.to}-${i}`}
+                    type="button"
+                    onClick={() => goTo(choice.to)}
+                    className={`flex cursor-pointer items-center gap-3 rounded-2xl bg-[var(--pc-plum)] text-left font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 ${
+                      canRead ? "p-5 text-lg" : "p-4 text-base"
+                    }`}
+                  >
+                    <span className="min-w-0 flex-1">{personalize(choice.label, childName)}</span>
+                    <span aria-hidden className="flex-none text-xl leading-none text-white/80">
+                      ›
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </article>
+        )}
       </div>
 
       <ReadingSettings
-        open={settingsOpen} onOpenChange={setSettingsOpen}
-        font={font} size={size} onFont={chooseFont} onSize={chooseSize}
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        font={font}
+        size={size}
+        onFont={setFont}
+        onSize={setSize}
       />
     </div>
   );

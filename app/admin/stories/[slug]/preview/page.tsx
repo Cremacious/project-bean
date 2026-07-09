@@ -23,10 +23,8 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
       <div className="mb-4 flex items-center justify-between">
         <Link href={`/admin/stories/${slug}`} className="text-sm font-bold text-[var(--pc-plum-ink)] underline">Back to the editor</Link>
-        <span className="rounded-full bg-[var(--pc-sun)] px-3 py-1 text-xs font-extrabold text-[#3a2d00]">Preview</span>
       </div>
-      <h1 className="mb-6 font-display text-2xl font-bold">{story.title}</h1>
-      <StoryReader slug={slug} startKey={startKey} graph={graph} childName="Sam" initialFont="rounded" initialSize="md" preview />
+      <StoryReader slug={slug} title={story.title} startKey={startKey} graph={graph} childName="Sam" initialFont="rounded" initialSize="md" preview />
     </div>
   );
 }
