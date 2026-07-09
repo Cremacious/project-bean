@@ -40,7 +40,7 @@ export function EndingScreen({
         >
           🦉
         </div>
-        <p className="mb-1.5 text-xs font-extrabold uppercase tracking-[0.22em] text-[var(--pc-sub)]">The End</p>
+        <p className="mb-1.5 text-lg font-extrabold uppercase tracking-[0.22em] text-[var(--pc-sub)]">The End</p>
         <h2 className="mb-3 font-display text-2xl font-extrabold sm:text-3xl">Oh no! Let&apos;s try again</h2>
         <div className="rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-3 text-sm font-bold shadow-[0_8px_20px_-14px_rgba(22,40,58,0.4)]">
           Surprise ending found!
@@ -78,7 +78,7 @@ export function EndingScreen({
         ))}
       </div>
       <div className="mb-5 grid h-20 w-20 -rotate-6 place-items-center rounded-3xl text-4xl shadow-[0_12px_24px_-10px_rgba(255,150,20,0.6)]" style={{ background: "var(--pc-sun)" }}>🎉</div>
-      <p className="mb-1.5 text-xs font-extrabold uppercase tracking-[0.22em] text-[var(--pc-sub)]">The End</p>
+      <p className="mb-1.5 text-lg font-extrabold uppercase tracking-[0.22em] text-[var(--pc-sub)]">The End</p>
       {endingLabel && <h2 className="mb-1.5 font-display text-2xl font-extrabold sm:text-3xl">{endingLabel}</h2>}
       <h3 className="mb-3 font-display text-xl font-extrabold text-[var(--pc-ink)] sm:text-2xl">{headline}</h3>
       {progress && (
