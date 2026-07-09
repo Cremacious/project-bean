@@ -1,11 +1,13 @@
 // app/(app)/family/page.tsx
+import { redirect } from "next/navigation";
 import { getParent } from "@/lib/session";
 import { listChildren } from "@/lib/children";
 import { ChildRow } from "@/components/profiles/child-row";
 import { ChildForm } from "@/components/profiles/child-form";
 
 export default async function FamilyPage() {
-  const parent = (await getParent())!;
+  const parent = await getParent();
+  if (!parent) redirect("/sign-in"); // stale cookie passed middleware but the session is invalid
   const kids = await listChildren(parent.id);
 
   return (
