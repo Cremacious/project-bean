@@ -8,6 +8,8 @@ import { signIn } from "@/lib/auth-client";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BRAND } from "@/lib/brand";
+import { BrandMark } from "@/components/brand-mark";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -33,11 +35,14 @@ export default function SignInPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-[var(--pc-sky)] p-4">
       <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-[0_20px_44px_-18px_rgba(22,40,58,0.4)] sm:p-8">
-        <div className="mb-6 flex flex-col items-center gap-2.5">
-          <span className="relative h-9 w-9 -rotate-6 rounded-xl" style={{ background: "var(--pc-poppy)" }}>
-            <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full" style={{ background: "var(--pc-sun)" }} />
-          </span>
-          <h1 className="font-display text-2xl font-extrabold tracking-tight text-[var(--pc-ink)]">Storytime</h1>
+        <div className="mb-6 flex flex-col items-center gap-2.5 text-center">
+          <BrandMark size="lg" />
+          <div>
+            <h1 className="font-display text-2xl font-extrabold tracking-tight text-[var(--pc-ink)]">
+              {BRAND.name}
+            </h1>
+            <p className="text-sm font-semibold text-[var(--pc-sub)]">{BRAND.subtitle}</p>
+          </div>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">

@@ -11,17 +11,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--pc-sky)] text-[var(--pc-ink)]">
-      <header className="sticky top-0 z-30 flex-none border-b border-[var(--pc-line)] bg-white">
+      <header className="sticky top-0 z-30 flex-none border-b border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
         <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4 sm:h-16 sm:px-6">
           <Link
             href="/admin"
-            className="rounded-lg font-display text-lg font-extrabold text-[var(--pc-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="rounded-lg font-display text-lg font-extrabold text-white outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             Bedtime Quests Admin
           </Link>
           <Link
             href="/"
-            className="rounded-full px-2 py-1 text-sm font-bold text-[var(--pc-plum-ink)] underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="rounded-full px-2 py-1 text-sm font-bold text-white underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white"
           >
             Back to the app
           </Link>

@@ -5,53 +5,80 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "@/lib/auth-client";
 import { clearActiveChild } from "@/lib/active-child-actions";
+import { BRAND } from "@/lib/brand";
+import { BrandMark } from "@/components/brand-mark";
+
+function PersonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="h-5 w-5">
+      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 1.8c-4.3 0-7.8 2.6-7.8 5.9 0 .6.5 1.1 1.1 1.1h13.4c.6 0 1.1-.5 1.1-1.1 0-3.3-3.5-5.9-7.8-5.9Z" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden
+      className={`h-3.5 w-3.5 text-[var(--pc-sub)] transition-transform ${open ? "rotate-180" : ""}`}
+    >
+      <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export function AppHeader({
   parentName,
   activeChildName,
+  isAdmin = false,
 }: {
   parentName: string;
   activeChildName: string | null;
+  isAdmin?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const initial = parentName.trim().charAt(0).toUpperCase() || "?";
 
   async function handleSwitch() {
+    setOpen(false);
     await clearActiveChild();
     router.push("/");
     router.refresh();
   }
 
   async function handleSignOut() {
+    setOpen(false);
     await signOut();
     router.push("/sign-in");
     router.refresh();
   }
 
   return (
-    <header
-      className="sticky top-0 z-30 flex-none border-b border-[var(--pc-line)] backdrop-blur"
-      style={{ background: "color-mix(in srgb, var(--pc-sky) 85%, transparent)" }}
-    >
-      <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-3 px-4 sm:h-16 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-extrabold tracking-tight text-[var(--pc-ink)]">
-          <span className="relative h-6 w-6 -rotate-6 rounded-lg" style={{ background: "var(--pc-poppy)" }}>
-            <span className="absolute right-1 top-1 h-2 w-2 rounded-full" style={{ background: "var(--pc-sun)" }} />
-          </span>
-          Storytime
+    <header className="sticky top-0 z-30 flex-none border-b border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
+      <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6">
+        <Link
+          href="/"
+          aria-label={`${BRAND.name} home`}
+          className="flex flex-none cursor-pointer items-center gap-2.5 rounded-lg font-display text-lg font-extrabold tracking-tight text-white outline-none focus-visible:ring-2 focus-visible:ring-white sm:text-xl"
+        >
+          <BrandMark size="md" />
+          {BRAND.name}
         </Link>
 
         <div className="flex-1" />
 
+        {/* Reader indicator + switch. Desktop only; on mobile these live in the
+            account menu to keep the bar uncluttered and aligned. */}
         {activeChildName && (
-          <div className="hidden items-center gap-2 rounded-full border border-[var(--pc-line)] bg-white py-1 pl-3 pr-1 sm:flex">
-            <span className="text-sm text-[var(--pc-sub)]">
+          <div className="hidden h-10 shrink-0 items-center gap-1 rounded-full border border-[var(--pc-line)] bg-white pl-3 pr-1 sm:flex">
+            <span className="whitespace-nowrap text-sm text-[var(--pc-sub)]">
               Reading: <b className="font-display text-[var(--pc-ink)]">{activeChildName}</b>
             </span>
             <button
               onClick={handleSwitch}
-              className="min-h-[32px] rounded-full px-3 py-1 text-xs font-bold text-[var(--pc-plum-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] hover:bg-[var(--accent)]"
+              className="h-8 cursor-pointer rounded-full bg-[var(--accent)] px-3 text-xs font-bold text-[var(--accent-foreground)] outline-none transition-colors hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               Switch
             </button>
@@ -59,53 +86,85 @@ export function AppHeader({
         )}
 
         {activeChildName && (
-          <button
-            onClick={handleSwitch}
-            className="min-h-[44px] rounded-full border border-[var(--pc-line)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--pc-plum-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:hidden"
-          >
-            Switch
-          </button>
-        )}
-
-        {activeChildName && (
           <Link
             href="/collection"
-            className="min-h-[44px] rounded-full px-3 py-2 text-center text-xs font-extrabold text-white shadow-[0_4px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 sm:px-4 sm:text-sm"
-            style={{ background: "var(--pc-plum)" }}
+            className="hidden h-10 shrink-0 cursor-pointer items-center rounded-full px-4 text-sm font-extrabold text-[var(--pc-ink)] shadow-[0_2px_0_var(--pc-sun-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--pc-ink)] active:translate-y-0.5 sm:inline-flex"
+            style={{ background: "var(--pc-sun)" }}
           >
             My Collection
           </Link>
         )}
 
-        <div className="relative">
+        <div className="relative flex-none">
           <button
             onClick={() => setOpen((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={open}
-            className="grid h-9 w-9 rotate-3 place-items-center rounded-xl font-display font-bold text-white outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-            style={{ background: "var(--pc-plum)" }}
+            aria-label="Menu"
+            className="flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full border border-[var(--pc-line)] bg-white pl-3 pr-2.5 text-[var(--pc-ink)] outline-none transition-colors hover:bg-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--pc-ink)]"
           >
-            {initial}
+            <PersonIcon />
+            <span className="text-sm font-bold">Menu</span>
+            <ChevronIcon open={open} />
           </button>
           {open && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-              <div role="menu" className="absolute right-0 z-20 mt-2 w-52 rounded-2xl border border-[var(--pc-line)] bg-white p-1.5 shadow-xl">
+              <div
+                role="menu"
+                className="absolute right-0 z-20 mt-2 w-56 rounded-2xl border border-[var(--pc-line)] bg-white p-1.5 shadow-xl"
+              >
                 <p className="px-3 py-2 text-sm text-[var(--pc-sub)]">
                   Signed in as <b className="text-[var(--pc-ink)]">{parentName}</b>
                 </p>
+
+                {/* Mobile only: the reader controls that show inline on desktop. */}
+                {activeChildName && (
+                  <div className="sm:hidden">
+                    <p className="px-3 pt-1 text-sm text-[var(--pc-sub)]">
+                      Reading: <b className="text-[var(--pc-ink)]">{activeChildName}</b>
+                    </p>
+                    <Link
+                      href="/collection"
+                      role="menuitem"
+                      onClick={() => setOpen(false)}
+                      className="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                    >
+                      My Collection
+                    </Link>
+                    <button
+                      role="menuitem"
+                      onClick={handleSwitch}
+                      className="w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                    >
+                      Switch reader
+                    </button>
+                    <div className="my-1 h-px bg-[var(--pc-line)]" />
+                  </div>
+                )}
+
                 <Link
                   href="/family"
                   role="menuitem"
                   onClick={() => setOpen(false)}
-                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] hover:bg-[var(--muted)]"
+                  className="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   Family
                 </Link>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                    className="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  >
+                    Admin
+                  </Link>
+                )}
                 <button
                   role="menuitem"
                   onClick={handleSignOut}
-                  className="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] hover:bg-[var(--muted)]"
+                  className="w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   Sign out
                 </button>

@@ -1,38 +1,46 @@
 // components/site-footer.tsx
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
+import { BrandMark } from "@/components/brand-mark";
 
-// Minimal footer. Its job is to anchor the bottom of the min-h-dvh shell so the
-// bottom edge of the screen is always UI, never a void. Kept to one low line.
+// Always-present footer. Two jobs: (1) anchor the bottom of the min-h-dvh shell
+// so the screen edge is always UI, never a void; (2) carry the brand + slogan.
+// The right-hand <nav> is the slot for legal/support links (Privacy, Terms,
+// Support) once those pages exist.
 export function SiteFooter({ variant = "app" }: { variant?: "app" | "admin" }) {
+  const linkClass =
+    "cursor-pointer rounded-full px-1 py-0.5 text-sm font-bold text-white underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white";
+
   return (
-    <footer className="flex-none border-t border-[var(--pc-line)] bg-white">
+    <footer className="flex-none border-t border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
       <div
         className={`mx-auto flex w-full ${
           variant === "admin" ? "max-w-4xl" : "max-w-5xl"
-        } items-center justify-between gap-3 px-4 py-4 sm:px-6`}
+        } flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6`}
       >
-        <span className="flex items-center gap-2 font-display text-sm font-extrabold text-[var(--pc-ink)]">
-          <span className="relative h-4 w-4 -rotate-6 rounded" style={{ background: "var(--pc-poppy)" }}>
-            <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full" style={{ background: "var(--pc-sun)" }} />
-          </span>
-          Storytime
-        </span>
+        <div className="flex items-center gap-2.5">
+          <BrandMark size="sm" />
+          <div className="leading-tight">
+            <p className="font-display text-sm font-extrabold text-white">
+              {BRAND.name}
+            </p>
+            <p className="text-xs font-semibold text-white">{BRAND.slogan}</p>
+          </div>
+        </div>
 
-        {variant === "admin" ? (
-          <Link
-            href="/"
-            className="rounded-full px-2 py-1 text-sm font-bold text-[var(--pc-plum-ink)] underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-          >
-            Back to the app
-          </Link>
-        ) : (
-          <Link
-            href="/family"
-            className="rounded-full px-2 py-1 text-sm font-bold text-[var(--pc-plum-ink)] underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-          >
-            Family
-          </Link>
-        )}
+        <nav className="flex items-center gap-4">
+          {/* Legal/support links (Privacy, Terms, Support) go here once those
+              pages exist. */}
+          {variant === "admin" ? (
+            <Link href="/" className={linkClass}>
+              Back to the app
+            </Link>
+          ) : (
+            <Link href="/family" className={linkClass}>
+              Family
+            </Link>
+          )}
+        </nav>
       </div>
     </footer>
   );

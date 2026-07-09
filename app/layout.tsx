@@ -3,10 +3,14 @@ import "@fontsource/opendyslexic/400.css";
 import "@fontsource/opendyslexic/700.css";
 import "./globals.css";
 import { baloo, nunito, atkinson } from "./fonts";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Storytime",
-  description: "Interactive bedtime stories.",
+  title: {
+    default: BRAND.fullName,
+    template: `%s · ${BRAND.name}`,
+  },
+  description: `${BRAND.slogan} ${BRAND.subtitle}.`,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
