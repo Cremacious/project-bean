@@ -5,7 +5,7 @@ App at `C:\Code\personal\project-bean`. Stack: Next.js 16 (App Router, `params` 
 ## App-wide UI rules (non-negotiable)
 
 1. **No dashes in displayed copy.** No em dashes, en dashes, or hyphens as punctuation in any user-facing text. Write "Ages 2 to 4", "game over", "try again". Internal keys/enums/slugs (`game_over`, `read_to_me`, `2-4`, page keys) are fine.
-2. **Every clickable element looks distinctly clickable.** Canonical affordance: a chunky Paper Cut button/card with a solid bottom edge (`shadow-[0_5px_0_...]`) + `active:translate-y-0.5` + a visible `focus-visible` ring. Non-interactive elements must not mimic this.
+2. **Every clickable element looks distinctly clickable.** Canonical affordance: a chunky Paper Cut button/card with a solid bottom edge (`shadow-[0_5px_0_...]`) + `active:translate-y-0.5` + a visible `focus-visible` ring + a **pointer cursor** (`cursor-pointer`) on hover. Non-interactive elements must not mimic this and must keep the default cursor.
 3. **All text is high-contrast.** No faint/low-opacity text (no `text-white/20`, etc.). Meet or exceed WCAG AA.
 
 ## Issue-driven workflow
