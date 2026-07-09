@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Child } from "@/lib/children";
 import { setActiveChild } from "@/lib/active-child-actions";
 import { ChildForm } from "@/components/profiles/child-form";
+import { FirstReaderOnboarding } from "@/components/profiles/first-reader-onboarding";
 
 const AVATAR_COLORS = ["var(--pc-poppy)", "var(--pc-leaf)", "var(--pc-plum)", "var(--pc-sun)"];
 
@@ -25,28 +26,41 @@ export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: b
   }
 
   if (needsFirst) {
-    return (
-      <section className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
-          Let&apos;s add your first reader
-        </h1>
-        <div className="rounded-3xl border border-[var(--pc-line)] bg-white p-5 shadow-[0_10px_22px_-14px_rgba(22,40,58,0.45)] sm:p-6">
-          <ChildForm mode="create" />
-        </div>
-      </section>
-    );
+    return <FirstReaderOnboarding />;
   }
 
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
-        Who&apos;s reading tonight?
-      </h1>
+      <header className="flex flex-col items-center gap-3 text-center">
+        <span
+          className="grid h-14 w-14 place-items-center rounded-2xl text-white shadow-[0_8px_18px_-10px_rgba(22,40,58,0.6)]"
+          style={{ background: "var(--pc-plum)" }}
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
+            <path
+              d="M12 6c-2.5-1.2-5-1.2-8 0v12c3-1.2 5.5-1.2 8 0m0-12c2.5-1.2 5-1.2 8 0v12c-3-1.2-5.5-1.2-8 0m0-12v12"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </svg>
+        </span>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--pc-ink)] sm:text-4xl">
+          Who&apos;s reading tonight?
+        </h1>
+        <p className="max-w-md text-base font-semibold text-[var(--pc-sub)]">
+          Tap a reader to start their storytime. Every story stars them by name, and each child
+          keeps their own collection.
+        </p>
+      </header>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {kids.map((kid) => {
           const color = AVATAR_COLORS[kid.id % AVATAR_COLORS.length];
           const initial = kid.name.trim().charAt(0).toUpperCase() || "?";
+          const starting = pendingId === kid.id;
           return (
             <button
               key={kid.id}
@@ -62,6 +76,9 @@ export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: b
                 {initial}
               </span>
               <span className="font-display text-base font-bold text-[var(--pc-ink)]">{kid.name}</span>
+              <span className="text-xs font-bold text-[var(--pc-plum-ink)]">
+                {starting ? "Starting…" : "Tap to start"}
+              </span>
             </button>
           );
         })}
@@ -75,7 +92,7 @@ export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: b
           <span className="grid h-14 w-14 place-items-center rounded-full border-2 border-dashed border-current text-2xl font-bold">
             +
           </span>
-          <span className="font-display text-base font-bold">Add a child</span>
+          <span className="font-display text-base font-bold">Add a reader</span>
         </button>
       </div>
 

@@ -7,8 +7,8 @@ import { createChild, updateChild } from "@/lib/children-actions";
 type Mode = "create" | "edit";
 
 const MODES = [
-  { id: "read_to_me", label: "Read to me", note: "A grown-up reads aloud and taps" },
-  { id: "can_read", label: "I can read", note: "Bigger text, they tap the choices" },
+  { id: "read_to_me", label: "Read to me", note: "A grown up reads aloud and taps the choices" },
+  { id: "can_read", label: "I can read", note: "Your child reads and taps, with bigger text" },
 ] as const;
 
 export function ChildForm({
