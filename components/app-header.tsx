@@ -167,6 +167,14 @@ export function AppHeader({
                 >
                   Family
                 </Link>
+                <Link
+                  href="/account"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  Account settings
+                </Link>
                 {isAdmin && (
                   <Link
                     href="/admin"

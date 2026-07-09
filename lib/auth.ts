@@ -31,6 +31,11 @@ export const auth = betterAuth({
   }),
   emailAndPassword: { enabled: true },
   socialProviders,
+  // Self-serve account deletion (issue #21). No verification email is wired
+  // (that is issue #17), so deletion happens immediately once the parent
+  // re-enters their password. Deleting the `user` row cascades to `child`
+  // and `ending_found` via the schema foreign keys.
+  user: { deleteUser: { enabled: true } },
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
 });
