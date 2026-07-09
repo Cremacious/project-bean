@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed-stories.ts",
+    "gen:icons": "tsx scripts/gen-icons.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

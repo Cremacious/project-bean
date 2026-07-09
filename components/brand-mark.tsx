@@ -1,13 +1,11 @@
 // components/brand-mark.tsx
-// The Bedtime Quests logo mark (direction B): an open storybook beneath a
-// crescent moon on a plum "night" chip. Shared by the navbar, footer, and auth
-// screens so the mark stays identical everywhere.
-//
-// PLACEHOLDER (issue #8): the direction is final, but the art is meant to be
-// swapped for the real logo. The same shapes also live in `app/icon.svg` (the
-// SVG favicon) and `app/apple-icon.tsx` (the apple-touch-icon); keep those two
-// in sync when the real art lands. Colors are literal hex (not CSS vars) so the
-// component and the standalone icon assets render byte-identically.
+// The Bedtime Quests logo mark: a paper boat sailing a sea of stars toward a
+// crescent moon (quest + choice + bedtime). Shared by the navbar, footer, and
+// auth screens so the mark stays identical everywhere, and kept byte-identical
+// with the app icons: `app/icon.svg` (SVG favicon), `app/apple-icon.png`, and
+// `public/brand/*` (store assets). Regenerate all of them together from
+// `public/brand/icon-square.svg`. Colors are literal hex (not CSS vars) so the
+// component and the standalone icon assets render the same everywhere.
 
 const SIZES = { sm: 18, md: 28, lg: 40 } as const;
 
@@ -18,30 +16,36 @@ export function BrandMark({ size = "md" }: { size?: keyof typeof SIZES }) {
       aria-hidden
       width={px}
       height={px}
-      viewBox="0 0 48 48"
-      fill="none"
+      viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
       className="flex-none"
     >
-      <rect x="1" y="1" width="46" height="46" rx="13" fill="#6C5CE7" />
-      <rect
-        x="4.5"
-        y="4.5"
-        width="39"
-        height="39"
-        rx="10"
+      <rect width="100" height="100" rx="22" fill="#16283A" />
+      {/* Crescent moon: a cream disc with a navy disc carved out of it. */}
+      <circle cx="73" cy="27" r="13" fill="#FFF1DC" />
+      <circle cx="79" cy="23" r="10.5" fill="#16283A" />
+      {/* Night sky. */}
+      <circle cx="24" cy="25" r="2" fill="#FFC24B" />
+      <circle cx="49" cy="18" r="1.4" fill="#FFF1DC" />
+      <circle cx="33" cy="45" r="1.3" fill="#FFC24B" />
+      <circle cx="88" cy="55" r="1.6" fill="#2FB98A" />
+      {/* Paper boat hull. */}
+      <path d="M27 61 L73 61 L64 74 L36 74 Z" fill="#FFF1DC" />
+      {/* Sea of stars. */}
+      <path
+        d="M8 78 Q24 72 40 78 T72 78 T96 78"
         fill="none"
-        stroke="#FFFFFF"
-        strokeOpacity="0.28"
-        strokeWidth="1.5"
+        stroke="#2FB98A"
+        strokeWidth="3.4"
+        strokeLinecap="round"
       />
-      {/* Crescent moon: a sun disc with a plum disc carved out of it. */}
-      <circle cx="23" cy="17" r="8.5" fill="#FFC24B" />
-      <circle cx="27.5" cy="14" r="7.5" fill="#6C5CE7" />
-      {/* Open storybook: two facing pages meeting at an ink spine. */}
-      <path d="M24 31 C19 27.5 13 27.5 8.5 30 L8.5 40 C13 37.5 19 37.5 24 40.5 Z" fill="#EAF2FB" />
-      <path d="M24 31 C29 27.5 35 27.5 39.5 30 L39.5 40 C35 37.5 29 37.5 24 40.5 Z" fill="#DCEAFB" />
-      <rect x="23" y="30.5" width="2" height="10.5" rx="1" fill="#16283A" />
+      <circle cx="22" cy="82" r="1.4" fill="#FFC24B" />
+      <circle cx="80" cy="82" r="1.4" fill="#FFF1DC" />
+      {/* Sail, mast fold, and the adventurer's flag. */}
+      <path d="M40 61 L51 46 L61 61 Z" fill="#FFF1DC" />
+      <path d="M51 46 L51 61" stroke="#E14A2B" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <rect x="50.1" y="38.5" width="1.8" height="9" rx="0.9" fill="#FFF1DC" />
+      <path d="M51.9 39 L60 42 L51.9 45 Z" fill="#FF6B4A" />
     </svg>
   );
 }
