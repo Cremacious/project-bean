@@ -53,8 +53,8 @@ export function ReadingSettings({
         role="dialog"
         aria-modal="true"
         aria-label="Reading settings"
-        className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-white p-5 shadow-[0_-18px_40px_-20px_rgba(22,40,58,0.5)]
-                   sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-16 sm:max-h-none sm:w-80 sm:rounded-3xl sm:shadow-[0_18px_50px_-16px_rgba(22,40,58,0.5)]"
+        className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-[0_-18px_40px_-20px_rgba(22,40,58,0.5)]
+                   sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-16 sm:max-h-none sm:w-80 sm:rounded-3xl sm:p-5 sm:shadow-[0_18px_50px_-16px_rgba(22,40,58,0.5)]"
       >
         <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-[var(--pc-line)] sm:hidden" />
 
@@ -64,7 +64,7 @@ export function ReadingSettings({
             type="button"
             onClick={onClose}
             aria-label="Close reading settings"
-            className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-xl leading-none text-[var(--pc-sub)] outline-none transition-colors hover:bg-[var(--muted)] hover:text-[var(--pc-ink)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="-mr-2 grid h-11 w-11 cursor-pointer place-items-center rounded-full text-xl leading-none text-[var(--pc-sub)] outline-none transition-colors hover:bg-[var(--muted)] hover:text-[var(--pc-ink)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             ×
           </button>

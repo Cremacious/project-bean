@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         isAdmin={isAdmin(parent.email)}
       />
       <main className="flex flex-1 flex-col">
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-6 sm:px-6">
+        <div className="px-gutter mx-auto flex w-full max-w-5xl flex-1 flex-col py-6">
           {children}
         </div>
       </main>

@@ -99,7 +99,7 @@ export function StoryReader({
   return (
     <div className="relative flex flex-1 flex-col">
       {/* Top bar: story title on the left, the accessibility control on the right. */}
-      <div className="sticky top-14 z-10 -mx-4 mb-6 flex flex-none items-center gap-3 border-b border-[var(--pc-line)] bg-[var(--pc-sky)] px-4 py-3 sm:top-16 sm:px-6">
+      <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-10 -mx-4 mb-6 flex flex-none items-center gap-3 border-b border-[var(--pc-line)] bg-[var(--pc-sky)] px-4 py-3 sm:top-[calc(4rem+env(safe-area-inset-top))] sm:px-6">
         {preview && (
           <span className="flex-none rounded-full bg-[var(--pc-sun)] px-2.5 py-1 text-xs font-extrabold text-[#3a2d00]">
             Preview

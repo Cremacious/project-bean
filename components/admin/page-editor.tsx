@@ -115,7 +115,7 @@ export function PageEditor({
 
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className={labelCls}>Scene text</label>
+          <label htmlFor={`page-body-${page.id}`} className={labelCls}>Scene text</label>
           <button
             type="button"
             onClick={insertName}
@@ -126,6 +126,7 @@ export function PageEditor({
           </button>
         </div>
         <textarea
+          id={`page-body-${page.id}`}
           ref={textareaRef}
           className={`${field} h-32 py-3 leading-relaxed`}
           style={{ height: "8rem" }}
@@ -158,8 +159,8 @@ export function PageEditor({
       {isEnding ? (
         <div className="space-y-3 rounded-2xl border border-[var(--pc-line)] bg-[var(--pc-cream,#fffaf0)] p-4">
           <div className="space-y-1.5">
-            <p className={labelCls}>Ending type</p>
-            <div className="flex gap-2">
+            <p id={`ending-type-${page.id}`} className={labelCls}>Ending type</p>
+            <div className="flex gap-2" role="group" aria-labelledby={`ending-type-${page.id}`}>
               <button
                 type="button"
                 aria-pressed={endingType === "good"}
@@ -189,8 +190,9 @@ export function PageEditor({
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className={labelCls}>Ending label</label>
+            <label htmlFor={`ending-label-${page.id}`} className={labelCls}>Ending label</label>
             <input
+              id={`ending-label-${page.id}`}
               className={field}
               value={endingLabel}
               maxLength={80}

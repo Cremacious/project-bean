@@ -109,6 +109,50 @@
   html {
     @apply font-sans;
   }
+
+  /* Issue #79: every clickable element shows a pointer cursor, a deliberate
+     training cue for what is tappable. Native <button>/<select> default to the
+     arrow cursor, so this base rule opts them all in at once. Interactive <div>/
+     <span> (onClick with no role) are rare here and get cursor-pointer inline.
+     Disabled controls fall back to not-allowed. Kept in @layer base so explicit
+     Tailwind cursor-* utilities (e.g. disabled:cursor-not-allowed) still win. */
+  button,
+  [role="button"],
+  a[href],
+  select,
+  summary {
+    cursor: pointer;
+  }
+  button:disabled,
+  select:disabled,
+  [role="button"][aria-disabled="true"],
+  a[aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+@layer utilities {
+  /* Issue #14: honor safe-area insets on notched devices. Paired with
+     viewport-fit=cover (set in app/layout.tsx), env() returns the notch / home
+     indicator sizes; on every other device it is 0, so these are no-ops at the
+     tested widths. The page gutter never shrinks below the design value, and
+     never lets content slip under a side notch in landscape. */
+  .px-gutter {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  @media (min-width: 640px) {
+    .px-gutter {
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 .font-display { font-family: var(--font-display); }

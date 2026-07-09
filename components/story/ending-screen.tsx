@@ -47,6 +47,7 @@ export function EndingScreen({
         </div>
         <div className="mt-6 flex w-full max-w-xs flex-col gap-3">
           <button
+            type="button"
             onClick={onReadAgain}
             className="rounded-2xl bg-[var(--pc-plum)] py-3.5 font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
           >
@@ -102,6 +103,7 @@ export function EndingScreen({
           </Link>
         )}
         <button
+          type="button"
           onClick={onReadAgain}
           className="rounded-2xl border border-[var(--pc-line)] bg-white py-3 text-center font-display font-bold text-[var(--pc-ink)] shadow-[0_5px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
         >

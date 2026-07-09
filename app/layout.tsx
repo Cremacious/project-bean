@@ -52,6 +52,10 @@ export const metadata: Metadata = {
 // Next 14). Matches the plum navbar/footer so mobile browser chrome blends in.
 export const viewport: Viewport = {
   themeColor: "#6C5CE7",
+  // Draw under the notch / home indicator so our sticky header and footer can
+  // fill behind them; the safe-area padding (see globals.css .pt-safe/.pb-safe/
+  // .px-gutter) then keeps content clear of those cutouts (issue #14).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

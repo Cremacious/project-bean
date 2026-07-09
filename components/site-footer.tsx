@@ -12,11 +12,11 @@ export function SiteFooter({ variant = "app" }: { variant?: "app" | "admin" }) {
     "cursor-pointer rounded-full px-1 py-0.5 text-sm font-bold text-white underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white";
 
   return (
-    <footer className="flex-none border-t border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
+    <footer className="pb-safe flex-none border-t border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
       <div
-        className={`mx-auto flex w-full ${
+        className={`px-gutter mx-auto flex w-full ${
           variant === "admin" ? "max-w-4xl" : "max-w-5xl"
-        } flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6`}
+        } flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between`}
       >
         <div className="flex items-center gap-2.5">
           <BrandMark size="sm" />

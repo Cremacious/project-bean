@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "@/lib/auth-client";
@@ -41,6 +41,21 @@ export function AppHeader({
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
+  // Keyboard users open the menu with Enter/Space; Escape must close it and
+  // return focus to the trigger (issue #13).
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   async function handleSwitch() {
     setOpen(false);
     await clearActiveChild();
@@ -56,8 +71,8 @@ export function AppHeader({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex-none border-b border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
-      <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6">
+    <header className="pt-safe sticky top-0 z-30 flex-none border-b border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
+      <div className="px-gutter mx-auto flex h-14 w-full max-w-5xl items-center gap-2 sm:h-16 sm:gap-3">
         <Link
           href="/"
           aria-label={`${BRAND.name} home`}
@@ -97,6 +112,7 @@ export function AppHeader({
 
         <div className="relative flex-none">
           <button
+            ref={triggerRef}
             onClick={() => setOpen((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={open}

@@ -11,8 +11,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--pc-sky)] text-[var(--pc-ink)]">
-      <header className="sticky top-0 z-30 flex-none border-b border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
-        <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4 sm:h-16 sm:px-6">
+      <header className="pt-safe sticky top-0 z-30 flex-none border-b border-[var(--pc-plum-ink)] bg-[var(--pc-plum)]">
+        <div className="px-gutter mx-auto flex h-14 w-full max-w-4xl items-center justify-between sm:h-16">
           <Link
             href="/admin"
             className="rounded-lg font-display text-lg font-extrabold text-white outline-none focus-visible:ring-2 focus-visible:ring-white"
@@ -28,7 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
       <main className="flex flex-1 flex-col">
-        <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-6 sm:px-6">
+        <div className="px-gutter mx-auto flex w-full max-w-4xl flex-1 flex-col py-6">
           {children}
         </div>
       </main>
