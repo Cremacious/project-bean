@@ -1,27 +1,47 @@
 // components/brand-mark.tsx
-// The Paper Cut brand chip: a tilted poppy square with a sun dot. Shared by the
-// navbar, footer, and auth screens so the mark stays identical everywhere.
-// (Issue #8 swaps this for the real logo asset; keeping it in one component
-// means that change lands in a single place.)
+// The Bedtime Quests logo mark (direction B): an open storybook beneath a
+// crescent moon on a plum "night" chip. Shared by the navbar, footer, and auth
+// screens so the mark stays identical everywhere.
+//
+// PLACEHOLDER (issue #8): the direction is final, but the art is meant to be
+// swapped for the real logo. The same shapes also live in `app/icon.svg` (the
+// SVG favicon) and `app/apple-icon.tsx` (the apple-touch-icon); keep those two
+// in sync when the real art lands. Colors are literal hex (not CSS vars) so the
+// component and the standalone icon assets render byte-identically.
 
-const SIZES = {
-  sm: { box: "h-4 w-4 rounded", dot: "right-0.5 top-0.5 h-1.5 w-1.5" },
-  md: { box: "h-6 w-6 rounded-lg", dot: "right-1 top-1 h-2 w-2" },
-  lg: { box: "h-9 w-9 rounded-xl", dot: "right-1.5 top-1.5 h-2.5 w-2.5" },
-} as const;
+const SIZES = { sm: 18, md: 28, lg: 40 } as const;
 
 export function BrandMark({ size = "md" }: { size?: keyof typeof SIZES }) {
-  const s = SIZES[size];
+  const px = SIZES[size];
   return (
-    <span
+    <svg
       aria-hidden
-      className={`relative -rotate-6 ${s.box}`}
-      style={{ background: "var(--pc-poppy)" }}
+      width={px}
+      height={px}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="flex-none"
     >
-      <span
-        className={`absolute rounded-full ${s.dot}`}
-        style={{ background: "var(--pc-sun)" }}
+      <rect x="1" y="1" width="46" height="46" rx="13" fill="#6C5CE7" />
+      <rect
+        x="4.5"
+        y="4.5"
+        width="39"
+        height="39"
+        rx="10"
+        fill="none"
+        stroke="#FFFFFF"
+        strokeOpacity="0.28"
+        strokeWidth="1.5"
       />
-    </span>
+      {/* Crescent moon: a sun disc with a plum disc carved out of it. */}
+      <circle cx="23" cy="17" r="8.5" fill="#FFC24B" />
+      <circle cx="27.5" cy="14" r="7.5" fill="#6C5CE7" />
+      {/* Open storybook: two facing pages meeting at an ink spine. */}
+      <path d="M24 31 C19 27.5 13 27.5 8.5 30 L8.5 40 C13 37.5 19 37.5 24 40.5 Z" fill="#EAF2FB" />
+      <path d="M24 31 C29 27.5 35 27.5 39.5 30 L39.5 40 C35 37.5 29 37.5 24 40.5 Z" fill="#DCEAFB" />
+      <rect x="23" y="30.5" width="2" height="10.5" rx="1" fill="#16283A" />
+    </svg>
   );
 }
