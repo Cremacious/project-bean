@@ -3,6 +3,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db/client";
 import * as schema from "@/db/schema";
+import { sendEmail, resetPasswordEmail } from "@/lib/email";
 
 type Social = NonNullable<Parameters<typeof betterAuth>[0]["socialProviders"]>;
 const socialProviders: Social = {};
@@ -29,7 +30,29 @@ export const auth = betterAuth({
       verification: schema.verification,
     },
   }),
-  emailAndPassword: { enabled: true },
+  emailAndPassword: {
+    enabled: true,
+    // Password reset (issues #17 and #18). BetterAuth builds the tokenised URL
+    // and calls this hook; we render the on-brand email and hand it to the
+    // provider. The link is valid for one hour.
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      const email = resetPasswordEmail({ name: user.name, url });
+      await sendEmail({
+        to: user.email,
+        subject: email.subject,
+        html: email.html,
+        text: email.text,
+      });
+    },
+    // Email verification decision (issue #19): we deliberately do NOT require or
+    // send verification emails. The audience is parents opening the app at
+    // bedtime, so we avoid any sign-up friction or risk of lock-out from a slow
+    // or spam-filtered message. Transactional email is reserved for password
+    // reset. To add a verified-email gate later (e.g. before paid features),
+    // set requireEmailVerification here and add an emailVerification block with
+    // its own sendVerificationEmail hook.
+  },
   socialProviders,
   // Session lifetime and refresh (issue #22). A bedtime app is opened nightly,
   // so we favour a long-lived, rolling session over frequent re-logins:

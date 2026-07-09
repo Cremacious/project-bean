@@ -84,7 +84,15 @@ export default function SignInPage() {
             <FieldError id="email-error">{errors.email}</FieldError>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="font-semibold text-[var(--pc-ink)]">Password</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="password" className="font-semibold text-[var(--pc-ink)]">Password</Label>
+              <Link
+                href="/forgot-password"
+                className="cursor-pointer text-sm font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
               name="password"
