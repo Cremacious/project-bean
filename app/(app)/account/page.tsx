@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getParent } from "@/lib/session";
 import { NameForm } from "@/components/account/name-form";
 import { PasswordForm } from "@/components/account/password-form";
+import { SessionsForm } from "@/components/account/sessions-form";
 import { DeleteAccount } from "@/components/account/delete-account";
 
 export const metadata: Metadata = { title: "Account settings" };
@@ -84,6 +85,13 @@ export default async function AccountPage() {
 
       <Card title="Password" description="Use a password with at least eight characters.">
         <PasswordForm />
+      </Card>
+
+      <Card
+        title="Signed in devices"
+        description="Signed in on a shared or old phone? Sign out everywhere else while staying signed in here."
+      >
+        <SessionsForm />
       </Card>
 
       <Card

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { authClient } from "@/lib/auth-client";
 import { FieldError } from "@/components/ui/field-error";
 import { PASSWORD_MIN } from "@/lib/validation";
+import { friendlyAuthError } from "@/lib/auth-errors";
 
 type Errors = { current?: string; next?: string; confirm?: string };
 
@@ -40,7 +41,9 @@ export function PasswordForm() {
         revokeOtherSessions: true,
       });
       if (error) {
-        setFormError(error.message?.trim() || "We could not change your password. Please check your current password and try again.");
+        setFormError(
+          friendlyAuthError(error, "We could not change your password. Please check your current password and try again."),
+        );
         return;
       }
       setCurrent("");

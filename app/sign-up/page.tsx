@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { isValidEmail, PASSWORD_MIN } from "@/lib/validation";
+import { friendlyAuthError } from "@/lib/auth-errors";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 
@@ -45,7 +46,9 @@ export default function SignUpPage() {
     const { error } = await signUp.email({ name, email, password });
     setLoading(false);
     if (error) {
-      setFormError(error.message?.trim() || "We could not create your account. Please try again in a moment.");
+      setFormError(
+        friendlyAuthError(error, "We could not create your account. Please try again in a moment."),
+      );
       return;
     }
     router.push("/");

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { isValidEmail } from "@/lib/validation";
+import { friendlyAuthError } from "@/lib/auth-errors";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 
@@ -42,7 +43,9 @@ export default function SignInPage() {
     const { error } = await signIn.email({ email, password });
     setLoading(false);
     if (error) {
-      setFormError(error.message?.trim() || "We could not sign you in. Please check your email and password, then try again.");
+      setFormError(
+        friendlyAuthError(error, "We could not sign you in. Please check your email and password, then try again."),
+      );
       return;
     }
     router.push("/");
