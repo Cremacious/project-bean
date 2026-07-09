@@ -25,7 +25,7 @@ Issues are worked one at a time, on the user's cue. For the chosen issue, do NOT
 - the repo path + the stack summary above;
 - the issue number, title, and a crisp statement of the change + acceptance criteria;
 - a reminder to follow the three UI rules above and to run `npm run test` + `npm run build`;
-- an instruction to branch, and to reference/close the issue in the commit/PR (e.g. `Closes #N`).
+- the **branch/commit policy (default):** work directly on the default branch (`master`), do NOT create a feature branch, and do NOT commit until the user gives final approval; only then commit with `Closes #N`. (Override only if the user asks.)
 
 ## Design docs
 Specs live in `docs/superpowers/specs/`, implementation plans in `docs/superpowers/plans/`, one pair per sub-project.
