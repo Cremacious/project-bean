@@ -1,0 +1,56 @@
+name: CI
+
+# Catch broken code before it ships: run the full check suite on every push to
+# master and on every pull request.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# Only the newest run per branch/PR matters; cancel superseded runs to save CI time.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+
+    # Placeholder env only. These are NOT secrets: they exist so code that reads
+    # env at import time (e.g. db/client.ts throws without DATABASE_URL) can
+    # compile and run in CI. Every real integration (Neon, Google/Apple, Sentry,
+    # analytics, ads, RevenueCat, Resend) is written to no-op when its real key is
+    # absent, so nothing here needs a genuine secret. Never put a real secret in
+    # this file; if a check ever truly needs one, add it as a repository secret and
+    # reference it via ${{ secrets.NAME }}.
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?sslmode=require
+      BETTER_AUTH_SECRET: ci-placeholder-secret-not-used-for-anything
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
