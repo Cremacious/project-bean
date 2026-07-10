@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { buildStoryInput } from "./story-to-input";
 import { validateStory } from "@/lib/stories/validate";
 
-const storyRow = { id: 1, slug: "bean", title: "Bean", description: "", ageBand: "2-4" as string | null, startPageId: 10, coverImageUrl: null, published: false, createdAt: new Date(), updatedAt: new Date() };
+const storyRow = { id: 1, slug: "bean", title: "Bean", description: "", ageBand: "2-4" as string | null, startPageId: 10, coverImageUrl: null, coverMotif: null, published: false, createdAt: new Date(), updatedAt: new Date() };
 const pages = [
   { id: 10, storyId: 1, key: "start", body: "Hello {{name}}", imageUrl: null, isEnding: false, endingLabel: null, endingType: "good" },
   { id: 11, storyId: 1, key: "good", body: "The end", imageUrl: null, isEnding: true, endingLabel: "A happy ending", endingType: "good" },

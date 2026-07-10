@@ -3,11 +3,11 @@ import { eq, asc } from "drizzle-orm";
 import { db } from "@/db/client";
 import { story, page, choice } from "@/db/schema";
 
-export type AdminStoryListItem = { id: number; slug: string; title: string; ageBand: string | null; published: boolean };
+export type AdminStoryListItem = { id: number; slug: string; title: string; ageBand: string | null; published: boolean; coverImageUrl: string | null; coverMotif: string | null };
 
 export async function listAdminStories(): Promise<AdminStoryListItem[]> {
   return db
-    .select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand, published: story.published })
+    .select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand, published: story.published, coverImageUrl: story.coverImageUrl, coverMotif: story.coverMotif })
     .from(story).orderBy(asc(story.title));
 }
 

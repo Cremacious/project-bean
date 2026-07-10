@@ -46,7 +46,7 @@ export function NewStoryForm() {
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     startTransition(async () => {
-      const res = await createStory({ title, slug, description, ageBand: ageBand || null, coverImageUrl: null });
+      const res = await createStory({ title, slug, description, ageBand: ageBand || null, coverImageUrl: null, coverMotif: null });
       if (res.ok && res.slug) {
         router.push(`/admin/stories/${res.slug}`);
         return;

@@ -1,6 +1,7 @@
 // app/admin/page.tsx
 import Link from "next/link";
 import { listAdminStories } from "@/lib/admin/queries";
+import { StoryCover } from "@/components/story/story-cover";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const AGE_LABELS: Record<string, string> = { "2-4": "2 to 4", "5-7": "5 to 7", "8+": "8 and up" };
@@ -32,9 +33,15 @@ export default async function AdminHome() {
             <li key={s.id}>
               <Link
                 href={`/admin/stories/${s.slug}`}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-3 shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
+                className="flex items-center gap-3 rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-3 shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5"
               >
-                <span className="min-w-0">
+                <StoryCover
+                  slug={s.slug}
+                  motif={s.coverMotif}
+                  imageUrl={s.coverImageUrl}
+                  className="h-12 w-12 flex-none rounded-xl border border-[var(--pc-line)]"
+                />
+                <span className="min-w-0 flex-1">
                   <span className="block truncate font-display text-base font-bold">{s.title}</span>
                   <span className="text-xs text-[var(--pc-sub)]">
                     {s.ageBand ? `Ages ${AGE_LABELS[s.ageBand] ?? s.ageBand}` : "No age band"}

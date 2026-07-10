@@ -6,6 +6,8 @@ import { updateStoryMeta, setStartPage, deleteStory } from "@/lib/admin-actions"
 import { field, labelCls } from "@/components/admin/styles";
 import { FieldError } from "@/components/ui/field-error";
 import { isValidHttpUrl } from "@/lib/validation";
+import { StoryCover } from "@/components/story/story-cover";
+import { MOTIFS } from "@/lib/stories/covers";
 
 const AGE_OPTIONS = [
   { value: "", label: "No age band" },
@@ -17,17 +19,19 @@ const AGE_OPTIONS = [
 type Errors = { title?: string; cover?: string; form?: string };
 
 export function StoryMetadataPanel({
-  story, pageKeys, startKey,
+  story, pageKeys, startKey, slug,
 }: {
-  story: { id: number; title: string; description: string; ageBand: string | null; coverImageUrl: string | null };
+  story: { id: number; title: string; description: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null };
   pageKeys: string[];
   startKey: string | null;
+  slug: string;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(story.title);
   const [description, setDescription] = useState(story.description);
   const [ageBand, setAgeBand] = useState(story.ageBand ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(story.coverImageUrl ?? "");
+  const [coverMotif, setCoverMotif] = useState(story.coverMotif ?? "");
   const [errors, setErrors] = useState<Errors>({});
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -48,7 +52,7 @@ export function StoryMetadataPanel({
     if (Object.keys(found).length > 0) return;
     startTransition(async () => {
       const res = await updateStoryMeta(story.id, {
-        title, description, ageBand: ageBand || null, coverImageUrl: coverImageUrl.trim() || null,
+        title, description, ageBand: ageBand || null, coverImageUrl: coverImageUrl.trim() || null, coverMotif: coverMotif || null,
       });
       if (res.ok) {
         setSaved(true);
@@ -106,6 +110,32 @@ export function StoryMetadataPanel({
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="m-motif" className={labelCls}>Cover art</label>
+          <div className="flex items-center gap-3">
+            <StoryCover
+              slug={slug}
+              motif={coverMotif || null}
+              imageUrl={coverImageUrl.trim() || null}
+              className="h-16 w-16 flex-none rounded-xl border border-[var(--pc-line)]"
+            />
+            <select
+              id="m-motif"
+              className={field}
+              value={coverMotif}
+              disabled={isPending}
+              onChange={(e) => { setCoverMotif(e.target.value); setSaved(false); }}
+            >
+              <option value="">Auto from title</option>
+              {MOTIFS.map((m) => (
+                <option key={m.key} value={m.key}>{m.label}</option>
+              ))}
+            </select>
+          </div>
+          <p className="text-xs text-[var(--pc-sub)]">
+            Pick a scene, or leave on Auto to generate one. A cover image address below, when set, replaces the scene.
+          </p>
         </div>
         <div className="space-y-1.5">
           <label htmlFor="m-cover" className={labelCls}>Cover image address</label>

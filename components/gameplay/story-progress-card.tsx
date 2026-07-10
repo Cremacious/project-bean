@@ -4,7 +4,7 @@ import { StoryCover } from "@/components/story/story-cover";
 import type { CollectionStory } from "@/lib/gameplay/collection";
 
 export function StoryProgressCard({ story }: { story: CollectionStory }) {
-  const { slug, title, goodFound, goodTotal, complete, surprises } = story;
+  const { slug, title, coverImageUrl, coverMotif, goodFound, goodTotal, complete, surprises } = story;
   const pct = goodTotal > 0 ? Math.round((goodFound / goodTotal) * 100) : 0;
 
   return (
@@ -14,7 +14,7 @@ export function StoryProgressCard({ story }: { story: CollectionStory }) {
       style={{ background: complete ? "#E6F7EF" : "white" }}
     >
       <div className="relative h-[62px] w-[62px] flex-none overflow-hidden rounded-2xl border border-[var(--pc-line)]">
-        <StoryCover slug={slug} className="h-full w-full" />
+        <StoryCover slug={slug} motif={coverMotif} imageUrl={coverImageUrl} className="h-full w-full" />
         {complete && (
           <span
             aria-label="Story complete"

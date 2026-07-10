@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/admin";
 import { isValidSlug, isValidSlug as isValidKey } from "@/lib/admin/slugs";
 import { buildStoryInput } from "@/lib/admin/story-to-input";
 import { validateStory } from "@/lib/stories/validate";
+import { isMotifKey } from "@/lib/stories/covers";
 
 async function requireAdmin(): Promise<boolean> {
   const parent = await getParent();
@@ -15,7 +16,12 @@ async function requireAdmin(): Promise<boolean> {
 }
 
 const AGE_BANDS = ["2-4", "5-7", "8+"];
-type StoryMeta = { title: string; slug: string; description: string; ageBand: string | null; coverImageUrl: string | null };
+type StoryMeta = { title: string; slug: string; description: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null };
+
+/** Keep only a valid motif key; anything else (incl. "" or null) means "auto from slug". */
+function cleanMotif(motif: string | null | undefined): string | null {
+  return isMotifKey(motif) ? motif : null;
+}
 
 export async function createStory(meta: StoryMeta): Promise<{ ok: boolean; slug?: string; error?: string }> {
   if (!(await requireAdmin())) return { ok: false, error: "Not allowed" };
@@ -28,7 +34,7 @@ export async function createStory(meta: StoryMeta): Promise<{ ok: boolean; slug?
   if (dupe) return { ok: false, error: "That slug is already taken" };
   await db.insert(story).values({
     slug, title, description: meta.description.trim(), ageBand: meta.ageBand,
-    coverImageUrl: meta.coverImageUrl?.trim() || null, published: false,
+    coverImageUrl: meta.coverImageUrl?.trim() || null, coverMotif: cleanMotif(meta.coverMotif), published: false,
   });
   return { ok: true, slug };
 }
@@ -40,7 +46,7 @@ export async function updateStoryMeta(storyId: number, meta: Omit<StoryMeta, "sl
   if (meta.ageBand && !AGE_BANDS.includes(meta.ageBand)) return { ok: false, error: "Invalid age band" };
   await db.update(story).set({
     title, description: meta.description.trim(), ageBand: meta.ageBand,
-    coverImageUrl: meta.coverImageUrl?.trim() || null, updatedAt: new Date(),
+    coverImageUrl: meta.coverImageUrl?.trim() || null, coverMotif: cleanMotif(meta.coverMotif), updatedAt: new Date(),
   }).where(eq(story.id, storyId));
   return { ok: true };
 }

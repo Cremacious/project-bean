@@ -4,10 +4,10 @@ import { db } from "@/db/client";
 import { story, page, endingFound } from "@/db/schema";
 import { computeStoryProgress, deriveBadges, type Badge } from "@/lib/gameplay/progress";
 
-export type CollectionStory = { slug: string; title: string; ageBand: string | null; goodFound: number; goodTotal: number; complete: boolean; surprises: number };
+export type CollectionStory = { slug: string; title: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null; goodFound: number; goodTotal: number; complete: boolean; surprises: number };
 export type Collection = { stats: { endingsFound: number; storiesCompleted: number; surprises: number }; stories: CollectionStory[]; badges: Badge[] };
 
-type StoryRow = { id: number; slug: string; title: string; ageBand: string | null };
+type StoryRow = { id: number; slug: string; title: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null };
 type EndingRow = { id: number; storyId: number; endingType: string; isEnding: boolean };
 
 export function buildCollection(stories: StoryRow[], endingPages: EndingRow[], foundIds: number[]): Collection {
@@ -22,7 +22,7 @@ export function buildCollection(stories: StoryRow[], endingPages: EndingRow[], f
   let endingsFound = 0, storiesCompleted = 0, surprises = 0;
   for (const s of stories) {
     const prog = computeStoryProgress(byStory.get(s.id) ?? [], foundIds);
-    out.push({ slug: s.slug, title: s.title, ageBand: s.ageBand, ...prog });
+    out.push({ slug: s.slug, title: s.title, ageBand: s.ageBand, coverImageUrl: s.coverImageUrl, coverMotif: s.coverMotif, ...prog });
     endingsFound += prog.goodFound;
     if (prog.complete) storiesCompleted += 1;
     surprises += prog.surprises;
@@ -33,7 +33,7 @@ export function buildCollection(stories: StoryRow[], endingPages: EndingRow[], f
 
 export async function getCollection(childId: number): Promise<Collection> {
   const stories = await db
-    .select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand })
+    .select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand, coverImageUrl: story.coverImageUrl, coverMotif: story.coverMotif })
     .from(story).where(eq(story.published, true)).orderBy(asc(story.title));
   const ids = stories.map((s) => s.id);
   const endingPages = ids.length

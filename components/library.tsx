@@ -94,7 +94,7 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
               href={`/story/${s.slug}`}
               className="group flex overflow-hidden rounded-3xl border border-[var(--pc-line)] bg-white shadow-[0_5px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 sm:flex-col"
             >
-              <StoryCover slug={s.slug} className="h-full min-h-[7rem] w-24 flex-none sm:h-28 sm:w-full" />
+              <StoryCover slug={s.slug} motif={s.coverMotif} imageUrl={s.coverImageUrl} className="h-full min-h-[7rem] w-24 flex-none sm:h-28 sm:w-full" />
               <div className="flex flex-col gap-2 p-4">
                 <h2 className="font-display text-lg font-bold leading-tight text-[var(--pc-ink)]">{s.title}</h2>
                 <p className="text-sm text-[var(--pc-sub)]">{s.description}</p>
