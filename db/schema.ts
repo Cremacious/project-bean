@@ -60,6 +60,24 @@ export const child = pgTable("child", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// --- Parent subscription entitlement (issue #33). ONE row per PARENT. ---
+// Entitlements belong to the adult account, never to a child. COPPA
+// (docs/COMPLIANCE-COPPA.md section 6c): no child name, id, or attributes are
+// stored here or sent to RevenueCat. The RevenueCat `app_user_id` is the
+// parent's own account id (`user.id`), which is a parent scoped, non child
+// identifier. Deleting the parent cascades this row away with the rest of the
+// account (see the account deletion note in lib/auth.ts).
+export const subscription = pgTable("subscription", {
+  parentId: text("parent_id").primaryKey().references(() => user.id, { onDelete: "cascade" }),
+  // Entitlement state. A parent with no row is implicitly "none" (not subscribed).
+  status: text("status").notNull().default("none"), // none | trialing | active | grace | canceled | expired
+  productId: text("product_id"), // plan identifier, e.g. "monthly" | "yearly"; null until known
+  source: text("source").notNull().default("internal"), // internal | revenuecat
+  // End of the paid or trial period. null means no expiry (e.g. an internal comp grant).
+  currentPeriodEnd: timestamp("current_period_end"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // --- Story catalog (global; no per-user access). ---
 export const story = pgTable("story", {
   id: serial("id").primaryKey(),
