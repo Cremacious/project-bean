@@ -16,7 +16,17 @@ export function SocialButtons({ gatePurpose }: { gatePurpose?: string }) {
       const ok = await requireAdult(gatePurpose);
       if (!ok) return;
     }
-    signIn.social({ provider, callbackURL: "/" });
+    // Analytics (issue #38): a social login silently creates an account for a
+    // first-time user. BetterAuth sends only those NEW users to newUserCallbackURL
+    // (returning users go to callbackURL), so the `signup_new` marker lands solely
+    // on genuine sign ups. The SignupBeacon on the target page reads it and fires
+    // signup_completed. The marker is the provider name only, never anything
+    // personal, and the beacon strips it from the URL right after.
+    signIn.social({
+      provider,
+      callbackURL: "/",
+      newUserCallbackURL: `/?signup_new=${provider}`,
+    });
   };
 
   return (

@@ -8,19 +8,28 @@
 // checkout entry point that #35 fills in.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
+import { track } from "@/lib/analytics";
 
-export function Paywall({ storyTitle }: { storyTitle?: string }) {
+export function Paywall({ storyTitle, storySlug }: { storyTitle?: string; storySlug?: string }) {
   const requireAdult = useParentalGate();
   const router = useRouter();
   const [checking, setChecking] = useState(false);
+
+  // Record that the paywall was shown. Non-personal: the story slug only, never
+  // who saw it. Fires once per mount (per locked story view).
+  useEffect(() => {
+    track("paywall_shown", storySlug ? { story: storySlug } : undefined);
+  }, [storySlug]);
 
   async function startSubscribe() {
     setChecking(true);
     try {
       const ok = await requireAdult("purchase"); // grown up check before any purchase flow
       if (!ok) return; // backed out of the gate
+      // Non-personal: the parent chose to begin subscribing from a locked story.
+      track("subscribe_started", { from: "paywall", ...(storySlug ? { story: storySlug } : {}) });
       router.push("/subscribe");
     } finally {
       setChecking(false);

@@ -26,7 +26,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   const parent = await getParent();
   const subscription = await getSubscription(parent);
   if (!isStoryUnlocked(story.premium, subscription)) {
-    return <Paywall storyTitle={story.title} />;
+    return <Paywall storyTitle={story.title} storySlug={slug} />;
   }
 
   const graph = await loadStoryGraph(story.id);
@@ -43,6 +43,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         <StoryReader
           slug={slug}
           title={story.title}
+          ageBand={story.ageBand}
           startKey={startKey}
           graph={graph}
           childName={active.name}

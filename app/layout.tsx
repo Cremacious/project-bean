@@ -5,6 +5,8 @@ import "./globals.css";
 import { baloo, nunito, atkinson } from "./fonts";
 import { BRAND } from "@/lib/brand";
 import { ParentalGateProvider } from "@/components/parental-gate/parental-gate-provider";
+import { AnalyticsScripts } from "@/components/analytics/analytics-scripts";
+import { SignupBeacon } from "@/components/analytics/signup-beacon";
 
 // One description string reused across the page title tag, OpenGraph, and
 // Twitter so the message stays consistent. No dashes (app-wide UI rule).
@@ -64,6 +66,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${baloo.variable} ${nunito.variable} ${atkinson.variable}`}>
       <body>
         <ParentalGateProvider>{children}</ParentalGateProvider>
+        <SignupBeacon />
+        <AnalyticsScripts />
       </body>
     </html>
   );

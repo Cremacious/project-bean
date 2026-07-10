@@ -12,12 +12,14 @@ import { ReadingSettings } from "@/components/story/reading-settings";
 import { setChildReadingPrefs } from "@/lib/children-actions";
 import { personalize } from "@/lib/stories/personalize";
 import { fontCss, sizeCss, type ReadingFontId, type ReadingSizeId } from "@/lib/reading-prefs";
+import { track } from "@/lib/analytics";
 
 type EndingProgress = StoryProgress & { endingType: string };
 
 export function StoryReader({
   slug,
   title,
+  ageBand = null,
   startKey,
   graph,
   childName,
@@ -28,6 +30,7 @@ export function StoryReader({
 }: {
   slug: string;
   title: string;
+  ageBand?: string | null;
   startKey: string;
   graph: StoryGraph;
   childName: string;
@@ -62,9 +65,21 @@ export function StoryReader({
     }
   }, [currentKey]);
 
+  // Analytics: a reader opened this story. Non-personal (story slug + age band
+  // only, never the child). Fires once per mount, and never in preview.
+  const startedRef = useRef(false);
+  useEffect(() => {
+    if (preview || startedRef.current) return;
+    startedRef.current = true;
+    track("story_started", { story: slug, ...(ageBand ? { age_band: ageBand } : {}) });
+  }, [preview, slug, ageBand]);
+
   // Record the ending the first time the reader lands on an ending page.
   useEffect(() => {
     if (preview || !pageData.isEnding) return;
+    // Analytics: which ending CATEGORY was reached (good vs game_over), never
+    // which child reached it. The endingType is an internal enum, not identifying.
+    track("ending_found", { story: slug, ending_category: pageData.endingType });
     let live = true;
     recordEnding(slug, pageData.key).then((p) => {
       if (live && p) setProgress(p);
@@ -72,7 +87,7 @@ export function StoryReader({
     return () => {
       live = false;
     };
-  }, [preview, pageData.isEnding, pageData.key, slug]);
+  }, [preview, pageData.isEnding, pageData.key, pageData.endingType, slug]);
 
   // Persist font/size for this child after a change (skip the first mount).
   const mounted = useRef(false);
@@ -89,6 +104,16 @@ export function StoryReader({
     setCurrentKey(key);
   }, []);
   const readAgain = useCallback(() => goTo(startKey), [goTo, startKey]);
+
+  // A choice was tapped. Analytics is non-personal: story slug, the page left
+  // from, and the choice index. Page keys are internal slugs, not child data.
+  const onChoose = useCallback(
+    (to: string, index: number) => {
+      track("choice_made", { story: slug, from: currentKey, choice_index: index });
+      goTo(to);
+    },
+    [goTo, slug, currentKey],
+  );
 
   const proseStyle = {
     "--reading-font": fontCss(font),
@@ -150,7 +175,7 @@ export function StoryReader({
                   <button
                     key={`${choice.to}-${i}`}
                     type="button"
-                    onClick={() => goTo(choice.to)}
+                    onClick={() => onChoose(choice.to, i)}
                     className={`flex cursor-pointer items-center gap-3 rounded-2xl bg-[var(--pc-plum)] text-left font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 ${
                       canRead ? "p-5 text-lg" : "p-4 text-base"
                     }`}

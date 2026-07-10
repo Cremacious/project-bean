@@ -15,7 +15,7 @@ export async function getCatalog(ageBand?: string): Promise<StoryCard[]> {
 /** A PUBLISHED story by slug (public reader path), or null. `premium` drives the paywall gate (#34). */
 export async function getStoryBySlug(slug: string) {
   const [row] = await db
-    .select({ id: story.id, slug: story.slug, title: story.title, startPageId: story.startPageId, premium: story.premium })
+    .select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand, startPageId: story.startPageId, premium: story.premium })
     .from(story).where(and(eq(story.slug, slug), eq(story.published, true))).limit(1);
   return row ?? null;
 }

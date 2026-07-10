@@ -14,6 +14,7 @@ import { friendlyAuthError } from "@/lib/auth-errors";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
+import { track } from "@/lib/analytics";
 
 type Errors = { name?: string; email?: string; password?: string };
 
@@ -59,6 +60,8 @@ export default function SignUpPage() {
       );
       return;
     }
+    // Non-personal: records that an account was created and how. No name/email.
+    track("signup_completed", { method: "email" });
     router.push("/");
     router.refresh();
   }

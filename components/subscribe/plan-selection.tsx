@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
 import { startSubscription } from "@/lib/subscribe-actions";
+import { track } from "@/lib/analytics";
 import {
   PLAN_LIST,
   TRIAL_DAYS,
@@ -60,6 +61,10 @@ export function PlanSelection() {
       setFlow({ step: "cancelled" });
       return;
     }
+    // Non-personal: the parent committed to a plan and passed the grown-up gate.
+    // Only the plan type is sent (the real trial/purchase completes in the native
+    // app via the RevenueCat webhook, M6 #55).
+    track("subscribe_started", { from: "plans", plan: selected });
     startTransition(async () => {
       try {
         const result = await startSubscription(selected);
