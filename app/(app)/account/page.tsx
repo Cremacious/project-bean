@@ -2,9 +2,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getParent } from "@/lib/session";
+import { getSubscription } from "@/lib/entitlements";
 import { NameForm } from "@/components/account/name-form";
 import { PasswordForm } from "@/components/account/password-form";
 import { SessionsForm } from "@/components/account/sessions-form";
+import { SubscriptionPanel } from "@/components/account/subscription-panel";
 import { DeleteAccount } from "@/components/account/delete-account";
 
 export const metadata: Metadata = { title: "Account settings" };
@@ -46,6 +48,8 @@ export default async function AccountPage() {
   const parent = await getParent();
   if (!parent) redirect("/sign-in"); // stale cookie passed middleware but the session is invalid
 
+  const subscription = await getSubscription(parent);
+
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6">
       <div className="space-y-1">
@@ -53,9 +57,16 @@ export default async function AccountPage() {
           Account settings
         </h1>
         <p className="text-base font-semibold text-[var(--pc-sub)]">
-          Manage your name, password, and account.
+          Manage your subscription, name, password, and account.
         </p>
       </div>
+
+      <Card
+        title="Subscription"
+        description="See your plan and status, manage or cancel it, or restore a purchase."
+      >
+        <SubscriptionPanel subscription={subscription} />
+      </Card>
 
       <Card title="Your name" description="This is the name shown when you are signed in.">
         <NameForm currentName={parent.name} />

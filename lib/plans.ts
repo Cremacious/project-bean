@@ -75,6 +75,18 @@ export function getPlan(value: unknown): Plan | null {
   return isPlanKey(value) ? PLANS[value] : null;
 }
 
+/**
+ * The display name of the plan a RevenueCat product id maps to, or null when the
+ * id is unknown (or absent). Lets the manage/restore surfaces (#36) label an
+ * entitlement "Monthly" or "Yearly" from the product id stored on the row, while
+ * an internal comp grant with no matching product id simply reads as "Premium".
+ */
+export function planNameForProductId(productId: string | null | undefined): string | null {
+  if (!productId) return null;
+  const plan = PLAN_LIST.find((p) => p.productId === productId);
+  return plan ? plan.name : null;
+}
+
 /** Format whole cents as a US dollar string, e.g. 499 becomes "$4.99". */
 export function formatUsd(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
