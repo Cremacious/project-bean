@@ -7,6 +7,7 @@ export default defineStory({
   description:
     "A little paper boat named Pip sails a sea of shiny stars, looking for the coziest place to fall asleep.",
   ageBand: "2-4",
+  coverMotif: "ocean",
   start: "harbor",
   pages: {
     "harbor": {
@@ -14,7 +15,13 @@ export default defineStory({
       choices: [
         { label: "🏝️ Sail to the cozy island", to: "island" },
         { label: "🌙 Sail out toward the big moon", to: "open-sea" },
+        { label: "🌊 Bob along with the waves", to: "wave-loop" },
       ],
+    },
+    "wave-loop": {
+      body: "Pip bobbed along with the rolling waves, up and down, up and down, until the gentle water carried {{name}} and Pip in a big sleepy circle right back to the harbor. Let's try again!",
+      ending: "The Sleepy Waves",
+      endingKind: "game_over",
     },
     "island": {
       body: "Pip's flag fluttered as they reached a warm little island of soft, sleepy sand. Tiny crabs had built a pillow fort and waved {{name}} inside. Everyone snuggled down while the waves sang a slow, gentle song.",

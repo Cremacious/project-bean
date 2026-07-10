@@ -6,6 +6,7 @@ export default defineStory({
   title: "Bean and the Whispering Woods",
   description: "A little bear explores a magical forest and chooses a path together with a new friend.",
   ageBand: "2-4",
+  coverMotif: "forest",
   start: "forest-edge",
   pages: {
     "forest-edge": {
