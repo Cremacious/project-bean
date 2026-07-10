@@ -4,6 +4,7 @@ import type { Child } from "@/lib/children";
 import { getCatalog } from "@/lib/stories/queries";
 import { StoryCover } from "@/components/story/story-cover";
 import { EmptyState } from "@/components/ui/empty-state";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 const AGE_BANDS = [
   { id: "2-4", label: "2 to 4" },
@@ -122,6 +123,10 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
           ))}
         </div>
       )}
+
+      {/* Free-tier ad slot (#37). Renders only for free parents; below the grid so
+          it never sits between story cards, and never on the reader itself. */}
+      <AdSlot placement="library" />
     </section>
   );
 }
