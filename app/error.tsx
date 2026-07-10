@@ -11,6 +11,7 @@ import {
   actionPrimaryClass,
   actionSecondaryClass,
 } from "@/components/feedback/status-screen";
+import { captureError } from "@/lib/reporting";
 
 export default function RootError({
   error,
@@ -25,6 +26,9 @@ export default function RootError({
 }) {
   useEffect(() => {
     console.error(error);
+    // Report to crash reporting (no-ops when disabled). Errors caught by a Next
+    // error boundary never reach the global handler, so we capture explicitly.
+    captureError(error);
   }, [error]);
 
   return (

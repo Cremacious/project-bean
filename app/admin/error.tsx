@@ -9,6 +9,7 @@ import {
   actionPrimaryClass,
   actionSecondaryClass,
 } from "@/components/feedback/status-screen";
+import { captureError } from "@/lib/reporting";
 
 export default function AdminError({
   error,
@@ -21,6 +22,7 @@ export default function AdminError({
 }) {
   useEffect(() => {
     console.error(error);
+    captureError(error);
   }, [error]);
 
   return (

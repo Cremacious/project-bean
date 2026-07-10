@@ -11,6 +11,7 @@ import {
   actionPrimaryClass,
   actionSecondaryClass,
 } from "@/components/feedback/status-screen";
+import { captureError } from "@/lib/reporting";
 
 export default function AppError({
   error,
@@ -23,6 +24,7 @@ export default function AppError({
 }) {
   useEffect(() => {
     console.error(error);
+    captureError(error);
   }, [error]);
 
   return (

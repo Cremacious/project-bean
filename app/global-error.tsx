@@ -6,6 +6,7 @@
 // not rely on the app's fonts or shell. Styles are inline so the page stays
 // on brand even if stylesheets fail to load.
 import { useEffect } from "react";
+import { captureError } from "@/lib/reporting";
 
 export default function GlobalError({
   error,
@@ -18,6 +19,7 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error(error);
+    captureError(error);
   }, [error]);
 
   return (
