@@ -1,4 +1,5 @@
 // content/stories/_story-types.ts
+import type { MotifKey } from "@/lib/stories/covers";
 
 export type ChoiceInput = {
   label: string;
@@ -20,6 +21,7 @@ export type StoryInput = {
   ageBand?: "2-4" | "5-7" | "8+";
   start: string;     // page key to start on
   coverImageUrl?: string;
+  coverMotif?: MotifKey; // pins a StoryCover motif (#26); omit to auto-derive from slug
   pages: Record<string, PageInput>; // keyed by page key
 };
 

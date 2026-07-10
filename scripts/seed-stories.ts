@@ -39,6 +39,7 @@ async function seedStory(input: StoryInput) {
       description: input.description ?? "",
       ageBand: input.ageBand ?? null,
       coverImageUrl: input.coverImageUrl ?? null,
+      coverMotif: input.coverMotif ?? null,
       published: true,
       updatedAt: new Date(),
     })
@@ -49,6 +50,7 @@ async function seedStory(input: StoryInput) {
         description: input.description ?? "",
         ageBand: input.ageBand ?? null,
         coverImageUrl: input.coverImageUrl ?? null,
+        coverMotif: input.coverMotif ?? null,
         published: true,
         updatedAt: new Date(),
       },
