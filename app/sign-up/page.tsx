@@ -13,11 +13,13 @@ import { isValidEmail, PASSWORD_MIN } from "@/lib/validation";
 import { friendlyAuthError } from "@/lib/auth-errors";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
+import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
 
 type Errors = { name?: string; email?: string; password?: string };
 
 export default function SignUpPage() {
   const router = useRouter();
+  const requireAdult = useParentalGate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,6 +43,12 @@ export default function SignUpPage() {
     const found = validate();
     setErrors(found);
     if (Object.keys(found).length > 0) return;
+
+    // Creating an account is a grown up action, so pass the parental gate first
+    // (issue #32). A pass is remembered for this flow, so a parent who also tries
+    // a social button is not challenged twice.
+    const passedGate = await requireAdult("signup");
+    if (!passedGate) return;
 
     setLoading(true);
     const { error } = await signUp.email({ name, email, password });
@@ -141,7 +149,7 @@ export default function SignUpPage() {
           <span className="text-xs font-semibold uppercase tracking-wide text-[var(--pc-sub)]">or</span>
           <span className="h-px flex-1 bg-[var(--pc-line)]" />
         </div>
-        <SocialButtons />
+        <SocialButtons gatePurpose="signup" />
 
         <p className="mt-6 text-center text-sm text-[var(--pc-sub)]">
           Already have an account?{" "}

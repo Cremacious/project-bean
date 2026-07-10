@@ -4,6 +4,7 @@ import "@fontsource/opendyslexic/700.css";
 import "./globals.css";
 import { baloo, nunito, atkinson } from "./fonts";
 import { BRAND } from "@/lib/brand";
+import { ParentalGateProvider } from "@/components/parental-gate/parental-gate-provider";
 
 // One description string reused across the page title tag, OpenGraph, and
 // Twitter so the message stays consistent. No dashes (app-wide UI rule).
@@ -61,7 +62,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${baloo.variable} ${nunito.variable} ${atkinson.variable}`}>
-      <body>{children}</body>
+      <body>
+        <ParentalGateProvider>{children}</ParentalGateProvider>
+      </body>
     </html>
   );
 }
