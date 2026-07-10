@@ -8,6 +8,7 @@ export default defineStory({
   ageBand: "2-4",
   coverMotif: "forest",
   start: "forest-edge",
+  premium: false, // free sampler for ages 2 to 4 (issue #34)
   pages: {
     "forest-edge": {
       body: "{{name}} and Bean the little bear stood at the edge of the dark, whispering woods. The trees seemed to hum a soft song just for them. What should they do?",

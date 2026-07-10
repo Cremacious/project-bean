@@ -9,6 +9,7 @@ export default defineStory({
   ageBand: "2-4",
   coverMotif: "ocean",
   start: "harbor",
+  premium: false, // free sampler for ages 2 to 4 (issue #34)
   pages: {
     "harbor": {
       body: "{{name}} climbed aboard Pip, a little paper boat with a brave flag. Together they floated onto a calm sea full of shiny stars. Which way should they sail tonight, {{name}}?",

@@ -22,6 +22,7 @@ export type StoryInput = {
   start: string;     // page key to start on
   coverImageUrl?: string;
   coverMotif?: MotifKey; // pins a StoryCover motif (#26); omit to auto-derive from slug
+  premium?: boolean; // free-tier gating (#34); omit or true = premium, false = a free sampler
   pages: Record<string, PageInput>; // keyed by page key
 };
 

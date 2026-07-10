@@ -21,7 +21,7 @@ type Errors = { title?: string; cover?: string; form?: string };
 export function StoryMetadataPanel({
   story, pageKeys, startKey, slug,
 }: {
-  story: { id: number; title: string; description: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null };
+  story: { id: number; title: string; description: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null; premium: boolean };
   pageKeys: string[];
   startKey: string | null;
   slug: string;
@@ -32,6 +32,7 @@ export function StoryMetadataPanel({
   const [ageBand, setAgeBand] = useState(story.ageBand ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(story.coverImageUrl ?? "");
   const [coverMotif, setCoverMotif] = useState(story.coverMotif ?? "");
+  const [tier, setTier] = useState(story.premium ? "premium" : "free");
   const [errors, setErrors] = useState<Errors>({});
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -53,6 +54,7 @@ export function StoryMetadataPanel({
     startTransition(async () => {
       const res = await updateStoryMeta(story.id, {
         title, description, ageBand: ageBand || null, coverImageUrl: coverImageUrl.trim() || null, coverMotif: coverMotif || null,
+        premium: tier === "premium",
       });
       if (res.ok) {
         setSaved(true);
@@ -110,6 +112,16 @@ export function StoryMetadataPanel({
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="m-tier" className={labelCls}>Access</label>
+          <select id="m-tier" className={field} value={tier} disabled={isPending} onChange={(e) => { setTier(e.target.value); setSaved(false); }}>
+            <option value="premium">Premium (subscribers only)</option>
+            <option value="free">Free (in the free sampler)</option>
+          </select>
+          <p className="text-xs text-[var(--pc-sub)]">
+            Premium stories are locked behind the paywall. Free stories are readable by everyone.
+          </p>
         </div>
         <div className="space-y-1.5">
           <label htmlFor="m-motif" className={labelCls}>Cover art</label>

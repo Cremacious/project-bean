@@ -9,6 +9,7 @@ export default defineStory({
   ageBand: "8+",
   coverMotif: "forest",
   start: "forest-clearing",
+  premium: false, // free sampler for ages 8 and up (issue #34)
   pages: {
     "forest-clearing": {
       body: "Every night, when the sky went deep and blue, Sage the wise old owl counted the last stars to make sure they were all safely lit, and tucked the whole forest in for sleep. Tonight Sage had asked {{name}} to help. From the mossy clearing, three quiet trails wound off into the trees, and every creature along them was waiting to be wished goodnight. Where should the two of you begin, {{name}}?",

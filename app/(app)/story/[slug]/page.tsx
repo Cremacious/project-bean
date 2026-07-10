@@ -2,11 +2,15 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { eq } from "drizzle-orm";
 import { getActiveChild } from "@/lib/active-child";
+import { getParent } from "@/lib/session";
+import { getSubscription } from "@/lib/entitlements";
 import { getStoryBySlug } from "@/lib/stories/queries";
+import { isStoryUnlocked } from "@/lib/stories/access";
 import { loadStoryGraph } from "@/lib/stories/graph";
 import { db } from "@/db/client";
 import { page as pageTable } from "@/db/schema";
 import { StoryReader } from "@/components/story/story-reader";
+import { Paywall } from "@/components/paywall";
 import { initialSizeForMode, type ReadingFontId } from "@/lib/reading-prefs";
 
 export default async function StoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -16,6 +20,14 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
   const story = await getStoryBySlug(slug);
   if (!story) notFound();
+
+  // Server-side paywall gate (#34): a locked premium story is never loaded or sent
+  // to a non-subscriber; they get the paywall in its place. Trials count as active.
+  const parent = await getParent();
+  const subscription = await getSubscription(parent);
+  if (!isStoryUnlocked(story.premium, subscription)) {
+    return <Paywall storyTitle={story.title} />;
+  }
 
   const graph = await loadStoryGraph(story.id);
   let startKey: string | undefined;

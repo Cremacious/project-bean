@@ -40,6 +40,7 @@ async function seedStory(input: StoryInput) {
       ageBand: input.ageBand ?? null,
       coverImageUrl: input.coverImageUrl ?? null,
       coverMotif: input.coverMotif ?? null,
+      premium: input.premium ?? true, // free-tier gating (#34); default premium unless flagged free
       published: true,
       updatedAt: new Date(),
     })
@@ -51,6 +52,7 @@ async function seedStory(input: StoryInput) {
         ageBand: input.ageBand ?? null,
         coverImageUrl: input.coverImageUrl ?? null,
         coverMotif: input.coverMotif ?? null,
+        premium: input.premium ?? true,
         published: true,
         updatedAt: new Date(),
       },

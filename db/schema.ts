@@ -88,6 +88,11 @@ export const story = pgTable("story", {
   startPageId: integer("start_page_id"),
   coverImageUrl: text("cover_image_url"),
   coverMotif: text("cover_motif"), // null = auto-derived from slug; else a StoryCover motif key
+  // Free-tier gating (issue #34). Premium stories are locked for parents without an
+  // active entitlement; a small sampler set (one per age band plus a spare) is free.
+  // Defaults to true so newly authored stories (incl. the monthly cadence) are premium
+  // unless an admin marks them free.
+  premium: boolean("premium").notNull().default(true),
   published: boolean("published").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

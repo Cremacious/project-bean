@@ -9,6 +9,7 @@ export default defineStory({
   ageBand: "5-7",
   coverMotif: "night",
   start: "post-window",
+  premium: false, // free sampler for ages 5 to 7 (issue #34)
   pages: {
     "post-window": {
       body: "The moon leaned close to {{name}}'s window with a soft, silver smile. In its light waited a little stack of goodnight letters, and Moth, who carried them on quiet wings. Every sleepy house in town was waiting for one. Where should the first letter go, {{name}}?",

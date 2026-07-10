@@ -37,7 +37,7 @@ export default async function StoryEditorPage({ params }: { params: Promise<{ sl
       <ValidationSummary errors={errors} />
 
       <StoryMetadataPanel
-        story={{ id: story.id, title: story.title, description: story.description, ageBand: story.ageBand, coverImageUrl: story.coverImageUrl, coverMotif: story.coverMotif }}
+        story={{ id: story.id, title: story.title, description: story.description, ageBand: story.ageBand, coverImageUrl: story.coverImageUrl, coverMotif: story.coverMotif, premium: story.premium }}
         pageKeys={pages.map((p) => p.key)}
         startKey={startKey}
         slug={slug}

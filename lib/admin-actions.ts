@@ -39,14 +39,15 @@ export async function createStory(meta: StoryMeta): Promise<{ ok: boolean; slug?
   return { ok: true, slug };
 }
 
-export async function updateStoryMeta(storyId: number, meta: Omit<StoryMeta, "slug">): Promise<{ ok: boolean; error?: string }> {
+export async function updateStoryMeta(storyId: number, meta: Omit<StoryMeta, "slug"> & { premium: boolean }): Promise<{ ok: boolean; error?: string }> {
   if (!(await requireAdmin())) return { ok: false, error: "Not allowed" };
   const title = meta.title.trim();
   if (!title) return { ok: false, error: "Title is required" };
   if (meta.ageBand && !AGE_BANDS.includes(meta.ageBand)) return { ok: false, error: "Invalid age band" };
   await db.update(story).set({
     title, description: meta.description.trim(), ageBand: meta.ageBand,
-    coverImageUrl: meta.coverImageUrl?.trim() || null, coverMotif: cleanMotif(meta.coverMotif), updatedAt: new Date(),
+    coverImageUrl: meta.coverImageUrl?.trim() || null, coverMotif: cleanMotif(meta.coverMotif),
+    premium: meta.premium, updatedAt: new Date(),
   }).where(eq(story.id, storyId));
   return { ok: true };
 }

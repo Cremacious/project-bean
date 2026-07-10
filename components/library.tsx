@@ -104,8 +104,17 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
                       Ages {ageBandLabel(s.ageBand)}
                     </span>
                   )}
-                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#E6F7F0] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-leaf-ink)]">
-                    ★ Tap to read
+                  {s.premium ? (
+                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#FFE7DC] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-ink)]">
+                      🔒 Premium
+                    </span>
+                  ) : (
+                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#E6F7F0] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-leaf-ink)]">
+                      Free
+                    </span>
+                  )}
+                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#FFF3D6] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-ink)]">
+                    ★ {s.premium ? "Tap to unlock" : "Tap to read"}
                   </span>
                 </div>
               </div>
