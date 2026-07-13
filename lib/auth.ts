@@ -4,20 +4,58 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db/client";
 import * as schema from "@/db/schema";
 import { sendEmail, resetPasswordEmail } from "@/lib/email";
+import { generateAppleClientSecret } from "@/lib/apple-client-secret";
 
+// Social providers are wired conditionally: a provider only activates when its
+// credentials are present in the environment, so local dev and CI (which have
+// none) never crash and never surface a broken button.
 type Social = NonNullable<Parameters<typeof betterAuth>[0]["socialProviders"]>;
 const socialProviders: Social = {};
+
+// Google (issue #15): a standard OAuth 2.0 Web-application client. Redirect URI
+// registered in Google Cloud must be <BETTER_AUTH_URL>/api/auth/callback/google.
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   socialProviders.google = {
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   };
 }
-if (process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET) {
-  socialProviders.apple = {
-    clientId: process.env.APPLE_CLIENT_ID,
-    clientSecret: process.env.APPLE_CLIENT_SECRET,
-  };
+
+// Apple (issue #16): Apple uses a short-lived signed JWT as the OAuth client
+// secret, not a static string, and BetterAuth does not generate it. So we build
+// the secret from the Services ID + Team ID + Key ID + .p8 private key (see
+// lib/apple-client-secret.ts). A pre-generated APPLE_CLIENT_SECRET is honoured
+// if provided (e.g. built in a deploy pipeline). Apple's return URL must be
+// HTTPS, so the registered redirect URI is
+// <BETTER_AUTH_URL>/api/auth/callback/apple on a real domain.
+const appleClientId = process.env.APPLE_CLIENT_ID;
+if (appleClientId) {
+  let appleClientSecret = process.env.APPLE_CLIENT_SECRET;
+  if (
+    !appleClientSecret &&
+    process.env.APPLE_TEAM_ID &&
+    process.env.APPLE_KEY_ID &&
+    process.env.APPLE_PRIVATE_KEY
+  ) {
+    try {
+      appleClientSecret = generateAppleClientSecret({
+        clientId: appleClientId,
+        teamId: process.env.APPLE_TEAM_ID,
+        keyId: process.env.APPLE_KEY_ID,
+        privateKey: process.env.APPLE_PRIVATE_KEY,
+      });
+    } catch (error) {
+      // A malformed key must not take down the whole auth route: log and leave
+      // Apple disabled rather than throwing at module load.
+      console.error("Failed to generate the Apple client secret; Apple sign-in is disabled.", error);
+    }
+  }
+  if (appleClientSecret) {
+    socialProviders.apple = {
+      clientId: appleClientId,
+      clientSecret: appleClientSecret,
+    };
+  }
 }
 
 export const auth = betterAuth({
