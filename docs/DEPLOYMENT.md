@@ -314,6 +314,55 @@ staging.** The release flow:
    immediately via Vercel → Deployments → **Promote** the previous good build
    (`docs/DATABASE.md` §2.4 step 1).
 
+## 11. Branch protection on master (#52)
+
+`master` is the deploy branch and this project ships by committing **directly** to it
+(each issue closed with `Closes #N`), not through pull requests. Branch protection is
+therefore tuned to catch accidents without forcing a PR workflow. Settings applied via the
+GitHub API:
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| Required status checks | `Lint, typecheck, test, build` **and** `End-to-end (Playwright)` | The two CI jobs in `.github/workflows/ci.yml` (#40) must exist and pass on a commit before it can be merged via the PR path. |
+| Strict (require branch up to date) | `true` | A PR must be current with `master` before merging. Does not affect the owner's direct pushes. |
+| Include administrators (`enforce_admins`) | **`false`** | So the owner can keep pushing straight to `master`. Turning this on would subject admin pushes to the required checks and **break the direct-to-master workflow**. |
+| Require pull requests / reviewers | **off** | Requiring PRs or approvals would block direct pushes. Intentionally not set. |
+| Allow force pushes | **`false`** | Blocks `git push --force` for everyone (including admins) — the main accident guard. |
+| Allow deletions | **`false`** | `master` cannot be deleted. |
+
+**Net effect:** a normal fast-forward `git push origin master` by the owner still works;
+force-pushes and branch deletion are blocked for everyone; the CI checks gate the PR path
+and are always visible on each commit. Because `enforce_admins` is `false`, the owner's
+*direct* pushes are not hard-blocked by a red check — the always-on guarantees for the solo
+workflow are the force-push and deletion locks, with the required checks documenting and
+enforcing the bar for any PR-based or non-admin change.
+
+View or adjust the protection (the exact command used to set it):
+
+```bash
+# View current protection
+gh api repos/Cremacious/project-bean/branches/master/protection
+
+# (Re)apply the settings above
+gh api -X PUT repos/Cremacious/project-bean/branches/master/protection --input - <<'JSON'
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["Lint, typecheck, test, build", "End-to-end (Playwright)"]
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
+JSON
+```
+
+If the CI job **names** in `ci.yml` ever change, update the `contexts` array to match, or the
+required checks will wait forever on a check that never reports. The release/promote flow
+that runs on top of this protection is in §10.
+
 ## Pre-deploy checklist
 
 - [ ] `package-lock.json` in sync (`npm ci` succeeds — this was fixed in #42).

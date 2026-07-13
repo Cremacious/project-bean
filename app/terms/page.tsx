@@ -27,9 +27,9 @@ export default function TermsPage() {
       >
         <h2>1. Agreement to these terms</h2>
         <p>
-          These Terms of Service ("Terms") are a legal agreement between you and{" "}
-          <Ph>{LEGAL.companyName}</Ph> ("we", "us", "our") about your use of the
-          Bedtime Quests app and website (the "Service"). By creating an account
+          These Terms of Service (&quot;Terms&quot;) are a legal agreement between you and{" "}
+          <Ph>{LEGAL.companyName}</Ph> (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) about your use of the
+          Bedtime Quests app and website (the &quot;Service&quot;). By creating an account
           or using the Service, you agree to these Terms. If you do not agree,
           please do not use the Service.
         </p>
@@ -48,7 +48,7 @@ export default function TermsPage() {
             <strong>
               A parent or guardian agrees to these Terms on behalf of the child
             </strong>{" "}
-            who uses the Service, and is responsible for supervising the child's
+            who uses the Service, and is responsible for supervising the child&apos;s
             use.
           </li>
           <li>
@@ -57,7 +57,7 @@ export default function TermsPage() {
           </li>
         </ul>
         <p>
-          Our handling of children's information is described in our{" "}
+          Our handling of children&apos;s information is described in our{" "}
           <a href="/privacy">Privacy Policy</a>.
         </p>
 
@@ -80,7 +80,7 @@ export default function TermsPage() {
           purpose. You agree <strong>not</strong> to:
         </p>
         <ul>
-          <li>Break the law or infringe anyone's rights while using the Service.</li>
+          <li>Break the law or infringe anyone&apos;s rights while using the Service.</li>
           <li>
             Copy, resell, rent, or redistribute the stories, artwork, or other
             content except as the Service allows.
@@ -111,7 +111,7 @@ export default function TermsPage() {
           The stories, artwork, text, logos, and software in the Service are owned
           by <Ph>{LEGAL.companyName}</Ph> or our licensors and are protected by
           law. We grant you a limited, personal, non exclusive, non transferable,
-          revocable license to use the Service for your family's own enjoyment.
+          revocable license to use the Service for your family&apos;s own enjoyment.
           All rights we do not expressly grant are reserved. The Bedtime Quests
           name and logo are our brand and may not be used without permission.
         </p>
@@ -125,7 +125,7 @@ export default function TermsPage() {
           <li>
             <strong>Where you buy.</strong> Subscriptions are sold through the app
             stores (Apple App Store or Google Play) and are managed by their
-            billing systems. Your purchase is also subject to the app store's
+            billing systems. Your purchase is also subject to the app store&apos;s
             terms.
           </li>
           <li>
@@ -170,7 +170,7 @@ export default function TermsPage() {
 
         <h2>8. Disclaimers</h2>
         <p>
-          The Service is provided "as is" and "as available." To the fullest
+          The Service is provided &quot;as is&quot; and &quot;as available.&quot; To the fullest
           extent the law allows, we disclaim all warranties, whether express or
           implied, including any implied warranties of merchantability, fitness
           for a particular purpose, and non infringement. We do not warrant that

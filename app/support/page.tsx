@@ -27,7 +27,7 @@ export default function SupportPage() {
         </h1>
         <p className="mt-3 max-w-2xl text-base font-medium text-[var(--pc-ink)]">
           We are happy to help. Whether you have a question about your account, a
-          subscription, or your family's privacy, here is how to reach us.
+          subscription, or your family&apos;s privacy, here is how to reach us.
         </p>
 
         {/* Contact card */}
@@ -54,7 +54,7 @@ export default function SupportPage() {
           <p>
             You can update your details, add or remove a child profile, and delete
             your account from inside the app once you are signed in. Deleting your
-            account also removes your child's first name and story progress.
+            account also removes your child&apos;s first name and story progress.
           </p>
 
           <h2>Subscriptions and billing</h2>
@@ -65,9 +65,9 @@ export default function SupportPage() {
             billing, renewals, and cancellation work.
           </p>
 
-          <h2>Privacy and your child's data</h2>
+          <h2>Privacy and your child&apos;s data</h2>
           <p>
-            To review or delete your child's information, or to ask a privacy
+            To review or delete your child&apos;s information, or to ask a privacy
             question, email us or read our <a href="/privacy">Privacy Policy</a>.
             We built Bedtime Quests to collect as little about your child as
             possible.

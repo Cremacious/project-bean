@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         <p>
           Bedtime Quests is an interactive bedtime story app for young children,
           read aloud by a parent or guardian. It is operated by{" "}
-          <Ph>{LEGAL.companyName}</Ph> ("we", "us", "our"). You can reach us
+          <Ph>{LEGAL.companyName}</Ph> (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;). You can reach us
           about privacy at <Email address={LEGAL.supportEmail} /> or by mail at{" "}
           <Ph>{LEGAL.companyAddress}</Ph>.
         </p>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
         <h2>2. A note for parents (this is a child directed app)</h2>
         <p>
           Bedtime Quests is directed to children under 13, so we follow the U.S.
-          Children's Online Privacy Protection Act (COPPA). The important points:
+          Children&apos;s Online Privacy Protection Act (COPPA). The important points:
         </p>
         <ul>
           <li>
@@ -57,12 +57,12 @@ export default function PrivacyPage() {
             endings they have found.
           </li>
           <li>
-            We do <strong>not</strong> knowingly collect a child's last name,
+            We do <strong>not</strong> knowingly collect a child&apos;s last name,
             birthdate, age, photos, voice, precise location, email, phone number,
             or any other contact details.
           </li>
           <li>
-            Parents can review and delete their child's information at any time
+            Parents can review and delete their child&apos;s information at any time
             (see section 8).
           </li>
         </ul>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
         <h3>3a. Information about your child</h3>
         <ul>
           <li>
-            <strong>First name.</strong> You, the parent, enter your child's
+            <strong>First name.</strong> You, the parent, enter your child&apos;s
             first name so the story can use it. We store the first name only.
           </li>
           <li>
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
         </ul>
         <p>
           We do not ask your child to type anything about themselves, and we do
-          not collect a child's last name, age, birthdate, photo, voice,
+          not collect a child&apos;s last name, age, birthdate, photo, voice,
           location, or contact information.
         </p>
 
@@ -129,7 +129,7 @@ export default function PrivacyPage() {
 
         <h2>4. How we use information</h2>
         <ul>
-          <li>To personalize the story with your child's first name.</li>
+          <li>To personalize the story with your child&apos;s first name.</li>
           <li>To remember reading preferences and story progress.</li>
           <li>To create and secure your account and keep you signed in.</li>
           <li>To send you account email such as password resets.</li>
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
           <li>To keep the service safe and prevent abuse.</li>
         </ul>
         <p>
-          We do <strong>not</strong> use your child's information to build
+          We do <strong>not</strong> use your child&apos;s information to build
           advertising profiles, and we do not sell personal information.
         </p>
 
@@ -150,7 +150,7 @@ export default function PrivacyPage() {
           your child or building a profile of them. We do not permit behavioral or
           interest based advertising to children. The ad provider{" "}
           <Ph>{LEGAL.adNetwork}</Ph> is configured for child directed treatment,
-          which turns off personalized ads. We do not share your child's first
+          which turns off personalized ads. We do not share your child&apos;s first
           name or profile with the ad provider.
         </p>
 
@@ -160,7 +160,7 @@ export default function PrivacyPage() {
           how the app is used, we configure it for a child directed audience:
           advertising features and ad personalization are turned off, and we do
           not use it to build cross service profiles of your child. We aim to keep
-          analytics aggregate and non identifying, and we do not send your child's
+          analytics aggregate and non identifying, and we do not send your child&apos;s
           first name to the analytics provider.
         </p>
 
@@ -177,7 +177,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>RevenueCat:</strong> to manage subscriptions, using an
-            identifier tied to your adult account, never your child's name.
+            identifier tied to your adult account, never your child&apos;s name.
           </li>
           <li>
             <strong><Ph>{LEGAL.adNetwork}</Ph>:</strong> only if ads are enabled,
@@ -201,16 +201,16 @@ export default function PrivacyPage() {
             Contact <Email address={LEGAL.supportEmail} /> and we will help.
           </li>
           <li>
-            <strong>Delete</strong> your child's information. You can remove a
+            <strong>Delete</strong> your child&apos;s information. You can remove a
             child profile in the app, or delete your whole account, which erases
-            your child's first name and story progress along with the account. You
+            your child&apos;s first name and story progress along with the account. You
             can also email <Email address={LEGAL.supportEmail} /> to request
             deletion.
           </li>
           <li>
             <strong>Withdraw consent.</strong> You can stop our further collection
-            of your child's information at any time. If you do, we will stop
-            collecting and delete the child's information on request. Note that
+            of your child&apos;s information at any time. If you do, we will stop
+            collecting and delete the child&apos;s information on request. Note that
             withdrawing consent may mean parts of the app no longer work.
           </li>
           <li>
@@ -237,14 +237,14 @@ export default function PrivacyPage() {
           only as secure hashes, connections use encryption in transit, sign in
           endpoints are rate limited against abuse, and access to production data
           is restricted. No system is perfectly secure, but we work to protect
-          your family's information.
+          your family&apos;s information.
         </p>
 
         <h2>11. Changes to this policy</h2>
         <p>
           We may update this policy as the app changes. When we make a material
           change, we will update the effective date above and, where appropriate,
-          notify parents. If a change expands how we use a child's information, we
+          notify parents. If a change expands how we use a child&apos;s information, we
           will obtain parental consent as required.
         </p>
 
@@ -263,7 +263,7 @@ export default function PrivacyPage() {
           </li>
         </ul>
         <p>
-          We respond to parental requests about a child's data as promptly as we
+          We respond to parental requests about a child&apos;s data as promptly as we
           can. This policy is intended to be read together with our{" "}
           <a href="/terms">Terms of Service</a>.
         </p>
