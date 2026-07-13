@@ -1,9 +1,9 @@
 # Deploying Bedtime Quests to Vercel
 
 Runbook for issue #42. Gets `Cremacious/project-bean` deployable on Vercel with
-working Preview and Production deployments. Schema/migrations on Neon are handled
-separately in **#45** (there is a known `db:migrate` hang against neon-http, so we
-do NOT run migrations from the deploy).
+working Preview and Production deployments. Schema/migrations and backups on Neon
+are handled separately in **`docs/DATABASE.md`** (#45) — there is a known
+`db:migrate` hang against neon-http, so we do NOT run migrations from the deploy.
 
 `.env.example` is the single source of truth for every variable. This file maps
 those variables to Vercel scopes and gives the click-by-click setup.
@@ -100,8 +100,9 @@ or auth cookies and callbacks break:
 2. Copy the **pooled** connection string (Neon dashboard → Connect → "Pooled connection"; the host contains `-pooler`). Serverless functions open many short-lived connections, so the pooler is required to avoid exhausting direct connections.
 3. Set `DATABASE_URL` to that pooled string in the matching Vercel scope. Keep `?sslmode=require`.
 
-> Migrations are **#45**. `npm run db:migrate` hangs against neon-http; apply the
-> production schema out-of-band per that issue. Deploy only wires `DATABASE_URL`.
+> Migrations are covered in **`docs/DATABASE.md`** (#45). `npm run db:migrate`
+> hangs against neon-http; apply the production schema out-of-band with
+> `npm run db:apply` per that doc. Deploy only wires `DATABASE_URL`.
 
 ## 6. Deploy and verify
 
@@ -184,4 +185,4 @@ canonical domain.
 - [ ] `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` match each environment's origin.
 - [ ] OAuth redirect URIs registered for the Production domain (if social login is on).
 - [ ] Custom domain attached with `www` / `.app` redirecting to `bedtimequests.com` and TLS valid (§7).
-- [ ] Production schema applied via **#45** before relying on data-backed pages.
+- [ ] Production schema applied via **`docs/DATABASE.md`** (#45) before relying on data-backed pages.
