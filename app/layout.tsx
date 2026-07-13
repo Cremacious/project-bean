@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource/opendyslexic/400.css";
-import "@fontsource/opendyslexic/700.css";
 import "./globals.css";
-import { baloo, nunito, atkinson } from "./fonts";
+import { baloo, nunito, atkinson, dyslexic } from "./fonts";
 import { BRAND } from "@/lib/brand";
 import { SITE_URL } from "@/lib/site-url";
 import { ParentalGateProvider } from "@/components/parental-gate/parental-gate-provider";
@@ -100,7 +98,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${baloo.variable} ${nunito.variable} ${atkinson.variable}`}>
+    <html lang="en" className={`${baloo.variable} ${nunito.variable} ${atkinson.variable} ${dyslexic.variable}`}>
       <body>
         <script
           type="application/ld+json"

@@ -22,8 +22,11 @@ export function StoryCover({ slug, motif, imageUrl, className = "" }: Props) {
   if (imageUrl && imageUrl.trim()) {
     return (
       <div className={`relative overflow-hidden ${className}`} aria-hidden="true">
-        {/* Author-supplied illustration. eslint-disable-next-line @next/next/no-img-element */}
-        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+        {/* Author-supplied illustration at an arbitrary admin-entered URL, so a
+            plain <img> (not next/image, which would need per-host remotePatterns).
+            Lazy + async so an offscreen card's cover never blocks first paint or
+            the main thread. eslint-disable-next-line @next/next/no-img-element */}
+        <img src={imageUrl} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
       </div>
     );
   }

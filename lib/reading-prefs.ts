@@ -2,7 +2,7 @@
 export const READING_FONTS = [
   { id: "rounded", label: "Rounded", note: "Default", cssVar: "var(--font-nunito)" },
   { id: "hyperlegible", label: "Hyperlegible", note: "Extra clear", cssVar: "var(--font-atkinson)" },
-  { id: "dyslexic", label: "OpenDyslexic", note: "Dyslexia-friendly", cssVar: "OpenDyslexic, sans-serif" },
+  { id: "dyslexic", label: "OpenDyslexic", note: "Dyslexia-friendly", cssVar: "var(--font-dyslexic)" },
 ] as const;
 
 export const READING_SIZES = [

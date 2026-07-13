@@ -27,8 +27,9 @@ export async function renderOgImage(): Promise<ImageResponse> {
   const markSvg = await readFile(join(process.cwd(), "public/brand/icon-rounded.svg"), "utf-8");
   const markSrc = `data:image/svg+xml;base64,${Buffer.from(markSvg).toString("base64")}`;
 
-  // OpenDyslexic is the reading font loaded app-wide (app/layout.tsx); reuse it
-  // so the card speaks in the product's voice. Satori accepts woff (not woff2).
+  // OpenDyslexic is one of the reader's fonts (see app/fonts.ts); reuse it here so
+  // the card speaks in the product's voice. Read straight from the @fontsource
+  // package (still a dependency): Satori accepts woff (not woff2).
   const fontDir = join(process.cwd(), "node_modules/@fontsource/opendyslexic/files");
   const [bold, regular] = await Promise.all([
     readFile(join(fontDir, "opendyslexic-latin-700-normal.woff")),

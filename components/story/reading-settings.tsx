@@ -8,7 +8,7 @@ import { READING_FONTS, READING_SIZES, type ReadingFontId, type ReadingSizeId } 
 const SAMPLE_CLASS: Record<ReadingFontId, string> = {
   rounded: "font-[family-name:var(--font-nunito)]",
   hyperlegible: "font-[family-name:var(--font-atkinson)]",
-  dyslexic: "[font-family:OpenDyslexic,sans-serif]",
+  dyslexic: "font-[family-name:var(--font-dyslexic)]",
 };
 
 // Preview "A" grows with each size step so the choice reads at a glance.

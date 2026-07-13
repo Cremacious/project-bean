@@ -76,7 +76,7 @@ const isDev = process.env.NODE_ENV === "development";
  *  - RevenueCat web billing: no browser SDK loads today (webhook is server side,
  *    lib/revenuecat.ts); add its domains if/when web billing ships (M6).
  */
-function buildCsp(nonce: string): string {
+function buildCsp(nonce: string, enforce: boolean): string {
   const directives = [
     `default-src 'self'`,
     `base-uri 'self'`,
@@ -95,9 +95,14 @@ function buildCsp(nonce: string): string {
     `frame-src 'self' https://accounts.google.com https://appleid.apple.com`,
     `worker-src 'self' blob:`,
   ];
-  // upgrade-insecure-requests is a production-only directive: on http://localhost
-  // it would try to upgrade dev resources to https and break local development.
-  if (!isDev) directives.push(`upgrade-insecure-requests`);
+  // upgrade-insecure-requests only takes effect in an ENFORCING policy served over
+  // HTTPS. Emitting it while the policy is Report-Only (the default rollout mode)
+  // does nothing except make the browser log a console warning ("ignored when
+  // delivered in a report-only policy"), which also trips Lighthouse's no-console-
+  // errors Best Practices audit (issue #48). On http://localhost it would also try
+  // to upgrade dev resources. So add it only when the policy is actually enforced
+  // and we are not in dev.
+  if (enforce && !isDev) directives.push(`upgrade-insecure-requests`);
   return directives.join("; ");
 }
 
@@ -107,15 +112,15 @@ export function proxy(request: NextRequest) {
   // One fresh nonce per request. Proxy runs on the Node.js runtime in Next 16,
   // so the Web Crypto `crypto` global is available.
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const csp = buildCsp(nonce);
+  const enforce = process.env.CSP_MODE === "enforce";
+  const csp = buildCsp(nonce, enforce);
 
   // Response header name toggles enforce vs observe; the REQUEST header is always
   // the real `Content-Security-Policy` name because that is what Next parses to
   // extract the nonce and inject it into the framework/page scripts it renders.
-  const responseCspHeader =
-    process.env.CSP_MODE === "enforce"
-      ? "Content-Security-Policy"
-      : "Content-Security-Policy-Report-Only";
+  const responseCspHeader = enforce
+    ? "Content-Security-Policy"
+    : "Content-Security-Policy-Report-Only";
 
   // Auth gate (behaviour preserved exactly from the previous middleware.ts).
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
