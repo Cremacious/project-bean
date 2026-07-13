@@ -1,83 +1,33 @@
 // lib/entitlements.ts
 //
 // The single, app-wide way to answer "is this parent subscribed?" (issue #33).
-// Every downstream surface reads through getSubscription() / isSubscribed() and
-// never queries billing state directly: the paywall and free-tier gate (#34),
-// plans and trial (#35), and manage/restore (#36) all build on these.
+// The pure rules and types (status vocabulary, computeIsActive, the safe default)
+// now live in @bedtime-quests/core and are re-exported below, so every platform
+// gates on the same logic. This file keeps the WEB data access: reading and
+// writing the billing row through lib/entitlement-store (Drizzle/Neon).
 //
 // Design guarantees:
 //  - Fail safe: any unknown, missing, or errored state resolves to NOT
 //    subscribed. A billing outage must never unlock paid content, and it must
 //    never crash a page, so getSubscription always resolves and never throws.
-//  - Crash free without RevenueCat: entitlements can be read (and, in option c,
-//    granted internally) with no RevenueCat keys present, so local dev runs.
+//  - Crash free without RevenueCat: entitlements can be read (and granted
+//    internally) with no RevenueCat keys present, so local dev runs.
 //  - Parent scoped (COPPA, docs/COMPLIANCE-COPPA.md section 6c): this reads only
 //    the adult account's row; no child data is ever involved.
 import type { Parent } from "@/lib/session";
 import { getEntitlementRow, upsertEntitlementRow } from "@/lib/entitlement-store";
+import {
+  type Subscription,
+  NOT_SUBSCRIBED,
+  normalizeStatus,
+  computeIsActive,
+} from "@bedtime-quests/core/entitlements";
 
-export type SubscriptionStatus =
-  | "none"
-  | "trialing"
-  | "active"
-  | "grace"
-  | "canceled"
-  | "expired";
-
-export type Subscription = {
-  status: SubscriptionStatus;
-  productId: string | null;
-  source: "internal" | "revenuecat";
-  currentPeriodEnd: Date | null;
-  /** The computed entitlement: true only if the parent may access paid content right now. */
-  isActive: boolean;
-};
-
-const NOT_SUBSCRIBED: Subscription = {
-  status: "none",
-  productId: null,
-  source: "internal",
-  currentPeriodEnd: null,
-  isActive: false,
-};
-
-// Statuses that entitle the parent (subject to the period-end check below).
-// "canceled" still counts while the already-paid period runs.
-const ENTITLING_STATUSES = new Set<SubscriptionStatus>([
-  "trialing",
-  "active",
-  "grace",
-  "canceled",
-]);
-
-function normalizeStatus(raw: string): SubscriptionStatus {
-  switch (raw) {
-    case "trialing":
-    case "active":
-    case "grace":
-    case "canceled":
-    case "expired":
-    case "none":
-      return raw;
-    default:
-      return "none"; // unknown persisted value -> treat as not subscribed
-  }
-}
-
-/**
- * Whether an entitlement is currently active. A null period end means no expiry
- * (e.g. an internal comp grant); a period end in the past is always inactive,
- * even if a status-changing webhook was missed.
- */
-export function computeIsActive(
-  status: SubscriptionStatus,
-  currentPeriodEnd: Date | null,
-  now: Date = new Date(),
-): boolean {
-  if (!ENTITLING_STATUSES.has(status)) return false;
-  if (currentPeriodEnd && currentPeriodEnd.getTime() <= now.getTime()) return false;
-  return true;
-}
+export {
+  type SubscriptionStatus,
+  type Subscription,
+  computeIsActive,
+} from "@bedtime-quests/core/entitlements";
 
 /** The parent's subscription, or the safe not-subscribed default. Never throws. */
 export async function getSubscription(parent: Parent | null): Promise<Subscription> {

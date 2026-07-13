@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { updateStoryMeta, setStartPage, deleteStory } from "@/lib/admin-actions";
 import { field, labelCls } from "@/components/admin/styles";
 import { FieldError } from "@/components/ui/field-error";
-import { isValidHttpUrl } from "@/lib/validation";
+import { isValidHttpUrl } from "@bedtime-quests/core/validation";
 import { StoryCover } from "@/components/story/story-cover";
-import { MOTIFS } from "@/lib/stories/covers";
+import { MOTIFS } from "@bedtime-quests/core/stories/covers";
 
 const AGE_OPTIONS = [
   { value: "", label: "No age band" },

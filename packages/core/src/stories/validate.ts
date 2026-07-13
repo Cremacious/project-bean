@@ -1,5 +1,5 @@
 // lib/stories/validate.ts
-import type { StoryInput } from "@/content/stories/_story-types";
+import type { StoryInput } from "./story-types";
 
 /** Returns an array of human-readable error strings. Empty array = valid. */
 export function validateStory(story: StoryInput): string[] {

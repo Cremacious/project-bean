@@ -8,7 +8,7 @@
 // (getSubscription), the one app-wide source of billing truth from #33. `isActive`
 // already folds in trials (trialing) and the fail-safe default (any unknown or
 // errored state resolves to not subscribed), so this stays a one-liner.
-import type { Subscription } from "@/lib/entitlements";
+import type { Subscription } from "../entitlements";
 
 /**
  * Whether a story may be read right now.

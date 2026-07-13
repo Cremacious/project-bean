@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { FieldError } from "@/components/ui/field-error";
-import { isDeleteConfirmed, DELETE_CONFIRM_WORD } from "@/lib/validation";
+import { isDeleteConfirmed, DELETE_CONFIRM_WORD } from "@bedtime-quests/core/validation";
 
 export function DeleteAccount() {
   const router = useRouter();

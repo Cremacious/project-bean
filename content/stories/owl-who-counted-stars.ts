@@ -1,5 +1,5 @@
 // content/stories/owl-who-counted-stars.ts
-import { defineStory } from "./_story-types";
+import { defineStory } from "@bedtime-quests/core/stories/story-types";
 
 export default defineStory({
   slug: "owl-who-counted-stars",

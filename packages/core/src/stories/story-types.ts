@@ -1,5 +1,5 @@
 // content/stories/_story-types.ts
-import type { MotifKey } from "@/lib/stories/covers";
+import type { MotifKey } from "./covers";
 
 export type ChoiceInput = {
   label: string;

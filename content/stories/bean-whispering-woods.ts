@@ -1,5 +1,5 @@
 // content/stories/bean-whispering-woods.ts
-import { defineStory } from "./_story-types";
+import { defineStory } from "@bedtime-quests/core/stories/story-types";
 
 export default defineStory({
   slug: "bean-whispering-woods",

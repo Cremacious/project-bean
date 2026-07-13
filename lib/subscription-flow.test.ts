@@ -3,7 +3,7 @@ import * as store from "@/lib/entitlement-store";
 import type { EntitlementRow, EntitlementPatch } from "@/lib/entitlement-store";
 import { mapEventToEntitlement, type RevenueCatEvent } from "@/lib/revenuecat";
 import { getSubscription } from "@/lib/entitlements";
-import { PLANS } from "@/lib/plans";
+import { PLANS } from "@bedtime-quests/core/plans";
 
 // Entitlement after a successful purchase, end to end through the #33 abstraction.
 // The billing provider is mocked entirely: we feed the webhook mapping a

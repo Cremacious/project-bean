@@ -5,13 +5,13 @@ import { getActiveChild } from "@/lib/active-child";
 import { getParent } from "@/lib/session";
 import { getSubscription } from "@/lib/entitlements";
 import { getStoryBySlug } from "@/lib/stories/queries";
-import { isStoryUnlocked } from "@/lib/stories/access";
+import { isStoryUnlocked } from "@bedtime-quests/core/stories/access";
 import { loadStoryGraph } from "@/lib/stories/graph";
 import { db } from "@/db/client";
 import { page as pageTable } from "@/db/schema";
 import { StoryReader } from "@/components/story/story-reader";
 import { Paywall } from "@/components/paywall";
-import { initialSizeForMode, type ReadingFontId } from "@/lib/reading-prefs";
+import { initialSizeForMode, type ReadingFontId } from "@bedtime-quests/core/reading-prefs";
 
 export default async function StoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

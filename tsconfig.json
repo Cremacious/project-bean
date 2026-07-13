@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@bedtime-quests/core": ["./packages/core/src/index.ts"],
+      "@bedtime-quests/core/*": ["./packages/core/src/*"]
     }
   },
   "include": [
@@ -30,5 +32,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  // The shared core and the Expo app each own their own tsconfig and are checked
+  // separately, so keep them out of the web app's compile set.
+  "exclude": ["node_modules", "packages", "apps"]
 }

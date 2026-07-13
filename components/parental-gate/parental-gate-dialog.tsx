@@ -18,7 +18,7 @@ import {
   generateGateChallenge,
   checkGateAnswer,
   type GateChallenge,
-} from "@/lib/parental-gate";
+} from "@bedtime-quests/core/parental-gate";
 
 export function ParentalGateDialog({
   onPass,

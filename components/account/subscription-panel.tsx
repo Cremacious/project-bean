@@ -12,7 +12,7 @@
 // (UI rule 2); all text is high contrast (UI rule 3).
 import Link from "next/link";
 import type { Subscription } from "@/lib/entitlements";
-import { describeSubscription, type SubscriptionVariant } from "@/lib/subscription-display";
+import { describeSubscription, type SubscriptionVariant } from "@bedtime-quests/core/subscription-display";
 import { RestorePurchases } from "@/components/account/restore-purchases";
 
 // The status dot color per variant. Dark ink tokens so the dot reads on the light

@@ -42,6 +42,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The shared core (@bedtime-quests/core) ships raw TypeScript from the
+  // workspace rather than a prebuilt bundle. Turbopack transpiles workspace
+  // packages automatically, but listing it here makes the web build resolve and
+  // compile it explicitly under either bundler. See node_modules/next/dist/docs/
+  // 01-app/03-api-reference/05-config/01-next-config-js/transpilePackages.md.
+  transpilePackages: ["@bedtime-quests/core"],
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

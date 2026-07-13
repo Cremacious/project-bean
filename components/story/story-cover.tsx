@@ -9,7 +9,7 @@
 // adapts to every shape a cover appears in: a wide card header, a tall side
 // strip, and a small square thumbnail. It is purely decorative and never looks
 // clickable (the surrounding card is the interactive element, UI rule 2).
-import { resolveMotif, hashSlug, type MotifKey } from "@/lib/stories/covers";
+import { resolveMotif, hashSlug, type MotifKey } from "@bedtime-quests/core/stories/covers";
 
 type Props = {
   slug: string;

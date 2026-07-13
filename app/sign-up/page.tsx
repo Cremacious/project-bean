@@ -9,7 +9,7 @@ import { SocialButtons } from "@/components/auth/social-buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
-import { isValidEmail, PASSWORD_MIN } from "@/lib/validation";
+import { isValidEmail, PASSWORD_MIN } from "@bedtime-quests/core/validation";
 import { friendlyAuthError } from "@/lib/auth-errors";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";

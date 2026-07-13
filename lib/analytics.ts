@@ -120,14 +120,14 @@ export function getAnalyticsConfig(env: NodeJS.ProcessEnv = process.env): Analyt
 // crash reporting scrub the exact same fields (they must never drift). Imported
 // for use below and re-exported so analytics' own call sites and tests keep
 // importing it from one place.
-import { isPersonalKey } from "./pii-keys";
+import { isPersonalKey } from "@bedtime-quests/core/pii-keys";
 export { isPersonalKey };
 
 // The shared consent state (issue #50). track() reads it so no analytics event
 // can fire before the parent grants the analytics category, and so events stop
 // the moment consent is withdrawn, independently of whether the GA script has
 // already loaded. This is the same single signal the loader and ads read.
-import { CONSENT_COOKIE, parseConsentCookie, isCategoryGranted, type ConsentState } from "./consent";
+import { CONSENT_COOKIE, parseConsentCookie, isCategoryGranted, type ConsentState } from "@bedtime-quests/core/consent";
 
 /** Read the analytics-consent choice from the first-party cookie (client only). */
 function readConsentClient(): ConsentState {

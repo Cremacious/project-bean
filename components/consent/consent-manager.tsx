@@ -16,7 +16,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useConsent } from "./consent-provider";
-import { isCategoryGranted, type OptionalCategory } from "@/lib/consent";
+import { isCategoryGranted, type OptionalCategory } from "@bedtime-quests/core/consent";
 
 /** One optional category, described in plain parent-facing language. */
 const CATEGORIES: {

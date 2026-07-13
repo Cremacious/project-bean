@@ -15,7 +15,7 @@ import { cookies } from "next/headers";
 import { getParent } from "@/lib/session";
 import { getSubscription } from "@/lib/entitlements";
 import { getAdsConfig, shouldShowAds, type AdPlacement } from "@/lib/ads";
-import { CONSENT_COOKIE, parseConsentCookie, isCategoryGranted } from "@/lib/consent";
+import { CONSENT_COOKIE, parseConsentCookie, isCategoryGranted } from "@bedtime-quests/core/consent";
 import { HouseAd } from "@/components/ads/house-ad";
 
 export async function AdSlot({ placement }: { placement: AdPlacement }) {

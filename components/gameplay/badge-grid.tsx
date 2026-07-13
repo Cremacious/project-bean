@@ -1,5 +1,5 @@
 // components/gameplay/badge-grid.tsx
-import type { Badge } from "@/lib/gameplay/progress";
+import type { Badge } from "@bedtime-quests/core/gameplay/progress";
 
 export function BadgeGrid({ badges }: { badges: Badge[] }) {
   return (

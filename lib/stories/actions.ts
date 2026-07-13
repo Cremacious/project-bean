@@ -5,7 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { getActiveChild } from "@/lib/active-child";
 import { getStoryBySlug } from "@/lib/stories/queries";
 import { loadStoryEndings } from "@/lib/stories/graph";
-import { computeStoryProgress, type StoryProgress } from "@/lib/gameplay/progress";
+import { computeStoryProgress, type StoryProgress } from "@bedtime-quests/core/gameplay/progress";
 import { db } from "@/db/client";
 import { page as pageTable, endingFound } from "@/db/schema";
 

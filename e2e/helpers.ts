@@ -3,7 +3,7 @@
 // matching the app-wide UI rules.
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 // Reuse the real word/digit mapping so the gate solver never drifts from the app.
-import { NUMBER_WORDS } from "../lib/parental-gate";
+import { NUMBER_WORDS } from "@bedtime-quests/core/parental-gate";
 
 const DIGIT_WORDS: string[] = [...NUMBER_WORDS];
 

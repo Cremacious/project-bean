@@ -22,7 +22,7 @@
 // calls. A single kill switch (NEXT_PUBLIC_SENTRY_ENABLED) turns it off
 // everywhere while keeping the DSN in place.
 
-import { isPersonalKey } from "./pii-keys";
+import { isPersonalKey } from "@bedtime-quests/core/pii-keys";
 
 /**
  * Resolved reporting config. `enabled` is the one honest boolean the whole app

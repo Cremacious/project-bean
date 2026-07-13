@@ -37,7 +37,7 @@ import {
   hasDecision,
   type ConsentState,
   type OptionalCategory,
-} from "@/lib/consent";
+} from "@bedtime-quests/core/consent";
 
 type ConsentContextValue = {
   /** The current recorded choice, or null for "no decision yet". */

@@ -1,7 +1,7 @@
 // lib/stories/validate.test.ts
 import { describe, it, expect } from "vitest";
 import { validateStory } from "./validate";
-import type { StoryInput } from "@/content/stories/_story-types";
+import type { StoryInput } from "./story-types";
 
 const base: StoryInput = {
   slug: "s",

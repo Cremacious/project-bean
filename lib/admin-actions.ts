@@ -5,10 +5,10 @@ import { db } from "@/db/client";
 import { story, page, choice } from "@/db/schema";
 import { getParent } from "@/lib/session";
 import { isAdmin } from "@/lib/admin";
-import { isValidSlug, isValidSlug as isValidKey } from "@/lib/admin/slugs";
+import { isValidSlug, isValidSlug as isValidKey } from "@bedtime-quests/core/admin/slugs";
 import { buildStoryInput } from "@/lib/admin/story-to-input";
-import { validateStory } from "@/lib/stories/validate";
-import { isMotifKey } from "@/lib/stories/covers";
+import { validateStory } from "@bedtime-quests/core/stories/validate";
+import { isMotifKey } from "@bedtime-quests/core/stories/covers";
 
 async function requireAdmin(): Promise<boolean> {
   const parent = await getParent();

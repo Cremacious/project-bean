@@ -7,7 +7,7 @@ import { requestPasswordReset } from "@/lib/auth-client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
-import { isValidEmail } from "@/lib/validation";
+import { isValidEmail } from "@bedtime-quests/core/validation";
 import { friendlyAuthError } from "@/lib/auth-errors";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";

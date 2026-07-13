@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createPage } from "@/lib/admin-actions";
-import { isValidSlug } from "@/lib/admin/slugs";
+import { isValidSlug } from "@bedtime-quests/core/admin/slugs";
 import { field, labelCls } from "@/components/admin/styles";
 import { PageEditor } from "@/components/admin/page-editor";
 import type { ChoiceRow } from "@/components/admin/choices-editor";

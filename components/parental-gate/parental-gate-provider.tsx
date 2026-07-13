@@ -22,7 +22,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { gatePassKey } from "@/lib/parental-gate";
+import { gatePassKey } from "@bedtime-quests/core/parental-gate";
 import { ParentalGateDialog } from "./parental-gate-dialog";
 
 type RequireAdult = (purpose: string) => Promise<boolean>;

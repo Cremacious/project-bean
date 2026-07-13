@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createStory } from "@/lib/admin-actions";
-import { slugify, isValidSlug } from "@/lib/admin/slugs";
+import { slugify, isValidSlug } from "@bedtime-quests/core/admin/slugs";
 import { field, labelCls } from "@/components/admin/styles";
 import { FieldError } from "@/components/ui/field-error";
 

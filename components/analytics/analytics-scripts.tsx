@@ -23,7 +23,7 @@
 import Script from "next/script";
 import { getAnalyticsConfig } from "@/lib/analytics";
 import { useConsent } from "@/components/consent/consent-provider";
-import { isCategoryGranted } from "@/lib/consent";
+import { isCategoryGranted } from "@bedtime-quests/core/consent";
 
 export function AnalyticsScripts() {
   const { state, ready } = useConsent();

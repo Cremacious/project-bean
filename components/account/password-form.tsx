@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { authClient } from "@/lib/auth-client";
 import { FieldError } from "@/components/ui/field-error";
-import { PASSWORD_MIN } from "@/lib/validation";
+import { PASSWORD_MIN } from "@bedtime-quests/core/validation";
 import { friendlyAuthError } from "@/lib/auth-errors";
 
 type Errors = { current?: string; next?: string; confirm?: string };

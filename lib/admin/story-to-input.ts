@@ -1,5 +1,5 @@
 // lib/admin/story-to-input.ts
-import type { StoryInput, PageInput } from "@/content/stories/_story-types";
+import type { StoryInput, PageInput } from "@bedtime-quests/core/stories/story-types";
 import type { AdminStory, AdminPage, AdminChoice } from "@/lib/admin/queries";
 
 /** Pure: rebuild the StoryInput the validator expects from DB rows. */

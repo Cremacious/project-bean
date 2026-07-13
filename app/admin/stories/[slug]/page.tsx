@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminStory, listPages, listChoices } from "@/lib/admin/queries";
 import { buildStoryInput } from "@/lib/admin/story-to-input";
-import { validateStory } from "@/lib/stories/validate";
+import { validateStory } from "@bedtime-quests/core/stories/validate";
 import { StoryMetadataPanel } from "@/components/admin/story-metadata-panel";
 import { PublishControl } from "@/components/admin/publish-control";
 import { PagesPanel } from "@/components/admin/pages-panel";

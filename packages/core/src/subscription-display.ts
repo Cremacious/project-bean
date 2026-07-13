@@ -8,8 +8,8 @@
 // know it. Kept pure (no I/O, `now` injectable) so it unit tests without a DB.
 //
 // Copy note (UI rule 1): every user-facing string here is free of dashes.
-import type { Subscription } from "@/lib/entitlements";
-import { planNameForProductId } from "@/lib/plans";
+import type { Subscription } from "./entitlements";
+import { planNameForProductId } from "./plans";
 
 /** Which color treatment the status block uses. Purely presentational. */
 export type SubscriptionVariant = "active" | "trial" | "attention" | "none";

@@ -1,5 +1,5 @@
 // content/stories/comet-sleepy-planets.ts
-import { defineStory } from "./_story-types";
+import { defineStory } from "@bedtime-quests/core/stories/story-types";
 
 export default defineStory({
   slug: "comet-sleepy-planets",

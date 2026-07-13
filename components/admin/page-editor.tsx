@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { updatePage, deletePage } from "@/lib/admin-actions";
 import { field, labelCls } from "@/components/admin/styles";
 import { FieldError } from "@/components/ui/field-error";
-import { isValidSlug } from "@/lib/admin/slugs";
+import { isValidSlug } from "@bedtime-quests/core/admin/slugs";
 import { ChoicesEditor, type ChoiceRow } from "@/components/admin/choices-editor";
 
 type EndingType = "good" | "game_over";

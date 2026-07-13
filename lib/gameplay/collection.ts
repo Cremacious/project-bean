@@ -1,37 +1,20 @@
 // lib/gameplay/collection.ts
+//
+// Web data-access layer for the collection screen. The pure builder lives in
+// @bedtime-quests/core; this file loads the rows via Drizzle and re-exports the
+// core pieces so existing web imports of `@/lib/gameplay/collection` keep working.
 import { eq, inArray, asc } from "drizzle-orm";
 import { db } from "@/db/client";
 import { story, page, endingFound } from "@/db/schema";
-import { computeStoryProgress, deriveBadges, type Badge } from "@/lib/gameplay/progress";
+import { buildCollection } from "@bedtime-quests/core/gameplay/collection";
 
-export type CollectionStory = { slug: string; title: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null; goodFound: number; goodTotal: number; complete: boolean; surprises: number };
-export type Collection = { stats: { endingsFound: number; storiesCompleted: number; surprises: number }; stories: CollectionStory[]; badges: Badge[] };
+export {
+  buildCollection,
+  type Collection,
+  type CollectionStory,
+} from "@bedtime-quests/core/gameplay/collection";
 
-type StoryRow = { id: number; slug: string; title: string; ageBand: string | null; coverImageUrl: string | null; coverMotif: string | null };
-type EndingRow = { id: number; storyId: number; endingType: string; isEnding: boolean };
-
-export function buildCollection(stories: StoryRow[], endingPages: EndingRow[], foundIds: number[]): Collection {
-  const byStory = new Map<number, { pageId: number; endingType: string }[]>();
-  for (const p of endingPages) {
-    if (!p.isEnding) continue;
-    const arr = byStory.get(p.storyId) ?? [];
-    arr.push({ pageId: p.id, endingType: p.endingType });
-    byStory.set(p.storyId, arr);
-  }
-  const out: CollectionStory[] = [];
-  let endingsFound = 0, storiesCompleted = 0, surprises = 0;
-  for (const s of stories) {
-    const prog = computeStoryProgress(byStory.get(s.id) ?? [], foundIds);
-    out.push({ slug: s.slug, title: s.title, ageBand: s.ageBand, coverImageUrl: s.coverImageUrl, coverMotif: s.coverMotif, ...prog });
-    endingsFound += prog.goodFound;
-    if (prog.complete) storiesCompleted += 1;
-    surprises += prog.surprises;
-  }
-  const badges = deriveBadges({ goodEndingsFound: endingsFound, storiesCompleted, storiesTotal: stories.length, surprisesFound: surprises });
-  return { stats: { endingsFound, storiesCompleted, surprises }, stories: out, badges };
-}
-
-export async function getCollection(childId: number): Promise<Collection> {
+export async function getCollection(childId: number) {
   const stories = await db
     .select({ id: story.id, slug: story.slug, title: story.title, ageBand: story.ageBand, coverImageUrl: story.coverImageUrl, coverMotif: story.coverMotif })
     .from(story).where(eq(story.published, true)).orderBy(asc(story.title));

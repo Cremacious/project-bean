@@ -1,5 +1,7 @@
 # dependencies
 /node_modules
+# npm workspaces install nested node_modules under packages/* and apps/*
+node_modules/
 
 # next.js
 /.next

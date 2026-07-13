@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { Subscription, SubscriptionStatus } from "@/lib/entitlements";
-import { computeIsActive } from "@/lib/entitlements";
+import type { Subscription, SubscriptionStatus } from "../entitlements";
+import { computeIsActive } from "../entitlements";
 import { isStoryUnlocked } from "./access";
 
 // Build a Subscription the same way getSubscription does, so isActive is derived

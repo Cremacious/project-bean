@@ -8,7 +8,7 @@ import {
   type AnalyticsParamValue,
   type AnalyticsEvent,
 } from "./analytics";
-import { acceptAll, rejectOptional, type ConsentState } from "./consent";
+import { acceptAll, rejectOptional, type ConsentState } from "@bedtime-quests/core/consent";
 
 /** A config with analytics on, for exercising track() without env coupling. */
 const ENABLED: AnalyticsConfig = {

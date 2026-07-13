@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildStoryInput } from "./story-to-input";
-import { validateStory } from "@/lib/stories/validate";
+import { validateStory } from "@bedtime-quests/core/stories/validate";
 
 const storyRow = { id: 1, slug: "bean", title: "Bean", description: "", ageBand: "2-4" as string | null, startPageId: 10, coverImageUrl: null, coverMotif: null, published: false, createdAt: new Date(), updatedAt: new Date() };
 const pages = [

@@ -22,7 +22,7 @@ import {
   yearlySavings,
   type Plan,
   type PlanKey,
-} from "@/lib/plans";
+} from "@bedtime-quests/core/plans";
 
 type FlowState =
   | { step: "choosing" }

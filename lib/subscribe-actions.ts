@@ -19,7 +19,7 @@
 // validate inside the action rather than trusting the caller.
 import { getParent } from "@/lib/session";
 import { getSubscription } from "@/lib/entitlements";
-import { isPlanKey, type PlanKey } from "@/lib/plans";
+import { isPlanKey, type PlanKey } from "@bedtime-quests/core/plans";
 
 export type StartSubscriptionResult =
   | { ok: true; outcome: "deferred_to_native"; planKey: PlanKey }

@@ -6,8 +6,8 @@ import { pathToFileURL } from "node:url";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { story, page, choice } from "@/db/schema";
-import { validateStory } from "@/lib/stories/validate";
-import type { StoryInput } from "@/content/stories/_story-types";
+import { validateStory } from "@bedtime-quests/core/stories/validate";
+import type { StoryInput } from "@bedtime-quests/core/stories/story-types";
 
 const STORIES_DIR = join(process.cwd(), "content", "stories");
 

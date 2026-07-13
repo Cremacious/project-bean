@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { READING_FONTS, READING_SIZES, type ReadingFontId, type ReadingSizeId } from "@/lib/reading-prefs";
+import { READING_FONTS, READING_SIZES, type ReadingFontId, type ReadingSizeId } from "@bedtime-quests/core/reading-prefs";
 
 // Font-family utility per option, used on the little "Bean" preview word.
 const SAMPLE_CLASS: Record<ReadingFontId, string> = {

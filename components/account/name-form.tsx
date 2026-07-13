@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { FieldError } from "@/components/ui/field-error";
-import { isValidDisplayName, DISPLAY_NAME_MAX } from "@/lib/validation";
+import { isValidDisplayName, DISPLAY_NAME_MAX } from "@bedtime-quests/core/validation";
 
 export function NameForm({ currentName }: { currentName: string }) {
   const router = useRouter();

@@ -3,7 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { getParent } from "@/lib/session";
 import { getActiveChild } from "@/lib/active-child";
-import { isFontId, isSizeId } from "@/lib/reading-prefs";
+import { isFontId, isSizeId } from "@bedtime-quests/core/reading-prefs";
 import { db } from "@/db/client";
 import { child } from "@/db/schema";
 

@@ -6,12 +6,12 @@ import type { CSSProperties } from "react";
 import { useSearchParams } from "next/navigation";
 import type { StoryGraph } from "@/lib/stories/graph";
 import { recordEnding } from "@/lib/stories/actions";
-import type { StoryProgress } from "@/lib/gameplay/progress";
+import type { StoryProgress } from "@bedtime-quests/core/gameplay/progress";
 import { EndingScreen } from "@/components/story/ending-screen";
 import { ReadingSettings } from "@/components/story/reading-settings";
 import { setChildReadingPrefs } from "@/lib/children-actions";
-import { personalize } from "@/lib/stories/personalize";
-import { fontCss, sizeCss, type ReadingFontId, type ReadingSizeId } from "@/lib/reading-prefs";
+import { personalize } from "@bedtime-quests/core/stories/personalize";
+import { fontCss, sizeCss, type ReadingFontId, type ReadingSizeId } from "@bedtime-quests/core/reading-prefs";
 import { track } from "@/lib/analytics";
 
 type EndingProgress = StoryProgress & { endingType: string };

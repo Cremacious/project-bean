@@ -1,0 +1,29 @@
+{
+  // Standalone type-check config for the shared core. It intentionally does NOT
+  // pull in DOM, Node, React, or Next types: core must stay platform-agnostic, so
+  // if a file here reaches for `window`, `process`, or a framework API, the
+  // type-check should fail rather than silently couple core to one platform.
+  "compilerOptions": {
+    "target": "ES2022",
+    // ES2022 plus WebWorker (NOT DOM): this types the universal web-standard
+    // globals agnostic code may use (URL, fetch, TextEncoder) while still
+    // erroring on browser-only globals like `document`, `window`, and
+    // `localStorage`, so core cannot quietly couple itself to the DOM.
+    "lib": ["ES2022", "WebWorker"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": []
+  },
+  "include": ["src/**/*.ts"],
+  // Tests carry partial fixtures that intentionally do not satisfy the strict
+  // source types (same policy as the web tsconfig.typecheck.json). They are run
+  // for real by `npm run test`, not type-checked here.
+  "exclude": ["node_modules", "**/*.test.ts"]
+}
