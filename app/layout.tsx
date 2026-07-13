@@ -4,6 +4,7 @@ import "@fontsource/opendyslexic/700.css";
 import "./globals.css";
 import { baloo, nunito, atkinson } from "./fonts";
 import { BRAND } from "@/lib/brand";
+import { SITE_URL } from "@/lib/site-url";
 import { ParentalGateProvider } from "@/components/parental-gate/parental-gate-provider";
 import { AnalyticsScripts } from "@/components/analytics/analytics-scripts";
 import { SignupBeacon } from "@/components/analytics/signup-beacon";
@@ -24,16 +25,32 @@ export const dynamic = "force-dynamic";
 // Twitter so the message stays consistent. No dashes (app-wide UI rule).
 const DESCRIPTION = `${BRAND.slogan} Interactive bedtime stories for kids, where every choice leads somewhere new.`;
 
-// Canonical origin for OpenGraph/canonical URL resolution. Driven by the same
-// env var as the auth client (lib/auth-client.ts) so every absolute URL agrees
-// with the origin the browser is actually on. In Production this is the custom
-// domain (https://bedtimequests.com); the localhost fallback is dev-only and is
-// never used on Vercel, where NEXT_PUBLIC_APP_URL is always set.
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+// WebSite structured data (JSON-LD) so search engines can render a richer result
+// for the brand. Kept minimal and reusing the same copy as the tags above; no
+// dashes in any human-facing value (app-wide UI rule 1). It is a data block
+// (type application/ld+json is not executable), so it is exempt from the script
+// nonce CSP set in proxy.ts. The logo points at a real static asset in public.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: BRAND.fullName,
+  alternateName: BRAND.name,
+  url: SITE_URL,
+  description: DESCRIPTION,
+  inLanguage: "en-US",
+  publisher: {
+    "@type": "Organization",
+    name: BRAND.name,
+    url: SITE_URL,
+    logo: `${SITE_URL}/brand/icon-rounded-512.png`,
+  },
+};
 
 export const metadata: Metadata = {
-  // Lets relative OpenGraph/canonical URLs resolve to the production origin.
-  metadataBase: new URL(APP_URL),
+  // Lets relative OpenGraph/canonical/sitemap URLs resolve to the production
+  // origin (the custom domain from issue #43). SITE_URL is env driven, so it is
+  // never a hardcoded or localhost value in Production. See lib/site-url.ts.
+  metadataBase: new URL(SITE_URL),
   applicationName: BRAND.name,
   title: {
     default: BRAND.fullName,
@@ -57,7 +74,8 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   twitter: {
-    card: "summary",
+    // summary_large_image because we ship a 1200x630 card (app/twitter-image.tsx).
+    card: "summary_large_image",
     title: BRAND.fullName,
     description: DESCRIPTION,
   },
@@ -84,6 +102,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${baloo.variable} ${nunito.variable} ${atkinson.variable}`}>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
         <ParentalGateProvider>{children}</ParentalGateProvider>
         <SignupBeacon />
         <AnalyticsScripts />

@@ -18,11 +18,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-// `/apple-icon` is the generated apple-touch-icon route. It has no file
-// extension, so (unlike /icon.svg and /favicon.ico) it is not caught by the
-// matcher's extension exclusion below; list it here so the logo icon stays
-// publicly reachable instead of redirecting to sign-in.
-const PUBLIC_PATHS = ["/sign-in", "/sign-up", "/api/auth", "/apple-icon"];
+// Publicly reachable paths that skip the auth gate below.
+//
+// Several of these (the SEO/metadata routes) have no image file extension, or a
+// .xml/.txt one, so the matcher's extension exclusion does NOT catch them; they
+// must be listed here or a signed out crawler would be redirected to /sign-in and
+// never see them (issue #46):
+//   - /apple-icon        the generated apple-touch-icon route (no extension).
+//   - /opengraph-image,  the generated social share cards (no extension); the
+//     /twitter-image      meta URLs carry a ?<hash> query, matched by startsWith.
+//   - /sitemap.xml,       .xml/.txt are not excluded by the matcher, so the proxy
+//     /robots.txt         runs on them; list them so crawlers can fetch them.
+const PUBLIC_PATHS = [
+  "/sign-in",
+  "/sign-up",
+  "/api/auth",
+  "/apple-icon",
+  "/opengraph-image",
+  "/twitter-image",
+  "/sitemap.xml",
+  "/robots.txt",
+];
 
 const isDev = process.env.NODE_ENV === "development";
 
