@@ -8,6 +8,7 @@
 
 // Story engine
 export * from "./stories/graph";
+export * from "./stories/from-input";
 export * from "./stories/personalize";
 export * from "./stories/covers";
 export * from "./stories/validate";
