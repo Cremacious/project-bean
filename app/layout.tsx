@@ -8,6 +8,18 @@ import { ParentalGateProvider } from "@/components/parental-gate/parental-gate-p
 import { AnalyticsScripts } from "@/components/analytics/analytics-scripts";
 import { SignupBeacon } from "@/components/analytics/signup-beacon";
 
+// Force dynamic rendering app-wide so the per-request CSP nonce set in proxy.ts
+// is injected into every page's framework and app scripts (issue #44). A
+// nonce-based CSP REQUIRES dynamic rendering: a statically prerendered page has
+// no request-time nonce, so under an enforced policy its own scripts would be
+// blocked. This app is almost entirely personalized and auth-gated (already
+// dynamic); only the sign-in / sign-up / forgot-password / 404 pages were static,
+// and rendering those per request is a negligible cost here (auth pages are not
+// meant to be CDN-cached anyway). Static assets and JS/CSS chunks are unaffected
+// and still cached. See node_modules/next/dist/docs/01-app/02-guides/
+// content-security-policy.md ("all pages must be dynamically rendered").
+export const dynamic = "force-dynamic";
+
 // One description string reused across the page title tag, OpenGraph, and
 // Twitter so the message stays consistent. No dashes (app-wide UI rule).
 const DESCRIPTION = `${BRAND.slogan} Interactive bedtime stories for kids, where every choice leads somewhere new.`;
