@@ -29,6 +29,10 @@ import { getSessionCookie } from "better-auth/cookies";
 //     /twitter-image      meta URLs carry a ?<hash> query, matched by startsWith.
 //   - /sitemap.xml,       .xml/.txt are not excluded by the matcher, so the proxy
 //     /robots.txt         runs on them; list them so crawlers can fetch them.
+//   - /manifest.webmanifest  the web app manifest (issue #47): same as above, the
+//     .webmanifest extension is not excluded by the matcher, so a signed out
+//     visitor (exactly who installs the app) must be able to fetch it, or the
+//     browser sees no manifest and the site is not installable.
 const PUBLIC_PATHS = [
   "/sign-in",
   "/sign-up",
@@ -38,6 +42,7 @@ const PUBLIC_PATHS = [
   "/twitter-image",
   "/sitemap.xml",
   "/robots.txt",
+  "/manifest.webmanifest",
 ];
 
 const isDev = process.env.NODE_ENV === "development";

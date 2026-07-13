@@ -103,9 +103,14 @@ async function main() {
   // Rounded 512 preview (docs / social).
   await sharp(roundedBuf).resize(512, 512).png().toFile(join(BRAND_DIR, "icon-rounded-512.png"));
 
+  // Web app manifest "any" icon at 192 (issue #47). The manifest reuses
+  // icon-rounded-512.png for the 512 "any" slot and the full-bleed no-alpha
+  // google-play-512.png for "maskable"; only this 192 rounded size was missing.
+  await sharp(roundedBuf).resize(192, 192).png().toFile(join(BRAND_DIR, "icon-192.png"));
+
   console.log("Regenerated icon set:");
   console.log("  app/icon.svg, app/favicon.ico, app/apple-icon.png");
-  console.log("  public/brand/{icon-square.svg,icon-rounded.svg,app-store-ios-1024.png,google-play-512.png,icon-rounded-512.png}");
+  console.log("  public/brand/{icon-square.svg,icon-rounded.svg,app-store-ios-1024.png,google-play-512.png,icon-rounded-512.png,icon-192.png}");
   console.log("Remember: keep components/brand-mark.tsx in sync with INNER.");
 }
 
