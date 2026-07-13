@@ -41,6 +41,9 @@ const PUBLIC_PATHS = [
   "/privacy",
   "/terms",
   "/support",
+  // Deployment health probe (issue #51): the smoke suite and uptime monitors hit
+  // this unauthenticated, so it must skip the auth gate like the auth routes do.
+  "/api/health",
   "/api/auth",
   "/apple-icon",
   "/opengraph-image",

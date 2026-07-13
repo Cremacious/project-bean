@@ -1,0 +1,46 @@
+name: Smoke
+
+# Post-deploy smoke test (issue #51). This runs AFTER a deployment goes live, not
+# on push/PR like ci.yml. Vercel's GitHub integration posts a `deployment_status`
+# for every Preview and Production deploy; we react to the successful ones and hit
+# the deployment's real URL with `npm run smoke`. A red run means a broken build
+# reached a live URL, so it must be caught before that build is promoted to prod.
+#
+# No secrets are required: smoke only touches PUBLIC, unauthenticated routes over
+# HTTP (see scripts/smoke.ts), so it never needs a database, a login, or any key.
+on:
+  deployment_status:
+
+# Newer deploys supersede older smoke runs for the same environment.
+concurrency:
+  group: smoke-${{ github.event.deployment_status.environment }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Smoke test the deployment
+    runs-on: ubuntu-latest
+    # Only successful deploys that expose a URL. Vercel fills environment_url;
+    # target_url is the fallback.
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      (github.event.deployment_status.environment_url != '' ||
+       github.event.deployment_status.target_url != '')
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Smoke test the live deployment
+        env:
+          SMOKE_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+        run: npm run smoke

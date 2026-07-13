@@ -175,6 +175,145 @@ curl -sI https://bedtimequests.app     | grep -i location  # 308 → apex
 308-redirect to it; email+password sign-in works; Google and Apple sign-in complete on the
 canonical domain.
 
+## 8. Staging environment (#51)
+
+Staging is a **pre-production** environment that is a faithful copy of production
+(same build, same schema) but with its **own database and its own third-party
+config**, so you can verify a release on a real URL before it ever touches the
+production domain or production data.
+
+### 8a. How staging maps to Vercel (recommended: a `staging` branch → Preview)
+
+Vercel already builds every branch as a **Preview** deployment (§4). The simplest
+reliable staging is to make one long-lived branch the staging channel and pin a
+stable domain to it, rather than standing up a second Vercel project:
+
+1. Create a long-lived branch once: `git branch staging master && git push -u origin staging`.
+   (Staging is a channel you keep; it is not a throwaway PR branch.)
+2. Vercel → the project → **Settings → Domains → Add** `staging.bedtimequests.com`,
+   and assign it to the **`staging` git branch** (Vercel lets you point a domain at a
+   specific branch's latest Preview deploy). Add the DNS `CNAME staging → cname.vercel-dns.com`
+   at the registrar (same pattern as §7b).
+3. Now every push to `staging` deploys to a **stable URL** (`https://staging.bedtimequests.com`),
+   which is what makes it usable for OAuth callbacks and repeatable smoke runs
+   (ordinary per-PR preview URLs change every deploy, so they can't).
+
+Why this over a separate Vercel project: one project keeps build settings, the repo
+link, and env management in a single place; a dedicated branch + domain already gives
+full runtime isolation. Only reach for a second Vercel project if you later need
+different build settings or access controls for staging. (A plain per-PR Preview
+deploy is fine for ad-hoc checks, but staging wants a *stable* URL, hence the branch.)
+
+### 8b. A SEPARATE database for staging (Neon branch)
+
+Staging must **never** read or write production data. Use a dedicated **Neon branch**
+off production (Neon Console → Branches → **New branch** from the prod branch, name it
+`staging`). A branch is a copy-on-write clone: it starts with prod's schema (and data
+as of branch time) but diverges independently, so staging experiments and test signups
+never touch prod. Copy its **pooled** connection string (host contains `-pooler`) for
+`DATABASE_URL`. (A fully separate Neon *project* also works and is more isolated, but a
+branch is cheaper, instant, and enough here — see `docs/DATABASE.md` §2.2.)
+
+### 8c. Staging env vars (what MUST differ from production)
+
+Set these on Vercel scoped to **Preview**, targeted to the **`staging` branch** where
+Vercel supports per-branch values (Environment Variables → add value → Git Branch =
+`staging`). The four required vars must all differ from production:
+
+| Variable | Staging value | Why it must differ |
+| --- | --- | --- |
+| `DATABASE_URL` | the **Neon `staging` branch** pooled string | never point staging at prod data (§8b). |
+| `BETTER_AUTH_URL` | `https://staging.bedtimequests.com` | auth cookies/callbacks must match the staging origin. |
+| `NEXT_PUBLIC_APP_URL` | `https://staging.bedtimequests.com` | build-time inlined origin (canonical/OG, auth client). Redeploy after changing. |
+| `BETTER_AUTH_SECRET` | a **distinct** `openssl rand -base64 32` | staging sessions must not be signable with the prod secret. |
+
+Third-party integrations in staging should be **test/sandbox mode or simply absent**
+(each one no-ops cleanly when its key is unset — that is the whole design in §1):
+
+- **OAuth (Google/Apple):** simplest is to leave `GOOGLE_*` / `APPLE_*` **unset** in
+  staging and verify with email/password (same guidance as Preview, §4). If you do want
+  social login on staging, add `https://staging.bedtimequests.com/api/auth/callback/google`
+  (and the Apple return URL) to the existing OAuth clients' allowed redirects.
+- **Analytics (`NEXT_PUBLIC_GA_MEASUREMENT_ID`):** leave **unset** so staging traffic
+  never pollutes prod analytics (or use a separate test GA property).
+- **Error reporting (`NEXT_PUBLIC_SENTRY_DSN`):** leave unset, **or** keep it and set
+  `NEXT_PUBLIC_SENTRY_ENVIRONMENT=staging` so staging errors are tagged apart from prod.
+- **Ads (`ADS_ENABLED`):** leave unset/`false` — no ads in staging.
+- **Billing (`REVENUECAT_WEBHOOK_AUTH_TOKEN`):** leave unset (webhook returns 503); the
+  web app sells nothing today, so there is nothing to test here until native (M6).
+- **Email (`RESEND_API_KEY` / `EMAIL_FROM`):** leave unset so reset emails are logged,
+  not sent — unless you are specifically testing the reset flow with a test sender.
+- **`ADMIN_EMAILS`:** set to your email only if you need `/admin` on staging.
+- **`CSP_MODE`:** staging is the right place to try `enforce` before turning it on in
+  production (§ proxy.ts rollout note).
+
+### 8d. Applying schema to the staging DB
+
+Follow `docs/DATABASE.md`, **not** `npm run db:migrate` (it hangs on neon-http). Because
+the Neon `staging` branch is forked from prod, it already carries prod's schema at fork
+time; to bring it up to a newer migration, set `DATABASE_URL` to the staging branch string
+**in your shell for that one command** and run:
+
+```bash
+npm run db:apply           # applies pending journal migrations over neon-http
+npm run db:apply -- --check   # dry-run: show ledger-vs-journal without applying
+```
+
+This is exactly the "rehearse on a Neon branch" step in `docs/DATABASE.md` §1.1.4, so
+staging doubles as the migration rehearsal before you apply the same migration to prod.
+Do not print, echo, or commit any connection string.
+
+## 9. Smoke tests (#51)
+
+`npm run smoke` runs a small, fast HTTP check suite (`scripts/smoke.ts`) against a
+**running** deployment to confirm it is healthy. It is intentionally separate from the
+Playwright E2E suite (#41): E2E drives a browser through authenticated journeys against a
+seeded DB, while smoke is plain `fetch` over public routes — no browser, no database, no
+secrets, no login. It answers one question in a couple of seconds: *did this deployment
+boot and are its public surfaces serving?*
+
+It targets `SMOKE_URL` (falls back to `BASE_URL`, then `http://localhost:3000`) and asserts:
+
+- `GET /api/health` → `200 { status: "ok" }` (a secret-free liveness route added for this;
+  uptime monitoring in #75 can poll the same URL),
+- `/` (home) resolves and renders, `/sign-in` loads,
+- `GET /api/auth/ok` → `200 { ok: true }` (the BetterAuth handler is mounted),
+- `/privacy`, `/terms`, `/robots.txt`, and `/sitemap.xml` all resolve.
+
+Run it against any environment:
+
+```bash
+npm run smoke                                                   # local (start the app first)
+SMOKE_URL=https://staging.bedtimequests.com npm run smoke      # staging
+SMOKE_URL=https://bedtimequests.com npm run smoke              # production spot-check
+```
+
+Any failing check exits non-zero. **In CI it runs automatically:** `.github/workflows/smoke.yml`
+listens for Vercel's `deployment_status` event and runs `npm run smoke` against every
+successful Preview/Production deployment's real URL. It needs no secrets (public routes
+only), so it never blocks on config that staging or a fork lacks.
+
+## 10. Promote path: staging verified → production
+
+The rule: **never promote a build to the production domain until smoke is green on
+staging.** The release flow:
+
+1. Merge the change to `master` and push the same commit to `staging`
+   (`git push origin master:staging`), which deploys to `https://staging.bedtimequests.com`.
+2. If the change needs a schema migration, apply it to the **staging** Neon branch first
+   (§8d) — this is the rehearsal.
+3. Wait for the staging smoke run to go green (Actions → **Smoke**, or run
+   `SMOKE_URL=https://staging.bedtimequests.com npm run smoke` locally). Do a quick manual
+   pass of anything smoke can't see (a real sign-in, reading a story) if the change warrants.
+4. Only then apply the migration to **production** (`docs/DATABASE.md` §1.1) if there is one.
+5. Promote to production — push `master` (production auto-deploys), **or** in Vercel →
+   Deployments, **Promote** the already-built staging deployment to Production so the exact
+   artifact you smoke-tested is what ships.
+6. Spot-check production: `SMOKE_URL=https://bedtimequests.com npm run smoke` (the Smoke
+   workflow also runs automatically on the production deploy). If it is red, roll back
+   immediately via Vercel → Deployments → **Promote** the previous good build
+   (`docs/DATABASE.md` §2.4 step 1).
+
 ## Pre-deploy checklist
 
 - [ ] `package-lock.json` in sync (`npm ci` succeeds — this was fixed in #42).
