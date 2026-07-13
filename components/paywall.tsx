@@ -89,6 +89,23 @@ export function Paywall({ storyTitle, storySlug }: { storyTitle?: string; storyS
         <p className="mt-3 text-xs font-semibold text-[var(--pc-sub)]">
           A grown up confirms this step. Plans and pricing are shown before anything is charged.
         </p>
+        <p className="mt-2 text-xs font-semibold text-[var(--pc-sub)]">
+          By continuing you agree to our{" "}
+          <Link
+            href="/terms"
+            className="cursor-pointer font-bold text-[var(--pc-plum-ink)] underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/privacy"
+            className="cursor-pointer font-bold text-[var(--pc-plum-ink)] underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
 
       <Link

@@ -156,3 +156,38 @@
 }
 
 .font-display { font-family: var(--font-display); }
+
+/* Long-form legal / support copy (issue #49). Applied to the document body on
+   /privacy, /terms, and /support. Every value uses --pc-ink on the white card,
+   so all text clears WCAG AA (UI rule 3). Semantic HTML in, readable prose out,
+   so the page components stay plain <h2>/<p>/<ul>. */
+.legal-prose { color: var(--pc-ink); font-weight: 500; line-height: 1.7; }
+.legal-prose > :first-child { margin-top: 0; }
+.legal-prose h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  margin-top: 2rem;
+  margin-bottom: 0.35rem;
+  color: var(--pc-ink);
+}
+.legal-prose h3 {
+  font-weight: 800;
+  font-size: 1.08rem;
+  margin-top: 1.35rem;
+  margin-bottom: 0.25rem;
+  color: var(--pc-ink);
+}
+.legal-prose p { margin-top: 0.85rem; }
+.legal-prose ul { margin-top: 0.85rem; padding-left: 1.4rem; list-style: disc; }
+.legal-prose li { margin-top: 0.4rem; }
+.legal-prose li::marker { color: var(--pc-plum-ink); }
+.legal-prose strong { font-weight: 800; }
+.legal-prose a {
+  color: var(--pc-plum-ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal-prose a:hover { text-decoration-thickness: 2px; }

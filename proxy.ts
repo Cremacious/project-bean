@@ -36,6 +36,11 @@ import { getSessionCookie } from "better-auth/cookies";
 const PUBLIC_PATHS = [
   "/sign-in",
   "/sign-up",
+  // Legal + support pages (issue #49): public and indexable, so a signed out
+  // visitor (or crawler) must reach them instead of being bounced to /sign-in.
+  "/privacy",
+  "/terms",
+  "/support",
   "/api/auth",
   "/apple-icon",
   "/opengraph-image",

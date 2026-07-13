@@ -23,6 +23,10 @@ export const PUBLIC_ROUTES: ReadonlyArray<{
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/sign-up", changeFrequency: "monthly", priority: 0.8 },
   { path: "/sign-in", changeFrequency: "monthly", priority: 0.5 },
+  // Legal + support pages (issue #49). Public and indexable; they change rarely.
+  { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/support", changeFrequency: "yearly", priority: 0.3 },
 ];
 
 // Path prefixes crawlers must never index: the whole authed app, the admin

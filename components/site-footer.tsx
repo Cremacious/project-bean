@@ -4,10 +4,17 @@ import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 
 // Always-present footer. Two jobs: (1) anchor the bottom of the min-h-dvh shell
-// so the screen edge is always UI, never a void; (2) carry the brand + slogan.
-// The right-hand <nav> is the slot for legal/support links (Privacy, Terms,
-// Support) once those pages exist.
-export function SiteFooter({ variant = "app" }: { variant?: "app" | "admin" }) {
+// so the screen edge is always UI, never a void; (2) carry the brand + slogan
+// and the legal/support links (issue #49). The Privacy, Terms, and Support links
+// are public pages, so they show on every variant; a variant-specific link
+// (Family in the app, Back to the app in admin) follows. The "public" variant is
+// used by the legal/support page chrome, where a Family link would only bounce a
+// signed out visitor to /sign-in, so it adds no extra link.
+export function SiteFooter({
+  variant = "app",
+}: {
+  variant?: "app" | "admin" | "public";
+}) {
   const linkClass =
     "cursor-pointer rounded-full px-1 py-0.5 text-sm font-bold text-white underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white";
 
@@ -28,18 +35,25 @@ export function SiteFooter({ variant = "app" }: { variant?: "app" | "admin" }) {
           </div>
         </div>
 
-        <nav className="flex items-center gap-4">
-          {/* Legal/support links (Privacy, Terms, Support) go here once those
-              pages exist. */}
+        <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Link href="/privacy" className={linkClass}>
+            Privacy
+          </Link>
+          <Link href="/terms" className={linkClass}>
+            Terms
+          </Link>
+          <Link href="/support" className={linkClass}>
+            Support
+          </Link>
           {variant === "admin" ? (
             <Link href="/" className={linkClass}>
               Back to the app
             </Link>
-          ) : (
+          ) : variant === "app" ? (
             <Link href="/family" className={linkClass}>
               Family
             </Link>
-          )}
+          ) : null}
         </nav>
       </div>
     </footer>

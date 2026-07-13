@@ -145,6 +145,23 @@ export default function SignUpPage() {
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
+          <p className="text-center text-xs font-semibold text-[var(--pc-sub)]">
+            By continuing you agree to our{" "}
+            <Link
+              href="/terms"
+              className="cursor-pointer font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              className="cursor-pointer font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </form>
 
         <div className="my-5 flex items-center gap-3">

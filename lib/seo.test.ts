@@ -16,6 +16,9 @@ describe("buildSitemap", () => {
       "https://bedtimequests.com/",
       "https://bedtimequests.com/sign-up",
       "https://bedtimequests.com/sign-in",
+      "https://bedtimequests.com/privacy",
+      "https://bedtimequests.com/terms",
+      "https://bedtimequests.com/support",
     ]);
     for (const entry of entries) {
       expect(entry.url.startsWith(BASE)).toBe(true);
