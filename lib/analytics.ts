@@ -73,24 +73,7 @@ export type AnalyticsConfig = {
   provider: AnalyticsProvider;
   /** The GA4 measurement id (G-XXXXXXX), or null when unset. */
   measurementId: string | null;
-  /**
-   * Whether the region requires opt-in consent before any analytics loads. When
-   * true, the loader waits for the consent banner (#50) to grant it. When false,
-   * analytics loads in a strictly non-personal, child-directed configuration.
-   * Defaults to false.
-   */
-  requireConsent: boolean;
 };
-
-/**
- * An opt-in flag: on only for an explicit true/1 (case-insensitive), else off.
- * Used for flags that must default OFF (e.g. requiring consent).
- */
-function parseOptIn(value: string | undefined): boolean {
-  if (value === undefined) return false;
-  const v = value.trim().toLowerCase();
-  return v === "true" || v === "1";
-}
 
 /**
  * A kill switch: on by default, OFF only when explicitly "false" or "0". Anything
@@ -117,15 +100,19 @@ function cleanId(value: string | undefined): string | null {
  * is present, so setting it to "false" is a one-line global disable that keeps
  * the id in place. With no id, analytics is simply off: local dev and CI load no
  * analytics code and make no analytics network calls.
+ *
+ * `enabled` is only the "is analytics configured?" half. Whether it actually
+ * loads and records is gated on top of this by the parent's ANALYTICS consent
+ * choice (issue #50): the consent banner is the universal opt-in, so there is no
+ * separate "require consent" env flag. See components/analytics/analytics-scripts.tsx
+ * and track() in this file, both of which check the shared consent state.
  */
 export function getAnalyticsConfig(env: NodeJS.ProcessEnv = process.env): AnalyticsConfig {
   const measurementId = cleanId(env.NEXT_PUBLIC_GA_MEASUREMENT_ID);
-  const requireConsent = parseOptIn(env.NEXT_PUBLIC_ANALYTICS_REQUIRE_CONSENT);
   return {
     enabled: measurementId !== null && !isKilled(env.NEXT_PUBLIC_ANALYTICS_ENABLED),
     provider: "ga4",
     measurementId,
-    requireConsent,
   };
 }
 
@@ -135,6 +122,19 @@ export function getAnalyticsConfig(env: NodeJS.ProcessEnv = process.env): Analyt
 // importing it from one place.
 import { isPersonalKey } from "./pii-keys";
 export { isPersonalKey };
+
+// The shared consent state (issue #50). track() reads it so no analytics event
+// can fire before the parent grants the analytics category, and so events stop
+// the moment consent is withdrawn, independently of whether the GA script has
+// already loaded. This is the same single signal the loader and ads read.
+import { CONSENT_COOKIE, parseConsentCookie, isCategoryGranted, type ConsentState } from "./consent";
+
+/** Read the analytics-consent choice from the first-party cookie (client only). */
+function readConsentClient(): ConsentState {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${CONSENT_COOKIE}=([^;]+)`));
+  return parseConsentCookie(match?.[1]);
+}
 
 /**
  * Strip anything we must never send: personal-looking keys, non-primitive values
@@ -179,6 +179,8 @@ type TrackOptions = {
   config?: AnalyticsConfig;
   /** Override the transport (tests). */
   send?: SendFn;
+  /** Override the resolved consent state (tests). Defaults to the consent cookie. */
+  consent?: ConsentState;
 };
 
 /**
@@ -186,13 +188,16 @@ type TrackOptions = {
  * non-personal params, e.g. track("story_started", { story: slug }).
  *
  * It no-ops silently when analytics is disabled (no measurement id or kill switch
- * off), sanitizes params so no personal data can leave, and never throws. Because
- * every call goes through here, the whole app is disabled by flipping one env var
- * and re-provider-ed by changing one function.
+ * off) OR when the parent has not granted analytics consent (issue #50),
+ * sanitizes params so no personal data can leave, and never throws. Because every
+ * call goes through here, the whole app is disabled by flipping one env var,
+ * gated by one consent choice, and re-provider-ed by changing one function.
  */
 export function track(event: AnalyticsEvent, params?: AnalyticsParams, opts: TrackOptions = {}): void {
   const config = opts.config ?? getAnalyticsConfig();
   if (!config.enabled) return;
+  const consent = opts.consent ?? readConsentClient();
+  if (!isCategoryGranted(consent, "analytics")) return;
   const send = opts.send ?? gtagSend;
   send(event, sanitizeParams(params));
 }

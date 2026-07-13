@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
+import { CookieSettingsLink } from "@/components/consent/cookie-settings-link";
 
 // Always-present footer. Two jobs: (1) anchor the bottom of the min-h-dvh shell
 // so the screen edge is always UI, never a void; (2) carry the brand + slogan
@@ -45,6 +46,9 @@ export function SiteFooter({
           <Link href="/support" className={linkClass}>
             Support
           </Link>
+          {/* Reopens the consent preferences so a parent can change or withdraw
+              their choice at any time, from any page (issue #50). */}
+          <CookieSettingsLink className={linkClass} />
           {variant === "admin" ? (
             <Link href="/" className={linkClass}>
               Back to the app

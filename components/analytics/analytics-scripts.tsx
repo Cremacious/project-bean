@@ -2,7 +2,7 @@
 "use client";
 
 // Loads Google Analytics 4 in CHILD-DIRECTED / restricted mode (issue #38), or
-// nothing at all. Rendered once from the root layout.
+// nothing at all. Rendered once from the root layout, inside ConsentProvider.
 //
 // Compliance posture (docs/COMPLIANCE-COPPA.md section 6b): when GA loads, it is
 // configured so it does NOT enable advertising features, ad personalization, or
@@ -10,25 +10,31 @@
 // track() helper in lib/analytics.ts sanitizes every event); GA is only the
 // transport for the fixed, non-personal event taxonomy.
 //
-// This component renders NOTHING when analytics is disabled (no measurement id or
-// the kill switch is off), so local dev, CI, and any environment without a GA id
-// load no analytics code and make no analytics network calls.
+// Consent gate (issue #50): GA does not load, set a cookie, or make any network
+// call until the parent grants the ANALYTICS category through the consent banner.
+// We read that grant from the ONE shared consent state (useConsent), so this is
+// the same signal ads read and the same choice the footer link can withdraw. On
+// withdrawal the provider clears GA's cookies and denies its consent signal.
 //
-// Consent (issue #50, planned): where a region requires opt-in consent, we do not
-// load until the consent banner grants it. The banner will control this;
-// requireConsent === true means "hold until #50 says go". Where consent is not
-// required, we load immediately in the strictly non-personal config below.
+// This component renders NOTHING when analytics is disabled (no measurement id or
+// the kill switch is off) or when analytics consent has not been granted, so local
+// dev, CI, and any not-yet-consented visitor load no analytics code and make no
+// analytics network calls.
 import Script from "next/script";
 import { getAnalyticsConfig } from "@/lib/analytics";
+import { useConsent } from "@/components/consent/consent-provider";
+import { isCategoryGranted } from "@/lib/consent";
 
 export function AnalyticsScripts() {
-  const { enabled, measurementId, requireConsent } = getAnalyticsConfig();
+  const { state, ready } = useConsent();
+  const { enabled, measurementId } = getAnalyticsConfig();
 
   // Off entirely: nothing rendered, nothing loaded, no network calls.
   if (!enabled || !measurementId) return null;
 
-  // Region requires consent: hold until the consent banner (#50) grants it.
-  if (requireConsent) return null;
+  // Hold until the client has read the recorded choice and the parent has granted
+  // analytics. Until then GA never mounts, so no gtag script and no _ga cookie.
+  if (!ready || !isCategoryGranted(state, "analytics")) return null;
 
   return (
     <>
@@ -42,8 +48,10 @@ export function AnalyticsScripts() {
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
           gtag('js', new Date());
-          // Deny every advertising signal by default; keep only anonymous
-          // analytics storage. This is the child-directed baseline.
+          // The parent granted analytics; grant only anonymous analytics storage
+          // and keep every advertising signal denied. This is the child-directed
+          // baseline (ad_* stay denied regardless of the advertising category,
+          // because ads here are contextual and never use GA's ad signals).
           gtag('consent', 'default', {
             ad_storage: 'denied',
             ad_user_data: 'denied',

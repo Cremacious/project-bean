@@ -8,15 +8,20 @@ import {
   type AnalyticsParamValue,
   type AnalyticsEvent,
 } from "./analytics";
+import { acceptAll, rejectOptional, type ConsentState } from "./consent";
 
 /** A config with analytics on, for exercising track() without env coupling. */
 const ENABLED: AnalyticsConfig = {
   enabled: true,
   provider: "ga4",
   measurementId: "G-TEST123",
-  requireConsent: false,
 };
 const DISABLED: AnalyticsConfig = { ...ENABLED, enabled: false };
+
+// track() also requires the parent to have granted analytics consent (issue #50).
+// These stand in for that choice so the transport tests are not env/cookie coupled.
+const GRANTED: ConsentState = acceptAll("2026-07-13T00:00:00.000Z");
+const REFUSED: ConsentState = rejectOptional("2026-07-13T00:00:00.000Z");
 
 /** A spy transport plus the last call it recorded. */
 function spySend() {
@@ -57,13 +62,6 @@ describe("getAnalyticsConfig", () => {
     expect(getAnalyticsConfig({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-X", NEXT_PUBLIC_ANALYTICS_ENABLED: "0" }).enabled).toBe(false);
     expect(getAnalyticsConfig({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-X", NEXT_PUBLIC_ANALYTICS_ENABLED: "true" }).enabled).toBe(true);
     expect(getAnalyticsConfig({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-X", NEXT_PUBLIC_ANALYTICS_ENABLED: "yes" }).enabled).toBe(true);
-  });
-
-  it("defaults requireConsent to false and reads it when set", () => {
-    expect(getAnalyticsConfig({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-X" }).requireConsent).toBe(false);
-    expect(
-      getAnalyticsConfig({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-X", NEXT_PUBLIC_ANALYTICS_REQUIRE_CONSENT: "true" }).requireConsent,
-    ).toBe(true);
   });
 });
 
@@ -119,14 +117,23 @@ describe("sanitizeParams", () => {
 describe("track", () => {
   it("fires the event with sanitized params through the transport", () => {
     const { send, calls } = spySend();
-    track("story_started", { story: "bean-woods", age_band: "2-4" }, { config: ENABLED, send });
+    track("story_started", { story: "bean-woods", age_band: "2-4" }, { config: ENABLED, consent: GRANTED, send });
     expect(send).toHaveBeenCalledTimes(1);
     expect(calls[0]).toEqual({ event: "story_started", params: { story: "bean-woods", age_band: "2-4" } });
   });
 
   it("no-ops when analytics is disabled", () => {
     const { send } = spySend();
-    track("story_started", { story: "bean-woods" }, { config: DISABLED, send });
+    track("story_started", { story: "bean-woods" }, { config: DISABLED, consent: GRANTED, send });
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it("no-ops until analytics consent is granted, even when enabled", () => {
+    const { send } = spySend();
+    // No decision yet (null): nothing fires.
+    track("story_started", { story: "bean-woods" }, { config: ENABLED, consent: null, send });
+    // Consent explicitly refused: nothing fires.
+    track("story_started", { story: "bean-woods" }, { config: ENABLED, consent: REFUSED, send });
     expect(send).not.toHaveBeenCalled();
   });
 
@@ -135,7 +142,7 @@ describe("track", () => {
     track(
       "ending_found",
       { story: "bean-woods", ending_category: "good", childName: "Ada", parentEmail: "mom@example.com", userId: "u1" },
-      { config: ENABLED, send },
+      { config: ENABLED, consent: GRANTED, send },
     );
     expect(send).toHaveBeenCalledTimes(1);
     expect(calls[0].params).toEqual({ story: "bean-woods", ending_category: "good" });
@@ -147,7 +154,7 @@ describe("track", () => {
 
   it("fires with no params as an empty param object", () => {
     const { send, calls } = spySend();
-    track("paywall_shown", undefined, { config: ENABLED, send });
+    track("paywall_shown", undefined, { config: ENABLED, consent: GRANTED, send });
     expect(calls[0]).toEqual({ event: "paywall_shown", params: {} });
   });
 });

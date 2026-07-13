@@ -6,6 +6,9 @@ import { SITE_URL } from "@/lib/site-url";
 import { ParentalGateProvider } from "@/components/parental-gate/parental-gate-provider";
 import { AnalyticsScripts } from "@/components/analytics/analytics-scripts";
 import { SignupBeacon } from "@/components/analytics/signup-beacon";
+import { ConsentProvider } from "@/components/consent/consent-provider";
+import { ConsentBanner } from "@/components/consent/consent-banner";
+import { ConsentManager } from "@/components/consent/consent-manager";
 
 // Force dynamic rendering app-wide so the per-request CSP nonce set in proxy.ts
 // is injected into every page's framework and app scripts (issue #44). A
@@ -104,9 +107,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
         />
-        <ParentalGateProvider>{children}</ParentalGateProvider>
-        <SignupBeacon />
-        <AnalyticsScripts />
+        {/* One shared consent state (issue #50) wraps the app: analytics and ads
+            gate on it, the banner and preferences dialog read and write it. */}
+        <ConsentProvider>
+          <ParentalGateProvider>{children}</ParentalGateProvider>
+          <SignupBeacon />
+          <AnalyticsScripts />
+          <ConsentBanner />
+          <ConsentManager />
+        </ConsentProvider>
       </body>
     </html>
   );

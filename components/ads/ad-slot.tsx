@@ -11,9 +11,11 @@
 // subscribe / account / auth screens (docs/COMPLIANCE-COPPA.md; issue #37). Ads
 // belong only on browse surfaces (the library and the collection) where they never
 // interrupt a child reading a story.
+import { cookies } from "next/headers";
 import { getParent } from "@/lib/session";
 import { getSubscription } from "@/lib/entitlements";
 import { getAdsConfig, shouldShowAds, type AdPlacement } from "@/lib/ads";
+import { CONSENT_COOKIE, parseConsentCookie, isCategoryGranted } from "@/lib/consent";
 import { HouseAd } from "@/components/ads/house-ad";
 
 export async function AdSlot({ placement }: { placement: AdPlacement }) {
@@ -22,6 +24,15 @@ export async function AdSlot({ placement }: { placement: AdPlacement }) {
   // Cheap short-circuit: when ads are globally off (kill switch / missing config)
   // we do no session or billing work at all.
   if (!config.enabled) return null;
+
+  // Consent gate (issue #50): render no ad until the parent grants the ADVERTISING
+  // category. Read from the SAME first-party consent cookie the banner writes, so
+  // this is one shared choice. Default (no decision) is OFF, so nothing ad-related
+  // renders until an explicit opt-in. The provider calls router.refresh() on a
+  // change, so this re-evaluates as soon as the choice changes.
+  const jar = await cookies();
+  const consent = parseConsentCookie(jar.get(CONSENT_COOKIE)?.value);
+  if (!isCategoryGranted(consent, "advertising")) return null;
 
   const parent = await getParent();
   const subscription = await getSubscription(parent);

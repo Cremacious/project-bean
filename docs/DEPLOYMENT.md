@@ -53,7 +53,6 @@ the Vercel environment(s) the value belongs in.
 | `NEXT_PUBLIC_SUPERAWESOME_PLACEMENT_ID` / `NEXT_PUBLIC_GOOGLE_AD_UNIT_ID` | Third-party ad unit ids. | Production | Missing/blank → that network stays off. |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 id; the analytics ON switch (`lib/analytics.ts`). | Production | Unset → no analytics code loads. |
 | `NEXT_PUBLIC_ANALYTICS_ENABLED` | Analytics kill switch (defaults on when id present). | Production | Set `false`/`0` to disable. |
-| `NEXT_PUBLIC_ANALYTICS_REQUIRE_CONSENT` | Gate analytics behind the consent banner (M5 #50). | Production | Default `false`. |
 | `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN; the reporting ON switch (`lib/reporting.ts`). | Production | Public by design; unset → no reporting. |
 | `NEXT_PUBLIC_SENTRY_ENABLED` | Reporting kill switch (defaults on when DSN present). | Production | — |
 | `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | Tag prod vs preview errors. Defaults to `NODE_ENV`. | Production, Preview | e.g. `production` / `preview`. |
