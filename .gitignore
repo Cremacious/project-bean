@@ -23,3 +23,9 @@ npm-debug.log*
 
 # next.js generated (regenerated on every build/dev)
 next-env.d.ts
+
+# playwright e2e (issue #41): reports, traces, and the signed-in state fixture
+/test-results
+/playwright-report
+/playwright/.cache
+/e2e/.auth
