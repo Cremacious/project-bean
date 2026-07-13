@@ -112,6 +112,69 @@ Trigger a deploy (push to `master` for Production, or open a PR for Preview). Th
 3. **Read a story:** open a story and reach an ending.
 4. If anything 500s, check Vercel → Deployment → **Runtime Logs**; a missing required var or an unmigrated database (#45) is the usual cause.
 
+## 7. Custom domain and HTTPS (#43)
+
+Canonical production site: **`https://bedtimequests.com`** (apex). `www.bedtimequests.com`,
+`bedtimequests.app`, and `www.bedtimequests.app` all **308-redirect** to it, so auth
+cookies, OAuth callbacks, and canonical/OpenGraph links stay on one origin. TLS,
+http→https, and the host redirects are handled by Vercel; there is intentionally no
+middleware or `next.config` `redirects()` for this.
+
+### 7a. Add the domains in Vercel
+
+Settings → **Domains → Add**:
+
+1. `bedtimequests.com` → **serve** (primary/canonical).
+2. `www.bedtimequests.com` → **Redirect to `bedtimequests.com`** (308).
+3. `bedtimequests.app` → **Redirect to `bedtimequests.com`**.
+4. `www.bedtimequests.app` → **Redirect to `bedtimequests.com`**.
+
+Vercel shows the exact DNS record per domain — those values are authoritative if they
+differ from the table below.
+
+### 7b. DNS records at the registrar
+
+| Host / Name | Type | Value | Purpose |
+| --- | --- | --- | --- |
+| `@` (bedtimequests.com) | `A` | `76.76.21.21` | apex canonical |
+| `www` (bedtimequests.com) | `CNAME` | `cname.vercel-dns.com` | www → redirect |
+| `@` (bedtimequests.app) | `A` | `76.76.21.21` | .app apex → redirect |
+| `www` (bedtimequests.app) | `CNAME` | `cname.vercel-dns.com` | .app www → redirect |
+
+- Apex uses an A record because many registrars can't CNAME the bare domain — that is why the apex was chosen as canonical.
+- `.app` is HSTS-preloaded (HTTPS-only); Vercel serves it over HTTPS. Do not serve it over http.
+- Remove stale A/AAAA/parking records on these hosts so they don't conflict.
+
+Verify propagation and TLS:
+
+```bash
+nslookup bedtimequests.com
+curl -sI https://bedtimequests.com                  # 200 + valid cert
+curl -sI http://bedtimequests.com     | grep -i location   # 308 → https://bedtimequests.com/
+curl -sI https://www.bedtimequests.com | grep -i location  # 308 → apex
+curl -sI https://bedtimequests.app     | grep -i location  # 308 → apex
+```
+
+### 7c. App config for the production origin
+
+- Set **Production** `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` to `https://bedtimequests.com`
+  (no trailing slash, no `http`, no `localhost`), then **redeploy** — `NEXT_PUBLIC_APP_URL`
+  is build-time inlined and also drives `metadataBase` in `app/layout.tsx`.
+- Register OAuth redirect URLs on the canonical domain (only the canonical host is needed,
+  since every other host redirects to it first):
+  - Google (Cloud Console → the Web OAuth client): redirect URI
+    `https://bedtimequests.com/api/auth/callback/google`; JS origin `https://bedtimequests.com`.
+  - Apple (Developer portal → Services ID → Sign in with Apple → Configure): domain
+    `bedtimequests.com`; return URL `https://bedtimequests.com/api/auth/callback/apple`.
+    Apple requires HTTPS on a real domain and may ask you to host its domain-association
+    file under `/.well-known/`.
+
+### 7d. Verify end to end
+
+`https://bedtimequests.com` loads with a valid cert; the http / www / both `.app` hosts
+308-redirect to it; email+password sign-in works; Google and Apple sign-in complete on the
+canonical domain.
+
 ## Pre-deploy checklist
 
 - [ ] `package-lock.json` in sync (`npm ci` succeeds — this was fixed in #42).
@@ -120,4 +183,5 @@ Trigger a deploy (push to `master` for Production, or open a PR for Preview). Th
 - [ ] `DATABASE_URL` uses the **pooled** Neon string.
 - [ ] `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` match each environment's origin.
 - [ ] OAuth redirect URIs registered for the Production domain (if social login is on).
+- [ ] Custom domain attached with `www` / `.app` redirecting to `bedtimequests.com` and TLS valid (§7).
 - [ ] Production schema applied via **#45** before relying on data-backed pages.

@@ -12,9 +12,16 @@ import { SignupBeacon } from "@/components/analytics/signup-beacon";
 // Twitter so the message stays consistent. No dashes (app-wide UI rule).
 const DESCRIPTION = `${BRAND.slogan} Interactive bedtime stories for kids, where every choice leads somewhere new.`;
 
+// Canonical origin for OpenGraph/canonical URL resolution. Driven by the same
+// env var as the auth client (lib/auth-client.ts) so every absolute URL agrees
+// with the origin the browser is actually on. In Production this is the custom
+// domain (https://bedtimequests.com); the localhost fallback is dev-only and is
+// never used on Vercel, where NEXT_PUBLIC_APP_URL is always set.
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
   // Lets relative OpenGraph/canonical URLs resolve to the production origin.
-  metadataBase: new URL("https://bedtimequests.com"),
+  metadataBase: new URL(APP_URL),
   applicationName: BRAND.name,
   title: {
     default: BRAND.fullName,
