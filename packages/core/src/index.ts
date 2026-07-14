@@ -39,6 +39,9 @@ export * from "./pii-keys";
 // Notifications (bedtime reminder) model
 export * from "./notifications";
 
+// Offline handling model (connectivity decision, read-through cache, write outbox)
+export * from "./offline";
+
 // Admin helpers
 export * from "./admin/slugs";
 

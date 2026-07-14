@@ -5,6 +5,7 @@
 // celebratory good ending with the "X of Y good endings" progress dots. Copy is
 // verbatim and dash-free (UI rule 1).
 import { StyleSheet, Text, View } from "react-native";
+import { offlineSavedEndingText } from "@bedtime-quests/core/offline";
 import { colors, radius, space } from "../theme/tokens";
 import { size, type } from "../theme/typography";
 import { PaperButton } from "../ui/PaperButton";
@@ -15,6 +16,7 @@ export function EndingView({
   endingType,
   endingLabel,
   progress,
+  savedOffline = false,
   onReadAgain,
   onLibrary,
   onSeeEndings,
@@ -22,10 +24,19 @@ export function EndingView({
   endingType: string;
   endingLabel: string | null;
   progress: Progress | null;
+  /** True when this ending was reached offline; shows a calm "saved on device" note. */
+  savedOffline?: boolean;
   onReadAgain: () => void;
   onLibrary: () => void;
   onSeeEndings: () => void;
 }) {
+  // A gentle, high-contrast reassurance that finishing offline kept the progress and
+  // it will sync later (issue #66). Reused on both ending paths, so define it once.
+  const offlineNote = savedOffline ? (
+    <View style={styles.offlineNote}>
+      <Text style={styles.offlineNoteText}>{offlineSavedEndingText()}</Text>
+    </View>
+  ) : null;
   if (endingType === "game_over") {
     return (
       <View style={styles.wrap}>
@@ -37,6 +48,7 @@ export function EndingView({
         <View style={styles.note}>
           <Text style={styles.noteText}>Surprise ending found!</Text>
         </View>
+        {offlineNote}
         <View style={styles.actions}>
           <PaperButton label="Try again" onPress={onReadAgain} />
           <PaperButton label="Back to the library" variant="secondary" onPress={onLibrary} />
@@ -76,6 +88,8 @@ export function EndingView({
         </>
       )}
 
+      {offlineNote}
+
       <View style={styles.actions}>
         <PaperButton label="See my endings" onPress={onSeeEndings} />
         <PaperButton label="Read again" variant="secondary" onPress={onReadAgain} />
@@ -97,5 +111,7 @@ const styles = StyleSheet.create({
   noteStrong: { ...type.display, color: colors.poppyInk },
   dots: { flexDirection: "row", gap: space.sm, marginTop: space.md },
   dot: { width: 12, height: 12, borderRadius: 999 },
+  offlineNote: { backgroundColor: colors.muted, borderRadius: radius.md, borderWidth: 1, borderColor: colors.line, paddingHorizontal: space.lg, paddingVertical: space.md, marginTop: space.md, maxWidth: 360 },
+  offlineNoteText: { ...type.body, fontSize: size.sm, color: colors.ink, textAlign: "center" },
   actions: { alignSelf: "stretch", gap: space.sm, marginTop: space.lg, maxWidth: 340, width: "100%", alignItems: "stretch" },
 });

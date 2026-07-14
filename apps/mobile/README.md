@@ -180,10 +180,49 @@ change to `master`; it drops the web CI's wasm/@emnapi entries). The public Reve
 reach EAS cloud builds via EAS environment variables (each build profile is bound to its
 `environment`), never via committed secrets.
 
+## Offline handling (#66) — implemented
+
+Bedtime reading survives a dropped connection. Three seams, mirroring billing /
+notifications / linking, plus a small pure model in
+[`@bedtime-quests/core/offline`](../../packages/core/src/offline.ts):
+
+- **Connectivity** (`src/connectivity/`) — a `ConnectivityProvider` interface, a real
+  provider backed by `@react-native-community/netinfo` (dev build), an in-memory mock
+  (Expo Go / CI / this repo), a factory, and a context. Any screen reads the shared
+  state with `useConnectivity()` (`{ connectivity, isOffline, ready, providerName }`).
+- **Read-through cache** (`src/cache/`) — a `KeyValueStore` seam (real
+  `@react-native-async-storage/async-storage` or an in-memory map) under an
+  `OfflineCache` that persists the last-seen catalog, a snapshot of the active reader,
+  and **each story the child opens** (bounded LRU, cap 12, so it never grows without
+  limit). Eviction, the online/offline read decision, and the write outbox are decided
+  by the pure, unit-tested core module.
+- **Offline UX** — a calm Paper Cut `<OfflineNotice>` renders inside `<Screen>` on
+  every screen (nothing when online), the reader's missing-story state speaks plainly
+  when offline, and finishing a story offline shows a warm "saved on this device"
+  note. All copy is high-contrast and dash-free (UI rules 1/3) and lives in core.
+- **Writes while offline** — recording an ending is **local-first**: it is saved
+  on-device immediately so a bedtime session is never blocked, and when offline it is
+  also queued in a durable outbox to replay on reconnect. There is no app-data backend
+  yet (see the endpoint table below), so the reconnect sync is a documented no-op that
+  keeps the queue intact rather than fabricating a call; when the REST API lands it
+  POSTs each queued write. Reading never depends on connectivity.
+
+Scope for v1 is the read-through cache of opened stories plus the last catalog
+(revisit or finish a story offline); proactively prefetching the whole library and
+OTA content refresh (#67) are out of scope here. The launch library is bundled today
+(`src/content`), so every story already reads offline; this is the machinery that
+keeps that true once content moves behind the API.
+
+**Simulate offline** without airplane mode by setting `EXPO_PUBLIC_FORCE_OFFLINE=1`
+(the context forces offline on top of any provider), then open a story and reach an
+ending. On a dev build, real NetInfo + AsyncStorage come from
+`npm run prepare:device-build` (kept off master's lockfile, like the other native
+modules); toggle airplane mode to see the same states.
+
 ## Intentionally deferred (not this issue)
 
-- **Remote push (#56 second half)** and **native offline (#66)** — the local
-  bedtime reminder shipped; remote push is deferred (see `docs/NOTIFICATIONS.md`).
+- **Remote push (#56 second half)** — the local bedtime reminder shipped; remote push
+  is deferred (see `docs/NOTIFICATIONS.md`).
 - **Real font loading** — this build maps Baloo 2 / Nunito / the reading fonts onto
   the system font (dependency-light). Seam documented in `src/theme/typography.ts`
   (`useFonts` + `@expo-google-fonts/*`).

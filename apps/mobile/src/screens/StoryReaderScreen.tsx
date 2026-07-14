@@ -11,10 +11,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { graphFromStoryInput } from "@bedtime-quests/core/stories/from-input";
 import { personalize } from "@bedtime-quests/core/stories/personalize";
 import { initialSizeForMode, type ReadingFontId, type ReadingSizeId } from "@bedtime-quests/core/reading-prefs";
+import { offlineUnavailableText } from "@bedtime-quests/core/offline";
 import { colors, EDGE, radius, space } from "../theme/tokens";
 import { readingFontFamily, size as sz, type } from "../theme/typography";
 import { Screen } from "../ui/Screen";
 import { useAppData, type EndingProgress } from "../data/store";
+import { useConnectivity } from "../connectivity/context";
 import { useNav } from "../navigation/Navigator";
 import { EndingView } from "./EndingView";
 import { ReadingSettingsSheet } from "./ReadingSettingsSheet";
@@ -30,11 +32,18 @@ const READ_SIZE: Record<ReadingSizeId, { fontSize: number; lineHeight: number }>
 };
 
 export function StoryReaderScreen({ slug }: { slug: string }) {
-  const { getStory, activeChild, storyUnlocked, recordEnding, setReadingPrefs } = useAppData();
+  const { getStory, activeChild, storyUnlocked, recordEnding, setReadingPrefs, noteStoryOpened } = useAppData();
+  const { isOffline } = useConnectivity();
   const { goBack, navigate, resetToLibrary } = useNav();
   const story = getStory(slug);
 
   const built = useMemo(() => (story ? graphFromStoryInput(story) : null), [story]);
+
+  // Warm the read-through offline cache with this story the moment it opens (issue
+  // #66), so revisiting or finishing it works after a dropped connection.
+  useEffect(() => {
+    if (story) noteStoryOpened(slug);
+  }, [slug, story, noteStoryOpened]);
 
   const [currentKey, setCurrentKey] = useState<string>(() => built?.startKey ?? "");
   const [progress, setProgress] = useState<EndingProgress | null>(null);
@@ -67,9 +76,15 @@ export function StoryReaderScreen({ slug }: { slug: string }) {
   }, [font, size]);
 
   if (!story || !built || !pageData || !activeChild) {
+    // If we are offline and the story was never saved, say so calmly instead of a
+    // bare error (issue #66). Today the launch library is bundled so this is rare,
+    // but it is the right message once story content lives behind the API.
     return (
       <Screen center>
-        <Text style={styles.missing}>We could not open that story.</Text>
+        <Text style={styles.missing}>
+          {!story && isOffline ? "We cannot open that story right now" : "We could not open that story."}
+        </Text>
+        {!story && isOffline && <Text style={styles.missingBody}>{offlineUnavailableText()}</Text>}
         <Pressable onPress={resetToLibrary} accessibilityRole="button">
           <Text style={styles.missingLink}>Back to the library</Text>
         </Pressable>
@@ -119,6 +134,7 @@ export function StoryReaderScreen({ slug }: { slug: string }) {
             endingType={pageData.endingType}
             endingLabel={pageData.endingLabel}
             progress={progress}
+            savedOffline={isOffline}
             onReadAgain={readAgain}
             onLibrary={resetToLibrary}
             onSeeEndings={() => navigate({ name: "Achievements" })}
@@ -208,6 +224,7 @@ const styles = StyleSheet.create({
   choiceText: { ...type.display, color: colors.onDark, flex: 1 },
   choiceChevron: { ...type.display, fontSize: sz.xl, color: "rgba(255,255,255,0.85)" },
 
-  missing: { ...type.display, fontSize: sz.lg, color: colors.ink, marginBottom: space.md },
+  missing: { ...type.display, fontSize: sz.lg, color: colors.ink, marginBottom: space.md, textAlign: "center" },
+  missingBody: { ...type.body, fontSize: sz.sm, color: colors.ink, textAlign: "center", maxWidth: 340, marginBottom: space.md },
   missingLink: { ...type.display, fontSize: sz.base, color: colors.plumInk, textDecorationLine: "underline" },
 });

@@ -20,7 +20,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "prepare:device-build": "expo install react-native-purchases expo-notifications expo-dev-client"
+    "prepare:device-build": "expo install react-native-purchases expo-notifications expo-dev-client @react-native-community/netinfo @react-native-async-storage/async-storage"
   },
   "private": true
 }

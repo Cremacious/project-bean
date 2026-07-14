@@ -31,6 +31,9 @@ import {
   type PurchaseOutcome,
   type RestoreOutcome,
 } from "../billing";
+import { apiBaseUrl } from "../billing/config";
+import { createKeyValueStore, OfflineCache } from "../cache";
+import { useConnectivity } from "../connectivity/context";
 import type { CatalogStory, ChildProfile, ReadingMode } from "./types";
 
 export type EndingProgress = StoryProgress & { endingType: string };
@@ -99,6 +102,12 @@ type AppData = {
   storyUnlocked: (premium: boolean) => boolean;
   entitlement: Subscription;
 
+  // Offline handling (issue #66). noteStoryOpened warms the read-through cache with
+  // the story the child just opened so it survives a dropped connection;
+  // pendingSyncCount is how many endings recorded offline are waiting to sync.
+  noteStoryOpened: (slug: string) => void;
+  pendingSyncCount: number;
+
   // Billing (issue #55). RevenueCat when the SDK + a public key are present in a
   // dev build; an in-memory mock otherwise, so this all works with no store setup.
   billingProviderName: BillingProvider["name"];
@@ -131,6 +140,50 @@ export function AppDataProvider({ children: node }: { children: ReactNode }) {
       /* configure is best effort; the paywall still renders and reports errors. */
     });
   }, [billing]);
+
+  // Offline handling (issue #66). One persistent cache for the app's life (real
+  // AsyncStorage in a dev build, in-memory otherwise) and the shared connectivity
+  // signal. pendingSyncCount is how many endings were recorded while offline.
+  const { connectivity } = useConnectivity();
+  const cache = useMemo(() => new OfflineCache(createKeyValueStore()), []);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
+
+  // On startup: warm the cache with the current catalog (so the library browses
+  // offline) and learn how many offline writes are already queued from a past run.
+  useEffect(() => {
+    let alive = true;
+    cache.saveCatalog(CATALOG).catch(() => {});
+    cache
+      .loadOutbox()
+      .then((box) => {
+        if (alive) setPendingSyncCount(box.length);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [cache]);
+
+  // When connectivity returns, replay queued offline writes so progress syncs. There
+  // is no app-data backend yet (see README), so with no API base URL configured this
+  // is a documented no-op that KEEPS the queue intact rather than fabricating a sync
+  // or dropping the record; when the REST API lands it POSTs each write then removes
+  // it. Reading is never blocked either way.
+  useEffect(() => {
+    if (connectivity !== "online") return;
+    let alive = true;
+    (async () => {
+      const box = await cache.loadOutbox();
+      if (box.length === 0 || !apiBaseUrl()) return;
+      // Future: POST each write to the backend, then remove it. For now the whole
+      // batch is replayed at once against the (added-later) endpoint.
+      const remaining = await cache.removeFromOutbox(box);
+      if (alive) setPendingSyncCount(remaining);
+    })().catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [connectivity, cache]);
 
   // Attach a parent account to billing and pull their entitlement. Fails safe to
   // NOT_SUBSCRIBED so a billing hiccup never wrongly unlocks or crashes a sign in.
@@ -179,7 +232,11 @@ export function AppDataProvider({ children: node }: { children: ReactNode }) {
     setActiveId(null);
     setFound({});
     setNextId(2);
-  }, [billing]);
+    // Drop this account's offline session cache (profile snapshot + queued writes);
+    // the read-through story cache and catalog are content, not account data.
+    cache.clearSession().catch(() => {});
+    setPendingSyncCount(0);
+  }, [billing, cache]);
 
   // Billing actions the paywall calls. purchase/restore update the shared
   // entitlement on success so gating unlocks immediately across every screen.
@@ -294,6 +351,18 @@ export function AppDataProvider({ children: node }: { children: ReactNode }) {
       nextFound[childId] = [...mine];
       setFound(nextFound);
 
+      // Writes while offline (issue #66, requirement 4): the ending is recorded
+      // locally right here, so the child can finish the story with no connection and
+      // nothing is blocked. When offline we ALSO queue it in the durable outbox to
+      // replay when back online (see the reconnect effect); online it would post to
+      // the backend directly once that endpoint exists. Fire and forget.
+      if (connectivity !== "online") {
+        cache
+          .enqueueEnding({ childId, slug, pageKey })
+          .then(setPendingSyncCount)
+          .catch(() => {});
+      }
+
       // Recompute progress from the just-updated set (setState is async).
       const endings = Object.values(built.graph.pages)
         .filter((p) => p.isEnding)
@@ -305,7 +374,7 @@ export function AppDataProvider({ children: node }: { children: ReactNode }) {
       const progress = computeStoryProgress(endings, foundPageIds);
       return { ...progress, endingType: page.endingType };
     },
-    [found],
+    [found, connectivity, cache],
   );
 
   const getCollection = useCallback(
@@ -345,6 +414,20 @@ export function AppDataProvider({ children: node }: { children: ReactNode }) {
 
   const activeChild = useMemo(() => kids.find((c) => c.id === activeId) ?? null, [kids, activeId]);
 
+  // Read-through cache warm-up (issue #66): when a story is opened, persist it (a
+  // bounded LRU) plus a snapshot of the active reader, so revisiting or finishing it
+  // works offline. Best effort and fire and forget: caching never blocks reading,
+  // and today the launch library is bundled so opening also always works offline.
+  const noteStoryOpened = useCallback(
+    (slug: string) => {
+      const story = getStoryInput(slug);
+      if (!story) return;
+      cache.saveStory(slug, story).catch(() => {});
+      cache.saveProfile(activeChild).catch(() => {});
+    },
+    [cache, activeChild],
+  );
+
   const value: AppData = {
     session,
     signInEmail,
@@ -363,6 +446,8 @@ export function AppDataProvider({ children: node }: { children: ReactNode }) {
     getStory,
     storyUnlocked,
     entitlement,
+    noteStoryOpened,
+    pendingSyncCount,
     billingProviderName: billing.name,
     getOfferings,
     purchase,

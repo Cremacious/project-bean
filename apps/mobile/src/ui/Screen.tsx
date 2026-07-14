@@ -16,6 +16,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { colors, space } from "../theme/tokens";
+import { OfflineNotice } from "../components/OfflineNotice";
 
 const androidTop = Platform.OS === "android" ? StatusBar.currentHeight ?? 0 : 0;
 
@@ -45,6 +46,9 @@ export function Screen({
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: background, paddingTop: androidTop }]}>
+      {/* Offline state (issue #66): pinned below the safe area, above the content, so
+          it is visible on every screen and never scrolls away. Renders null online. */}
+      <OfflineNotice />
       {scroll ? (
         <ScrollView
           style={styles.flex}
