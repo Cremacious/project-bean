@@ -249,6 +249,40 @@ rollback commands, how to verify an update reached devices, and the OTA vs new b
 boundary are in [`docs/OTA-UPDATES.md`](../../docs/OTA-UPDATES.md); the monthly story
 publish tie in is in [`docs/STORY-CADENCE.md`](../../docs/STORY-CADENCE.md).
 
+## Rate and review (#71) — implemented
+
+The app asks satisfied families to rate/review at a well timed, non disruptive moment
+using the OS native review prompt (`expo-store-review`). Same seam pattern as the rest:
+a `StoreReviewProvider` interface (`src/review/`) with a real `expo-store-review`
+provider, an in memory mock (Expo Go / CI / this repo), a factory, and a context.
+
+**When it asks.** The "should we ask now?" decision is a pure, unit tested function in
+core (`packages/core/src/review-prompt.ts`, `shouldRequestReview`). It fires only as a
+family **leaves a GOOD ending** (back to the library or on to their endings), never on
+launch, never mid story, and **never on a game over** (a frustration moment). It also
+requires a real track record first (default: at least 3 good endings found **or** 2
+whole stories completed).
+
+**Frequency caps.** The context persists a tiny state (times asked + when) via the same
+key/value seam as the offline cache, and caps it: a long **cooldown** between asks
+(default 120 days) and a small **lifetime cap** (default 3). We only ever call the OS
+prompt (`StoreReview.requestReview`); the **OS itself decides whether to show it and
+rate limits it**, so our caps are a conservative extra layer, not a fight with the OS.
+If the prompt is unavailable here (web, TestFlight, module absent) we do **not** burn a
+cap. No feature is gated on a review and no incentive is offered (both stores forbid it);
+ignoring the prompt has zero downside.
+
+**Manual fallback.** Settings has a **Rate Bedtime Quests** entry that always opens the
+store review/listing page directly (`StoreReview.storeUrl()` with a platform fallback:
+Play from the package id, App Store from `EXPO_PUBLIC_APP_STORE_ID`), so a willing parent
+can review any time even after the native prompt is used or unavailable.
+
+Like the other native modules, `expo-store-review` is loaded via runtime `require` and is
+kept off master's lockfile; an on device build first runs `npm run prepare:device-build`
+(now includes it). **Simulate the unavailable path** with
+`EXPO_PUBLIC_STORE_REVIEW_MOCK_AVAILABLE=false`. Note: the real OS dialog is rate limited
+and often will not appear in a simulator or dev build even when requested.
+
 ## Intentionally deferred (not this issue)
 
 - **Remote push (#56 second half)** — the local bedtime reminder shipped; remote push

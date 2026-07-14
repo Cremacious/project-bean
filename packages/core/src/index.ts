@@ -42,6 +42,9 @@ export * from "./notifications";
 // Offline handling model (connectivity decision, read-through cache, write outbox)
 export * from "./offline";
 
+// Rate & review prompt model (positive-milestone gate, caps, parent-facing copy)
+export * from "./review-prompt";
+
 // Admin helpers
 export * from "./admin/slugs";
 

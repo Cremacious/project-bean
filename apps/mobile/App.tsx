@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { ConnectivityProviderScope } from "./src/connectivity/context";
 import { AppDataProvider } from "./src/data/store";
 import { NotificationsProviderScope } from "./src/notifications/context";
+import { ReviewPromptProviderScope } from "./src/review/context";
 import { LinkingProviderScope } from "./src/linking/context";
 import { UpdatesProviderScope } from "./src/updates/context";
 import { Navigator } from "./src/navigation/Navigator";
@@ -11,6 +12,7 @@ import { Navigator } from "./src/navigation/Navigator";
 // layer is local/in-memory for this UI port (see README): auth is a stub, and
 // purchasing is deferred to native billing (#55). AppDataProvider holds session +
 // gameplay state; NotificationsProviderScope owns the bedtime reminder (#56);
+// ReviewPromptProviderScope owns the rate/review prompt gate + manual entry (#71);
 // LinkingProviderScope turns incoming deep / universal links into targets (#65);
 // ConnectivityProviderScope tracks online/offline and drives the offline UX (#66);
 // UpdatesProviderScope checks for an OTA update on launch and downloads it in the
@@ -23,10 +25,12 @@ export default function App() {
       <UpdatesProviderScope>
         <AppDataProvider>
           <NotificationsProviderScope>
-            <LinkingProviderScope>
-              <StatusBar style="dark" />
-              <Navigator />
-            </LinkingProviderScope>
+            <ReviewPromptProviderScope>
+              <LinkingProviderScope>
+                <StatusBar style="dark" />
+                <Navigator />
+              </LinkingProviderScope>
+            </ReviewPromptProviderScope>
           </NotificationsProviderScope>
         </AppDataProvider>
       </UpdatesProviderScope>

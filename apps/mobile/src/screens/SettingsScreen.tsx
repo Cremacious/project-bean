@@ -30,6 +30,7 @@ import { PaperButton } from "../ui/PaperButton";
 import { TopBar } from "../components/TopBar";
 import { useNav } from "../navigation/Navigator";
 import { useReminders } from "../notifications/context";
+import { useReviewPrompt } from "../review/context";
 
 // A few common wind-down times, offered as one-tap presets.
 const PRESETS: ReminderTime[] = [
@@ -70,6 +71,7 @@ export function SettingsScreen() {
   const { goBack } = useNav();
   const { providerName, permission, settings, enableReminder, disableReminder, setReminderTime, refreshPermission } =
     useReminders();
+  const review = useReviewPrompt();
   const [busy, setBusy] = useState(false);
   // Only surface the "denied" guidance after a real decline, not on first arrival.
   const [showDenied, setShowDenied] = useState(false);
@@ -196,6 +198,26 @@ export function SettingsScreen() {
           <Text style={styles.note}>
             Preview build: reminders are simulated here. Install the notifications module in a device build to schedule
             real reminders.
+          </Text>
+        )}
+      </Card>
+
+      {/* Rate and review (issue #71). A manual entry point that ALWAYS lets a
+          willing parent open the store review page, even if the well-timed native
+          prompt is unavailable or already used. It never gates anything and offers
+          no incentive (store policy). Copy is warm and dash-free (UI rules 1/3). */}
+      <Card style={styles.section}>
+        <Text style={styles.sectionTitle}>{review.copy.title}</Text>
+        <Text style={styles.body}>{review.copy.body}</Text>
+        {review.canOpenStoreListing ? (
+          <PaperButton label={review.copy.cta} onPress={() => void review.openStoreListing()} />
+        ) : (
+          <Text style={styles.body}>{review.copy.unavailable}</Text>
+        )}
+        {review.providerName === "mock" && (
+          <Text style={styles.note}>
+            Preview build: this opens a placeholder. Install the store review module in a device build to open the real
+            listing.
           </Text>
         )}
       </Card>

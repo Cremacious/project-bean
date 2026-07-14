@@ -17,6 +17,7 @@ import { readingFontFamily, size as sz, type } from "../theme/typography";
 import { Screen } from "../ui/Screen";
 import { useAppData, type EndingProgress } from "../data/store";
 import { useConnectivity } from "../connectivity/context";
+import { useReviewPrompt } from "../review/context";
 import { useNav } from "../navigation/Navigator";
 import { EndingView } from "./EndingView";
 import { ReadingSettingsSheet } from "./ReadingSettingsSheet";
@@ -32,8 +33,10 @@ const READ_SIZE: Record<ReadingSizeId, { fontSize: number; lineHeight: number }>
 };
 
 export function StoryReaderScreen({ slug }: { slug: string }) {
-  const { getStory, activeChild, storyUnlocked, recordEnding, setReadingPrefs, noteStoryOpened } = useAppData();
+  const { getStory, activeChild, storyUnlocked, recordEnding, setReadingPrefs, noteStoryOpened, getCollection } =
+    useAppData();
   const { isOffline } = useConnectivity();
+  const { maybePromptAfterGoodEnding } = useReviewPrompt();
   const { goBack, navigate, resetToLibrary } = useNav();
   const story = getStory(slug);
 
@@ -105,6 +108,30 @@ export function StoryReaderScreen({ slug }: { slug: string }) {
   const readAgain = () => goTo(built.startKey);
   const readSize = READ_SIZE[size];
 
+  // Rate/review prompt (issue #71). A GOOD ending is a genuine positive milestone,
+  // so consider asking as the family LEAVES that ending (back to the library or on
+  // to their endings), never mid-story and never on a game over. The request self
+  // limits inside the review context (threshold, cooldown, lifetime cap) and the OS
+  // may still choose not to show it, so this is safe to call on every good exit.
+  // Fire and forget: navigation is never blocked and ignoring the prompt has no cost.
+  const considerReviewPrompt = () => {
+    if (!activeChild || progress?.endingType !== "good") return;
+    const stats = getCollection(activeChild.id).stats;
+    void maybePromptAfterGoodEnding({
+      endingType: "good",
+      goodEndingsFound: stats.endingsFound,
+      storiesCompleted: stats.storiesCompleted,
+    });
+  };
+  const leaveToLibrary = () => {
+    considerReviewPrompt();
+    resetToLibrary();
+  };
+  const seeEndings = () => {
+    considerReviewPrompt();
+    navigate({ name: "Achievements" });
+  };
+
   return (
     <Screen padded={false}>
       {/* Reader header: back, title, reading settings. */}
@@ -136,8 +163,8 @@ export function StoryReaderScreen({ slug }: { slug: string }) {
             progress={progress}
             savedOffline={isOffline}
             onReadAgain={readAgain}
-            onLibrary={resetToLibrary}
-            onSeeEndings={() => navigate({ name: "Achievements" })}
+            onLibrary={leaveToLibrary}
+            onSeeEndings={seeEndings}
           />
         ) : (
           <View style={styles.article}>

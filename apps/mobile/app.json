@@ -23,6 +23,7 @@
     },
     "android": {
       "package": "com.bedtimequests.app",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.bedtimequests.app",
       "adaptiveIcon": {
         "backgroundColor": "#16283A",
         "foregroundImage": "./assets/android-icon-foreground.png",
