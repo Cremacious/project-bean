@@ -135,6 +135,19 @@ gitignored `credentials/` folder. Account enrollment (Apple Developer Program, G
 Console), the IDs you must reuse, and the `eas init` / `eas submit` steps that are blocked
 until the accounts exist are all in [`docs/STORE-ACCOUNTS.md`](../../docs/STORE-ACCOUNTS.md).
 
+## TestFlight & Play internal testing (#59)
+
+The full build-and-distribute pipeline is in
+[`docs/TESTFLIGHT-PLAY-TESTING.md`](../../docs/TESTFLIGHT-PLAY-TESTING.md): build with the
+`production` profile, submit with the `internal` profile (iOS → TestFlight, Android →
+internal track), set up testers, and run the on-device checklist. Key gotcha: a store build
+of the repo **as-is** ships the mock billing/notifications providers. To verify **real** IAP
+(#55) and push (#56) on device, first install the native modules with
+`npm run prepare:device-build` (a local, throwaway step — do **not** commit the lockfile
+change to `master`; it drops the web CI's wasm/@emnapi entries). The public RevenueCat keys
+reach EAS cloud builds via EAS environment variables (each build profile is bound to its
+`environment`), never via committed secrets.
+
 ## Intentionally deferred (not this issue)
 
 - **Remote push (#56 second half)** and **native offline (#66)** — the local

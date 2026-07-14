@@ -19,7 +19,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare:device-build": "expo install react-native-purchases expo-notifications expo-dev-client"
   },
   "private": true
 }
