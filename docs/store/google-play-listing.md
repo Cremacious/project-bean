@@ -13,6 +13,11 @@ assets, ready to paste. All displayed copy is **dash free** per the app wide cop
 > field by field checklist. The Data Safety form (#62), content rating questionnaire
 > (#63), and the guidelines compliance pass (#64) are separate and are only flagged here.
 
+> **ASO note (#69):** the title, short description, and full description below are the
+> **optimized** versions from [docs/store/aso.md](./aso.md), the single source of truth for
+> discoverability. Keyword strategy and the rationale for this copy live there; change a term
+> in aso.md first, then mirror it here.
+
 ---
 
 ## 1. Text fields (paste ready, within Play limits)
@@ -26,37 +31,38 @@ Option A, clean brand (14 / 30):
 ```
 Bedtime Quests
 ```
-Option B, keyword richer, recommended for Play (28 / 30):
+Option B, keyword richer, **recommended (ASO #69)** for Play (28 / 30):
 ```
 Bedtime Quests: Kids Stories
 ```
 
 ### Short description  ·  Play limit 80  (shown first, above the fold)
 
-(80 / 80)
+(80 / 80 · ASO optimized, #69 · leads with interactive bedtime stories + kids + read aloud)
 ```
-Interactive bedtime stories where your child chooses the path and stars by name.
+Interactive bedtime stories for kids to read aloud, starring your child by name.
 ```
 
 ### Full description  ·  Play limit 4000
 
-(2426 / 4000, dash free). Includes benefits, how it works, the reading and accessibility
+(ASO optimized, #69, dash free). Priority keywords are woven in 2 to 3 times across benefit
+led copy with no stuffing. Includes benefits, how it works, the reading and accessibility
 options, the safety / COPPA friendly framing, and the subscription terms in Google's
 required wording (billed through Google Play, auto renew, cancel window).
 ```
-Bedtime Quests is an interactive bedtime story app for young children, where your child chooses the path and becomes the hero of every tale. It is made to be read aloud together, so story time becomes a calm ritual you build side by side.
+Bedtime Quests is an interactive bedtime story app for kids, where your child chooses the path and becomes the hero of every tale. It turns story time into a calm ritual you build together, one goodnight at a time.
 
-Read a scene aloud, let your little one pick what happens next, and see their first name woven right into the story. Every choice leads somewhere new, so each quest can be enjoyed again and again, with a different ending to discover each time.
+Read the bedtime stories aloud together, let your little one pick what happens next, and see their first name woven right into the story. Every choice leads somewhere new, so each quest can be read again and again, with a different happy ending to discover each time.
 
 HOW IT WORKS
 Pick a quest. Read the scene aloud. Let your child choose the path. Tap to see where the choice leads. Discover all the happy endings together and celebrate every one.
 
 WHAT IS INSIDE
-• Interactive choose the path stories, gentle enough for winding down
-• Your child's first name in every story
+• Interactive choose the path bedtime stories, gentle enough for winding down
+• Your child's first name personalized into every story
 • Multiple happy endings to discover and collect
-• A growing library, with new quests added every month
-• Stories for toddlers, preschoolers, and early readers
+• A growing library of kids stories, with new quests added every month
+• Read aloud stories for toddlers, preschoolers, and early readers
 • Achievements and a collection page that celebrate progress
 • Calm, cozy art made for bedtime
 
@@ -64,7 +70,7 @@ MADE TO READ YOUR WAY
 Bedtime Quests adapts to how your family reads. Choose from four text sizes, from small all the way up to huge, and pick the reading font that feels best, including a clear, high legibility option and a dyslexia friendly OpenDyslexic option. Switch between a read to me mode for cuddled up story time and an I can read mode that starts new readers off with bigger text. Every screen uses warm, high contrast colors so words stay easy to see.
 
 SAFE AND MADE FOR FAMILIES
-We designed Bedtime Quests to be safe for young children. We personalize stories using your child's first name only. We never ask for photos, birthdays, or other personal details. There is no chat, there are no third party ads, and there is no third party tracking of your child. Just stories.
+We designed Bedtime Quests to be safe for young children. We personalize stories using your child's first name only. We never ask for photos, birthdays, or other personal details. There is no chat, there are no third party ads, and there is no third party tracking of your child. Just bedtime stories.
 
 BEDTIME QUESTS PREMIUM
 Unlock the full library, every new monthly quest, and all endings and achievements. Always ad free, with no tracking.

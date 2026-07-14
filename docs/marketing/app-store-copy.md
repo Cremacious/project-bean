@@ -2,6 +2,11 @@
 
 Ready to paste into App Store Connect and Google Play Console. All copy is dash free per the app wide copy rule. Swap the `[bracketed]` placeholders before submitting.
 
+> **ASO note (#69):** the search facing fields below (Apple app name, subtitle, keywords, and
+> Play title / short / full description) are the **optimized** versions from
+> [docs/store/aso.md](../store/aso.md), which is the single source of truth for discoverability.
+> If you change a keyword or title, change it in aso.md and mirror it here.
+
 - **Tagline / slogan:** Choose your own goodnight.
 - **Full name (web / press):** Bedtime Quests: Interactive Bedtime Stories
 - **Pricing:** $4.99 / month · $29.99 / year (annual is the hero, 7 day free trial)
@@ -10,16 +15,16 @@ Ready to paste into App Store Connect and Google Play Console. All copy is dash 
 
 ## Apple App Store
 
-**App Name** (14 / 30)
+**App Name** (28 / 30 · ASO optimized, #69)
 
 ```
-Bedtime Quests
+Bedtime Quests: Kids Stories
 ```
 
-**Subtitle** (28 / 30)
+**Subtitle** (29 / 30 · ASO optimized, #69)
 
 ```
-Interactive Stories for Kids
+Interactive Tales, Read Aloud
 ```
 
 **Promotional Text** (144 / 170 · updatable anytime without review)
@@ -28,10 +33,10 @@ Interactive Stories for Kids
 New quests added every month. Read aloud, let your child choose the path, and watch their name bring the story to life. Sweet dreams start here.
 ```
 
-**Keywords** (99 / 100 · no spaces · avoids words already in the name/subtitle so nothing is wasted)
+**Keywords** (99 / 100 · no spaces · avoids words already in the name/subtitle so nothing is wasted · ASO optimized, #69)
 
 ```
-toddler,preschool,goodnight,read,tale,adventure,personalized,choose,sleep,night,children,book,learn
+toddler,preschool,children,book,goodnight,personalized,adventure,choose,sleep,night,learn,baby,calm
 ```
 
 **Description**
@@ -39,7 +44,7 @@ toddler,preschool,goodnight,read,tale,adventure,personalized,choose,sleep,night,
 ```
 Every night is a new adventure, and your child is the hero.
 
-Bedtime Quests turns story time into a ritual you build together. You read aloud, your little one chooses what happens next, and their name is woven right into the tale. Every choice leads somewhere new, so the same story can be enjoyed again and again.
+You read aloud, they choose what happens next, and their own name is woven into the tale. One bedtime story, endless ways to end it.
 
 HOW IT WORKS
 Pick a quest. Read the scene aloud. Let your child choose the path. Tap to see where the choice leads. Discover all the happy endings together and celebrate every one.
@@ -88,45 +93,39 @@ Welcome to Bedtime Quests! Choose your own goodnight with interactive stories th
 
 ## Google Play
 
-**App title** (14 / 30)
-
-```
-Bedtime Quests
-```
-
-Optional keyword richer title (28 / 30), since Play indexes the title heavily:
+**App title** (28 / 30 · ASO optimized, #69 · Play weights the title heavily for search)
 
 ```
 Bedtime Quests: Kids Stories
 ```
 
-**Short description** (80 / 80)
+**Short description** (80 / 80 · ASO optimized, #69)
 
 ```
-Interactive bedtime stories where your child chooses the path and stars by name.
+Interactive bedtime stories for kids to read aloud, starring your child by name.
 ```
 
-**Full description**
+**Full description** (ASO optimized, #69 · priority terms woven 2 to 3x, no stuffing)
 
 ```
-Bedtime Quests is an interactive bedtime story app for kids, where your child chooses the path and becomes the hero of every tale.
+Bedtime Quests is an interactive bedtime story app for kids, where your child chooses the path and becomes the hero of every tale. It turns story time into a calm ritual you build together, one goodnight at a time.
 
-Read aloud together, let your little one pick what happens next, and see their first name woven right into the story. Every choice leads somewhere new, so each quest can be enjoyed again and again.
+Read the bedtime stories aloud together, let your little one pick what happens next, and see their first name woven right into the story. Every choice leads somewhere new, so each quest can be read again and again, with a different happy ending to discover each time.
 
 HOW IT WORKS
 Pick a quest. Read the scene aloud. Let your child choose the path. Tap to see where the choice leads. Discover all the happy endings together and celebrate every one.
 
 WHAT IS INSIDE
 • Interactive choose the path bedtime stories, gentle enough for winding down
-• Your child's first name in every story
+• Your child's first name personalized into every story
 • Multiple happy endings to discover and collect
-• A growing library, with new quests added every month
-• Stories for toddlers, preschoolers, and early readers
+• A growing library of kids stories, with new quests added every month
+• Read aloud stories for toddlers, preschoolers, and early readers
 • Achievements and a collection page that celebrate progress
 • Calm, cozy art made for bedtime
 
 SAFE AND MADE FOR FAMILIES
-We personalize stories using your child's first name only. We never ask for photos, birthdays, or other personal details. There is no chat, and no third party tracking of your child. Just stories, made for young children.
+We personalize stories using your child's first name only. We never ask for photos, birthdays, or other personal details. There is no chat, there are no third party ads, and there is no third party tracking of your child. Just bedtime stories, made for young children.
 
 BEDTIME QUESTS PREMIUM
 Unlock the full library, every new monthly quest, and all endings and achievements. Always ad free, with no tracking.
