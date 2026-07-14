@@ -45,6 +45,9 @@ const PUBLIC_PATHS = [
   "/privacy",
   "/terms",
   "/support",
+  // Press / media kit page (issue #70): public and indexable, and it serves its
+  // assets from /press-kit/, so press must reach it without hitting the auth gate.
+  "/press",
   // Deployment health probe (issue #51): the smoke suite and uptime monitors hit
   // this unauthenticated, so it must skip the auth gate like the auth routes do.
   "/api/health",

@@ -46,6 +46,9 @@ export function SiteFooter({
           <Link href="/support" className={linkClass}>
             Support
           </Link>
+          <Link href="/press" className={linkClass}>
+            Press
+          </Link>
           {/* Reopens the consent preferences so a parent can change or withdraw
               their choice at any time, from any page (issue #50). */}
           <CookieSettingsLink className={linkClass} />
