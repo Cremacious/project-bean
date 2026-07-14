@@ -32,6 +32,12 @@ import { useNav } from "../navigation/Navigator";
 import { useReminders } from "../notifications/context";
 import { useReviewPrompt } from "../review/context";
 
+// The web Help / FAQ page (issue #72). Opening the live first party page keeps the
+// answers identical to the web and shared core, so the two never drift, and the
+// #contact anchor drops the parent straight onto the contact form and email.
+const HELP_URL = "https://bedtimequests.com/support";
+const CONTACT_URL = "https://bedtimequests.com/support#contact";
+
 // A few common wind-down times, offered as one-tap presets.
 const PRESETS: ReminderTime[] = [
   { hour: 19, minute: 0 },
@@ -220,6 +226,20 @@ export function SettingsScreen() {
             listing.
           </Text>
         )}
+      </Card>
+
+      {/* Help and support (issue #72). Opens the web Help / FAQ, which shares its
+          content with the app through core, plus a direct path to contact us. Both
+          open in the browser via Linking, the same way the paywall opens the legal
+          pages. Copy is warm and dash-free (UI rules 1/3). */}
+      <Card style={styles.section}>
+        <Text style={styles.sectionTitle}>Help and support</Text>
+        <Text style={styles.body}>
+          Find answers to common questions about reading modes, personalization, privacy, and your subscription, or get
+          in touch and we will reply by email.
+        </Text>
+        <PaperButton label="Open help and FAQ" onPress={() => void Linking.openURL(HELP_URL)} />
+        <PaperButton label="Contact us" variant="secondary" onPress={() => void Linking.openURL(CONTACT_URL)} />
       </Card>
     </Screen>
   );

@@ -111,6 +111,50 @@ export function resetPasswordEmail({ name, url }: { name?: string | null; url: s
 }
 
 /**
+ * The support request email (issue #72). Sent to our own support inbox when a
+ * parent submits the Help page contact form, so it is an internal notification
+ * rather than a message to the parent. The parent's own address and name are
+ * shown (and escaped) so we can reply, and the message is preserved with its line
+ * breaks. Warm, plain, and dash free.
+ */
+export function supportRequestEmail({
+  fromEmail,
+  fromName,
+  message,
+}: {
+  fromEmail: string;
+  fromName?: string | null;
+  message: string;
+}): EmailContent {
+  const trimmedName = fromName?.trim();
+  const who = trimmedName ? `${trimmedName} (${fromEmail})` : fromEmail;
+  const subject = "New support message from a parent";
+  const preview = `From ${who}`;
+
+  // Preserve the parent's line breaks in the HTML view after escaping.
+  const messageHtml = escapeHtml(message).replace(/\n/g, "<br />");
+
+  const bodyHtml = `
+    <p style="margin:0 0 8px;font-weight:700;">New support message</p>
+    <p style="margin:0 0 4px;color:${COLOR.sub};font-size:14px;">From: ${escapeHtml(who)}</p>
+    <p style="margin:0 0 16px;color:${COLOR.sub};font-size:14px;">Reply to: <a href="mailto:${escapeHtml(fromEmail)}" style="color:${COLOR.plumInk};">${escapeHtml(fromEmail)}</a></p>
+    <div style="margin:0;padding:16px;background:${COLOR.white};border-radius:14px;border:1px solid ${COLOR.line};">${messageHtml}</div>
+  `;
+
+  const text = [
+    "New support message",
+    `From: ${who}`,
+    `Reply to: ${fromEmail}`,
+    "",
+    message,
+    "",
+    "Bedtime Quests",
+  ].join("\n");
+
+  return { subject, html: shell({ preview, bodyHtml }), text };
+}
+
+/**
  * The marketing waitlist confirmation email (issue #68). Sent best effort when a
  * parent joins the launch list on /welcome. `name` is their first name when they
  * gave one. Warm, short, and dash free.

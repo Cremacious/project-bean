@@ -28,6 +28,9 @@ export * from "./revenuecat-client";
 // Reading preferences model
 export * from "./reading-prefs";
 
+// Help / FAQ content (parent-facing, shared by web and native so they never drift)
+export * from "./faq";
+
 // Validation
 export * from "./validation";
 
