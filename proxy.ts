@@ -45,6 +45,10 @@ const PUBLIC_PATHS = [
   // this unauthenticated, so it must skip the auth gate like the auth routes do.
   "/api/health",
   "/api/auth",
+  // Native entitlement reconciliation (issue #55): the app calls this with a
+  // bearer token (no session cookie), so skip the cookie gate and let the route
+  // authenticate itself and return 401 JSON rather than an HTML redirect.
+  "/api/entitlements",
   "/apple-icon",
   "/opengraph-image",
   "/twitter-image",

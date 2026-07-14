@@ -41,6 +41,19 @@ export const TRIAL_DAYS = 7;
 export const PRODUCT_ID_MONTHLY = "bedtimequests_premium_monthly";
 export const PRODUCT_ID_YEARLY = "bedtimequests_premium_yearly";
 
+// The single RevenueCat entitlement identifier both products unlock. Configured
+// in the RevenueCat dashboard (Entitlements) and read by the native app to decide
+// whether premium is on. Kept here so the id lives in exactly one place, next to
+// the product ids it is granted by.
+export const PREMIUM_ENTITLEMENT_ID = "premium";
+
+/** The RevenueCat plan/package key a plan maps to, e.g. RevenueCat's "$rc_monthly". */
+export function planKeyForProductId(productId: string | null | undefined): PlanKey | null {
+  if (!productId) return null;
+  const plan = PLAN_LIST.find((p) => p.productId === productId);
+  return plan ? plan.key : null;
+}
+
 export const PLANS: Record<PlanKey, Plan> = {
   monthly: {
     key: "monthly",

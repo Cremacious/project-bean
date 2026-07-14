@@ -1,14 +1,17 @@
 // apps/mobile/src/screens/PaywallScreen.tsx
 //
-// The paywall + plan picker (ported from components/paywall.tsx and
-// components/subscribe/plan-selection.tsx). Gating is driven by the SAME
-// entitlement rules from core that the library uses. Purchasing is deferred to
-// native billing (#55): the grown up passes the parental gate, picks a plan, and
-// lands on an honest "starts in the app" screen. Nothing is ever charged and no
-// entitlement is faked, mirroring the web app. Plan prices/copy come from core.
-import { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { PLAN_LIST, TRIAL_DAYS, formatUsd, yearlySavings, type PlanKey } from "@bedtime-quests/core/plans";
+// The paywall + plan picker with REAL native billing (issue #55). Gating is the
+// SAME core #33 rule the library uses; purchasing goes through the billing seam
+// (src/billing), which is RevenueCat in a dev build with store products, or an
+// in-memory mock everywhere else so this whole flow is exercisable with no store
+// setup. The grown up passes the parental gate (#32), picks a plan fetched from the
+// store offerings, and starts the free trial. Every outcome (success, cancelled,
+// pending approval, error) lands on warm, dash-free copy so a parent is never dead
+// ended. Prices come from the live offering; plan names, trial length, and savings
+// come from core so web and native stay in step.
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { TRIAL_DAYS, formatUsd, yearlySavings, type PlanKey } from "@bedtime-quests/core/plans";
 import { colors, radius, space } from "../theme/tokens";
 import { size, type } from "../theme/typography";
 import { Screen } from "../ui/Screen";
@@ -17,9 +20,12 @@ import { Card, PressableCard } from "../ui/Card";
 import { Pill } from "../ui/Pill";
 import { TopBar } from "../components/TopBar";
 import { useNav } from "../navigation/Navigator";
+import { useAppData } from "../data/store";
+import type { OfferedPlan } from "../billing";
 import { ParentalGate } from "./ParentalGate";
 
-type Step = "paywall" | "plans" | "deferred";
+type Step = "paywall" | "plans" | "pending" | "success";
+type Notice = { tone: "info" | "error"; text: string } | null;
 
 const FEATURES = [
   "Every story, ready for tonight and every night",
@@ -29,35 +35,151 @@ const FEATURES = [
 
 export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: string }) {
   const { resetToLibrary } = useNav();
+  const { getOfferings, purchase, restorePurchases, billingProviderName } = useAppData();
+
   const [step, setStep] = useState<Step>("paywall");
+  const [successKind, setSuccessKind] = useState<"purchased" | "restored">("purchased");
   const [gateVisible, setGateVisible] = useState(false);
   const [selected, setSelected] = useState<PlanKey>("yearly");
 
-  const savings = yearlySavings();
+  const [offerings, setOfferings] = useState<OfferedPlan[] | null>(null);
+  const [offeringsError, setOfferingsError] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<Notice>(null);
 
-  if (step === "deferred") {
+  const savings = yearlySavings();
+  const isPreview = billingProviderName === "mock";
+
+  // Fetch the store offerings once, up front, so the plan picker shows live prices.
+  useEffect(() => {
+    let alive = true;
+    getOfferings()
+      .then((plans) => {
+        if (!alive) return;
+        setOfferings(plans);
+        setOfferingsError(plans.length === 0);
+      })
+      .catch(() => {
+        if (alive) setOfferingsError(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [getOfferings]);
+
+  const selectedOffer = offerings?.find((p) => p.key === selected) ?? null;
+
+  const startTrial = useCallback(async () => {
+    setNotice(null);
+    setBusy(true);
+    try {
+      const outcome = await purchase(selected);
+      switch (outcome.kind) {
+        case "success":
+          setSuccessKind("purchased");
+          setStep("success");
+          break;
+        case "cancelled":
+          setNotice({
+            tone: "info",
+            text: "No worries, nothing was charged. Start your free trial whenever your family is ready.",
+          });
+          break;
+        case "pending":
+          setStep("pending");
+          break;
+        case "error":
+          setNotice({ tone: "error", text: `${outcome.message} Please try again in a moment.` });
+          break;
+      }
+    } catch {
+      setNotice({ tone: "error", text: "Something went wrong. Please try again in a moment." });
+    } finally {
+      setBusy(false);
+    }
+  }, [purchase, selected]);
+
+  const onRestore = useCallback(async () => {
+    setNotice(null);
+    setBusy(true);
+    try {
+      const outcome = await restorePurchases();
+      switch (outcome.kind) {
+        case "restored":
+          setSuccessKind("restored");
+          setStep("success");
+          break;
+        case "none":
+          setNotice({
+            tone: "info",
+            text: "We did not find a subscription for this account. If you subscribed with another sign in, use that one here.",
+          });
+          break;
+        case "error":
+          setNotice({ tone: "error", text: `${outcome.message} Please try again in a moment.` });
+          break;
+      }
+    } catch {
+      setNotice({ tone: "error", text: "We could not check your purchases just now. Please try again." });
+    } finally {
+      setBusy(false);
+    }
+  }, [restorePurchases]);
+
+  // --- Success (bought or restored) ----------------------------------------
+  if (step === "success") {
     return (
       <Screen scroll>
         <TopBar onBack={resetToLibrary} />
         <View style={styles.centerCol}>
-          <Text style={styles.emoji}>📱</Text>
-          <Text style={styles.h1}>Your free trial starts in the app</Text>
+          <Text style={styles.emoji}>🎉</Text>
+          <Text style={styles.h1}>
+            {successKind === "restored" ? "Your purchase is restored" : "Every story is unlocked"}
+          </Text>
           <Text style={styles.body}>
-            Bedtime Quests subscriptions are handled safely inside our app, coming soon to iPhone and Android. When it
-            arrives you can start your 7 day free trial there, and every story unlocks on this account right away.
+            {successKind === "restored"
+              ? "Welcome back. Every bedtime adventure is open on this account again."
+              : `Your ${TRIAL_DAYS} day free trial has started. Every bedtime adventure is ready for tonight.`}
+          </Text>
+          {isPreview && (
+            <Card background={colors.accent} style={styles.info}>
+              <Text style={styles.infoText}>
+                Preview mode: no app store is connected yet, so nothing was charged. On a real device this unlock comes
+                from your App Store or Google Play purchase.
+              </Text>
+            </Card>
+          )}
+          <PaperButton label="Start reading" variant="cta" onPress={resetToLibrary} style={styles.cta} />
+        </View>
+      </Screen>
+    );
+  }
+
+  // --- Pending approval (e.g. Ask to Buy) ----------------------------------
+  if (step === "pending") {
+    return (
+      <Screen scroll>
+        <TopBar onBack={resetToLibrary} />
+        <View style={styles.centerCol}>
+          <Text style={styles.emoji}>⏳</Text>
+          <Text style={styles.h1}>Waiting on a grown up to approve</Text>
+          <Text style={styles.body}>
+            This purchase needs a family approver to say yes. Once they approve it, every story unlocks on this account
+            automatically. You can keep reading the free stories in the meantime.
           </Text>
           <Card background={colors.accent} style={styles.info}>
-            <Text style={styles.infoText}>Nothing was charged. Your free stories are always here in the meantime.</Text>
+            <Text style={styles.infoText}>Nothing is charged until the purchase is approved.</Text>
           </Card>
-          <PaperButton label="Back to the plans" onPress={() => setStep("plans")} style={styles.cta} />
-          <Text style={styles.footerLink} accessibilityRole="button" onPress={resetToLibrary}>
-            Back to the free stories
+          <PaperButton label="Back to the free stories" variant="cta" onPress={resetToLibrary} style={styles.cta} />
+          <Text style={styles.footerLink} accessibilityRole="button" onPress={() => setStep("plans")}>
+            Back to the plans
           </Text>
         </View>
       </Screen>
     );
   }
 
+  // --- Plan picker ----------------------------------------------------------
   if (step === "plans") {
     return (
       <Screen scroll>
@@ -69,7 +191,33 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
             your family loves it.
           </Text>
 
-          {PLAN_LIST.map((plan) => {
+          {notice && (
+            <Card
+              background={notice.tone === "error" ? colors.card : colors.accent}
+              style={[styles.info, notice.tone === "error" ? styles.noticeError : null]}
+            >
+              <Text style={styles.infoText} accessibilityLiveRegion="polite">
+                {notice.text}
+              </Text>
+            </Card>
+          )}
+
+          {offerings === null && !offeringsError && (
+            <View style={styles.loadingRow}>
+              <ActivityIndicator color={colors.plumInk} />
+              <Text style={styles.loadingText}>Loading the plans</Text>
+            </View>
+          )}
+
+          {offeringsError && (
+            <Card background={colors.card} style={[styles.info, styles.noticeError]}>
+              <Text style={styles.infoText}>
+                We could not load the plans just now. Please check your connection and try again in a moment.
+              </Text>
+            </Card>
+          )}
+
+          {offerings?.map((plan) => {
             const isSel = selected === plan.key;
             return (
               <PressableCard
@@ -81,14 +229,16 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
               >
                 <View style={styles.planHeader}>
                   <Text style={styles.planName}>{plan.name}</Text>
-                  {plan.key === "yearly" && <Pill label={`Save ${savings.savingsPercent}%`} tone="free" />}
+                  {plan.highlight && <Pill label={`Save ${savings.savingsPercent}%`} tone="free" />}
                 </View>
                 <Text style={styles.planPrice}>
-                  {formatUsd(plan.priceCents)} a {plan.period}
+                  {plan.priceString} a {plan.period}
                 </Text>
-                <Text style={styles.planCadence}>{plan.cadence}</Text>
+                <Text style={styles.planCadence}>{plan.period === "year" ? "billed yearly" : "billed monthly"}</Text>
                 {plan.key === "yearly" && (
-                  <Text style={styles.planSub}>Just {formatUsd(savings.monthlyEquivalentCents)} a month, billed yearly</Text>
+                  <Text style={styles.planSub}>
+                    Just {formatUsd(savings.monthlyEquivalentCents)} a month, billed yearly
+                  </Text>
                 )}
                 <View style={[styles.radio, isSel ? styles.radioOn : styles.radioOff]}>
                   <Text style={styles.radioText}>{isSel ? "Selected" : "Choose this plan"}</Text>
@@ -97,10 +247,33 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
             );
           })}
 
-          <PaperButton label={`Start your ${TRIAL_DAYS} day free trial`} variant="cta" onPress={() => setStep("deferred")} style={styles.cta} />
-          <Text style={styles.summary}>
-            {TRIAL_DAYS} day free trial, then {formatUsd(PLAN_LIST.find((p) => p.key === selected)!.priceCents)} a{" "}
-            {PLAN_LIST.find((p) => p.key === selected)!.period}. Cancel anytime.
+          <PaperButton
+            label={`Start your ${TRIAL_DAYS} day free trial`}
+            variant="cta"
+            onPress={startTrial}
+            loading={busy}
+            disabled={!selectedOffer}
+            style={styles.cta}
+          />
+          {selectedOffer && (
+            <Text style={styles.summary}>
+              {TRIAL_DAYS} day free trial, then {selectedOffer.priceString} a {selectedOffer.period}. Cancel anytime.
+            </Text>
+          )}
+
+          {isPreview && (
+            <Text style={styles.fine}>
+              Preview mode: no app store is connected yet, so nothing is charged. Real purchases run through the App
+              Store or Google Play.
+            </Text>
+          )}
+
+          <Text
+            style={styles.footerLink}
+            accessibilityRole="button"
+            onPress={busy ? undefined : onRestore}
+          >
+            Restore a purchase
           </Text>
           <Text style={styles.footerLink} accessibilityRole="button" onPress={resetToLibrary}>
             Back to the free stories
@@ -110,6 +283,7 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
     );
   }
 
+  // --- Value screen ---------------------------------------------------------
   return (
     <Screen scroll>
       <TopBar onBack={resetToLibrary} />
@@ -132,9 +306,28 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
           ))}
         </View>
 
+        {notice && (
+          <Card
+            background={notice.tone === "error" ? colors.card : colors.accent}
+            style={[styles.info, notice.tone === "error" ? styles.noticeError : null]}
+          >
+            <Text style={styles.infoText} accessibilityLiveRegion="polite">
+              {notice.text}
+            </Text>
+          </Card>
+        )}
+
         <PaperButton label="Start your free trial" variant="cta" onPress={() => setGateVisible(true)} style={styles.cta} />
         <Text style={styles.fine}>A grown up confirms this step. Plans and pricing are shown before anything is charged.</Text>
         <Text style={styles.fine}>By continuing you agree to our Terms of Service and Privacy Policy.</Text>
+
+        <Text
+          style={styles.footerLink}
+          accessibilityRole="button"
+          onPress={busy ? undefined : onRestore}
+        >
+          Restore a purchase
+        </Text>
         <Text style={styles.footerLink} accessibilityRole="button" onPress={resetToLibrary}>
           Back to the free stories
         </Text>
@@ -144,6 +337,7 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
         visible={gateVisible}
         onPass={() => {
           setGateVisible(false);
+          setNotice(null);
           setStep("plans");
         }}
         onCancel={() => setGateVisible(false)}
@@ -166,6 +360,9 @@ const styles = StyleSheet.create({
   fine: { ...type.bodyRegular, fontSize: size.xs, color: colors.sub, textAlign: "center" },
   footerLink: { ...type.display, fontSize: size.sm, color: colors.plumInk, textDecorationLine: "underline", marginTop: space.sm },
 
+  loadingRow: { flexDirection: "row", alignItems: "center", gap: space.sm, alignSelf: "stretch", justifyContent: "center", paddingVertical: space.md },
+  loadingText: { ...type.body, fontSize: size.sm, color: colors.ink },
+
   plan: { alignSelf: "stretch", gap: space.xs },
   planSelected: { borderColor: colors.plum, borderBottomColor: colors.plum },
   planHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
@@ -180,4 +377,5 @@ const styles = StyleSheet.create({
   summary: { ...type.body, fontSize: size.sm, color: colors.ink, textAlign: "center" },
   info: { alignSelf: "stretch" },
   infoText: { ...type.body, fontSize: size.sm, color: colors.ink, textAlign: "center" },
+  noticeError: { borderColor: colors.poppyInk, borderBottomColor: colors.poppyInk },
 });

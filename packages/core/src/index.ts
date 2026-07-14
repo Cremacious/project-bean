@@ -23,6 +23,7 @@ export * from "./gameplay/collection";
 export * from "./entitlements";
 export * from "./plans";
 export * from "./subscription-display";
+export * from "./revenuecat-client";
 
 // Reading preferences model
 export * from "./reading-prefs";

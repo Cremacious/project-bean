@@ -14,20 +14,43 @@
 //    placeholder and never fakes a grant, mirroring the web app.
 //  - Progress lives in memory for the session (no persistence yet; a real store
 //    would use the backend + secure storage).
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { graphFromStoryInput } from "@bedtime-quests/core/stories/from-input";
 import { computeStoryProgress, type StoryProgress } from "@bedtime-quests/core/gameplay/progress";
 import { buildCollection, type Collection, type StoryRow, type EndingRow } from "@bedtime-quests/core/gameplay/collection";
 import { isStoryUnlocked } from "@bedtime-quests/core/stories/access";
 import { NOT_SUBSCRIBED, type Subscription } from "@bedtime-quests/core/entitlements";
+import type { PlanKey } from "@bedtime-quests/core/plans";
 import type { StoryInput } from "@bedtime-quests/core/stories/story-types";
 import type { ReadingFontId, ReadingSizeId } from "@bedtime-quests/core/reading-prefs";
 import { STORIES, getStoryInput, isPremium } from "../content";
+import {
+  createBillingProvider,
+  type BillingProvider,
+  type OfferedPlan,
+  type PurchaseOutcome,
+  type RestoreOutcome,
+} from "../billing";
 import type { CatalogStory, ChildProfile, ReadingMode } from "./types";
 
 export type EndingProgress = StoryProgress & { endingType: string };
 
-type SessionState = { status: "signedOut" | "signedIn"; parentName: string | null };
+// The parent's app user id is the account id billing associates purchases with
+// (COPPA section 6c: PARENT scoped, opaque, never a child). Real auth (a later
+// seam) supplies BetterAuth's user.id; this stub derives a stable, opaque, non
+// child id from the sign in so the billing flow is real end to end today.
+type SessionState = { status: "signedOut" | "signedIn"; parentName: string | null; parentId: string | null };
+
+/**
+ * A stable, opaque, parent scoped id from a sign in seed (email or provider). A
+ * tiny non reversible hash keeps the raw email out of the id we hand to billing;
+ * a real backend replaces this with the BetterAuth user.id.
+ */
+function parentAppUserId(seed: string): string {
+  let h = 5381;
+  for (let i = 0; i < seed.length; i++) h = ((h << 5) + h + seed.charCodeAt(i)) >>> 0;
+  return `parent_${h.toString(36)}`;
+}
 
 // A namespaced page id so endings stay unique across stories in buildCollection.
 const globalId = (storyId: number, localId: number) => storyId * 1000 + localId;
@@ -76,6 +99,14 @@ type AppData = {
   storyUnlocked: (premium: boolean) => boolean;
   entitlement: Subscription;
 
+  // Billing (issue #55). RevenueCat when the SDK + a public key are present in a
+  // dev build; an in-memory mock otherwise, so this all works with no store setup.
+  billingProviderName: BillingProvider["name"];
+  getOfferings: () => Promise<OfferedPlan[]>;
+  purchase: (planKey: PlanKey) => Promise<PurchaseOutcome>;
+  restorePurchases: () => Promise<RestoreOutcome>;
+  refreshEntitlement: () => Promise<void>;
+
   recordEnding: (childId: number, slug: string, pageKey: string) => EndingProgress | null;
   getStoryProgress: (childId: number, slug: string) => StoryProgress;
   getCollection: (childId: number) => Collection;
@@ -84,33 +115,98 @@ type AppData = {
 const Ctx = createContext<AppData | null>(null);
 
 export function AppDataProvider({ children: node }: { children: ReactNode }) {
-  const [session, setSession] = useState<SessionState>({ status: "signedOut", parentName: null });
+  const [session, setSession] = useState<SessionState>({ status: "signedOut", parentName: null, parentId: null });
   const [kids, setKids] = useState<ChildProfile[]>([SEED_CHILD]);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [nextId, setNextId] = useState(2);
   // Endings found per child, keyed "slug:pageKey".
   const [found, setFound] = useState<Record<number, string[]>>({});
-  const [entitlement] = useState<Subscription>(NOT_SUBSCRIBED);
+  const [entitlement, setEntitlement] = useState<Subscription>(NOT_SUBSCRIBED);
 
-  const signInEmail = useCallback((email: string, _password: string) => {
-    const local = email.split("@")[0] || "there";
-    setSession({ status: "signedIn", parentName: local.charAt(0).toUpperCase() + local.slice(1) });
-  }, []);
-  const signUpEmail = useCallback((name: string, _email: string, _password: string) => {
-    setKids([]); // brand new account: no readers yet -> first reader onboarding
-    setActiveId(null);
-    setSession({ status: "signedIn", parentName: name.trim() || "Grown up" });
-  }, []);
-  const signInSocial = useCallback((_provider: "google" | "apple") => {
-    setSession({ status: "signedIn", parentName: "Grown up" });
-  }, []);
+  // One billing provider for the app's life. Configured anonymously at startup;
+  // sign in attaches the parent account (per PARENT entitlement, COPPA section 6c).
+  const billing = useMemo<BillingProvider>(() => createBillingProvider(), []);
+  useEffect(() => {
+    billing.configure(null).catch(() => {
+      /* configure is best effort; the paywall still renders and reports errors. */
+    });
+  }, [billing]);
+
+  // Attach a parent account to billing and pull their entitlement. Fails safe to
+  // NOT_SUBSCRIBED so a billing hiccup never wrongly unlocks or crashes a sign in.
+  const attachParent = useCallback(
+    (appUserId: string) => {
+      billing
+        .logIn(appUserId)
+        .then(setEntitlement)
+        .catch(() => setEntitlement(NOT_SUBSCRIBED));
+    },
+    [billing],
+  );
+
+  const signInEmail = useCallback(
+    (email: string, _password: string) => {
+      const local = email.split("@")[0] || "there";
+      const id = parentAppUserId(email.trim().toLowerCase() || "parent");
+      setSession({ status: "signedIn", parentName: local.charAt(0).toUpperCase() + local.slice(1), parentId: id });
+      attachParent(id);
+    },
+    [attachParent],
+  );
+  const signUpEmail = useCallback(
+    (name: string, email: string, _password: string) => {
+      setKids([]); // brand new account: no readers yet -> first reader onboarding
+      setActiveId(null);
+      const id = parentAppUserId(email.trim().toLowerCase() || name.trim().toLowerCase() || "parent");
+      setSession({ status: "signedIn", parentName: name.trim() || "Grown up", parentId: id });
+      attachParent(id);
+    },
+    [attachParent],
+  );
+  const signInSocial = useCallback(
+    (provider: "google" | "apple") => {
+      const id = parentAppUserId(`social:${provider}`);
+      setSession({ status: "signedIn", parentName: "Grown up", parentId: id });
+      attachParent(id);
+    },
+    [attachParent],
+  );
   const signOut = useCallback(() => {
-    setSession({ status: "signedOut", parentName: null });
+    billing.logOut().catch(() => {});
+    setEntitlement(NOT_SUBSCRIBED);
+    setSession({ status: "signedOut", parentName: null, parentId: null });
     setKids([SEED_CHILD]);
     setActiveId(null);
     setFound({});
     setNextId(2);
-  }, []);
+  }, [billing]);
+
+  // Billing actions the paywall calls. purchase/restore update the shared
+  // entitlement on success so gating unlocks immediately across every screen.
+  const getOfferings = useCallback(() => billing.getOfferings(), [billing]);
+  const purchase = useCallback(
+    async (planKey: PlanKey): Promise<PurchaseOutcome> => {
+      const outcome = await billing.purchase(planKey);
+      if (outcome.kind === "success") setEntitlement(outcome.subscription);
+      return outcome;
+    },
+    [billing],
+  );
+  const restorePurchases = useCallback(
+    async (): Promise<RestoreOutcome> => {
+      const outcome = await billing.restore();
+      if (outcome.kind === "restored") setEntitlement(outcome.subscription);
+      return outcome;
+    },
+    [billing],
+  );
+  const refreshEntitlement = useCallback(async () => {
+    try {
+      setEntitlement(await billing.getEntitlement());
+    } catch {
+      /* keep the last known entitlement on a transient read error. */
+    }
+  }, [billing]);
 
   const setActiveChild = useCallback((id: number) => setActiveId(id), []);
   const clearActiveChild = useCallback(() => setActiveId(null), []);
@@ -267,6 +363,11 @@ export function AppDataProvider({ children: node }: { children: ReactNode }) {
     getStory,
     storyUnlocked,
     entitlement,
+    billingProviderName: billing.name,
+    getOfferings,
+    purchase,
+    restorePurchases,
+    refreshEntitlement,
     recordEnding,
     getStoryProgress,
     getCollection,

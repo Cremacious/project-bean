@@ -37,7 +37,16 @@ paywall and the achievements/collection view.
 - **Data layer** (`src/data`) — the UI is written against interfaces in
   `types.ts`, satisfied today by an in-memory store (`store.tsx`) that drives all
   gameplay/gating through core (`graphFromStoryInput`, `computeStoryProgress`,
-  `buildCollection`, `isStoryUnlocked`, `personalize`, `NOT_SUBSCRIBED`).
+  `buildCollection`, `isStoryUnlocked`, `personalize`, `NOT_SUBSCRIBED`). The store
+  also owns billing: it holds one `BillingProvider`, attaches the parent on sign in
+  (`Purchases.logIn`), and exposes `purchase` / `restorePurchases` /
+  `refreshEntitlement`, updating the shared `entitlement` on success.
+- **Billing** (`src/billing`) — the RevenueCat integration (issue #55). The paywall
+  depends on the `BillingProvider` interface, satisfied by the real RevenueCat
+  provider in a dev build with store products, or an in-memory mock everywhere
+  else. Entitlement is mapped into the same core `Subscription` via
+  `subscriptionFromRevenueCat`, so a purchase gates exactly like web. See
+  `docs/BILLING-REVENUECAT.md` for the RevenueCat / App Store / Play setup.
 - **Content** (`src/content`) — the app bundles the same authored story files the
   web app seeds its database from (one source of truth), resolved by Metro via the
   workspace `watchFolders` in `metro.config.js`.
@@ -51,11 +60,18 @@ paywall and the achievements/collection view.
 runtime `StoryGraph` the reader consumes, so the native app drives the exact same
 reader with no database. Covered by `from-input.test.ts`.
 
+## Native billing (#55) — implemented
+
+"Start your free trial" passes the parental gate (#32), shows the plan picker with
+live store offerings (monthly / yearly, 7 day trial, yearly savings), and runs a
+real purchase / restore through RevenueCat. Success unlocks premium immediately;
+cancelled, pending (Ask to Buy), and error each land on warm, dash-free copy. With
+no store products configured the mock provider drives the whole flow so it is fully
+exercisable today. Store/RevenueCat setup and the deferred (live-store) checks are
+in `docs/BILLING-REVENUECAT.md`. IAP needs a dev build, not Expo Go.
+
 ## Intentionally deferred (not this issue)
 
-- **Native billing (#55)** — "Start your free trial" passes the parental gate,
-  shows the plan picker, then lands on the honest "starts in the app" screen.
-  Nothing is charged and no entitlement is faked, mirroring the web app.
 - **Push (#56)** and **native offline (#66)** — separate issues.
 - **Real font loading** — this build maps Baloo 2 / Nunito / the reading fonts onto
   the system font (dependency-light). Seam documented in `src/theme/typography.ts`
@@ -80,7 +96,7 @@ an existing server-side function; nothing here is a workaround, per the issue):
 | Set active reader | `setActiveChild` action | `POST /api/children/:id/activate` |
 | Reading prefs | `setChildReadingPrefs` action | `PUT /api/children/:id/reading-prefs` |
 | Collection | `getCollection(childId)` | `GET /api/children/:id/collection` |
-| Current entitlement | session + RevenueCat webhook | `GET /api/entitlements/current` |
+| Current entitlement | session + RevenueCat webhook | `GET /api/entitlements/current` (added in #55) |
 
 Config is via Expo public env / `app.json` (e.g. the API base URL). No secrets are
 embedded in the app, and `.env.local` is never read or committed.
