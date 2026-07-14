@@ -3,6 +3,7 @@ import { ConnectivityProviderScope } from "./src/connectivity/context";
 import { AppDataProvider } from "./src/data/store";
 import { NotificationsProviderScope } from "./src/notifications/context";
 import { LinkingProviderScope } from "./src/linking/context";
+import { UpdatesProviderScope } from "./src/updates/context";
 import { Navigator } from "./src/navigation/Navigator";
 
 // Bedtime Quests native app (issue #54). The UI is a faithful port of the web
@@ -12,20 +13,23 @@ import { Navigator } from "./src/navigation/Navigator";
 // gameplay state; NotificationsProviderScope owns the bedtime reminder (#56);
 // LinkingProviderScope turns incoming deep / universal links into targets (#65);
 // ConnectivityProviderScope tracks online/offline and drives the offline UX (#66);
-// Navigator decides the screen flow from that state. Connectivity wraps the data
-// layer because the store reads it to queue writes made offline and to sync on
-// reconnect.
+// UpdatesProviderScope checks for an OTA update on launch and downloads it in the
+// background to apply on the next cold start (#67); Navigator decides the screen flow
+// from that state. Connectivity wraps the data layer because the store reads it to
+// queue writes made offline and to sync on reconnect.
 export default function App() {
   return (
     <ConnectivityProviderScope>
-      <AppDataProvider>
-        <NotificationsProviderScope>
-          <LinkingProviderScope>
-            <StatusBar style="dark" />
-            <Navigator />
-          </LinkingProviderScope>
-        </NotificationsProviderScope>
-      </AppDataProvider>
+      <UpdatesProviderScope>
+        <AppDataProvider>
+          <NotificationsProviderScope>
+            <LinkingProviderScope>
+              <StatusBar style="dark" />
+              <Navigator />
+            </LinkingProviderScope>
+          </NotificationsProviderScope>
+        </AppDataProvider>
+      </UpdatesProviderScope>
     </ConnectivityProviderScope>
   );
 }

@@ -219,6 +219,36 @@ ending. On a dev build, real NetInfo + AsyncStorage come from
 `npm run prepare:device-build` (kept off master's lockfile, like the other native
 modules); toggle airplane mode to see the same states.
 
+## Over the air updates (#67) — implemented
+
+The app ships JS, most assets, and new **story content** to installed apps without a
+store build, via EAS Update (`expo-updates`). Same seam pattern as billing /
+notifications / linking / connectivity: an `UpdatesProvider` interface (`src/updates/`)
+with a real `expo-updates` provider, an in memory mock (Expo Go / CI / this repo), a
+factory, and a context that owns the strategy.
+
+Strategy (`src/updates/context.tsx`): **check on cold launch, download in the
+background, apply on the next cold start.** It never reloads mid session, so a bedtime
+read is never interrupted. An optional, on brand `<UpdateReadyNotice>` shows on the
+**Library** only when an update is pending, with dash free high contrast copy and an
+optional "add them now" button; if it is never tapped, the update still applies
+silently next cold start.
+
+Config lives in `app.json`: `runtimeVersion` uses the **`fingerprint`** policy so an
+OTA update only reaches a compatible binary (any native change bumps the fingerprint
+and forces a new build instead), `updates.url` + `extra.eas.projectId` carry a
+`REPLACE_WITH_EAS_PROJECT_ID` placeholder that `eas update:configure` fills in, and
+`checkAutomatically: ON_ERROR_RECOVERY` lets the app own the launch check. Channels
+(`eas.json` build profiles) map to stages: `development` / `preview` / `production`.
+
+Like real IAP and push, OTA needs the native module in the binary, so an OTA capable
+build first runs `npm run prepare:device-build` (now includes `expo-updates`, kept off
+master's lockfile). **Simulate the notice** in Expo Go with
+`EXPO_PUBLIC_FORCE_UPDATE_READY=1`. Full channel setup, the publish / promote /
+rollback commands, how to verify an update reached devices, and the OTA vs new build
+boundary are in [`docs/OTA-UPDATES.md`](../../docs/OTA-UPDATES.md); the monthly story
+publish tie in is in [`docs/STORY-CADENCE.md`](../../docs/STORY-CADENCE.md).
+
 ## Intentionally deferred (not this issue)
 
 - **Remote push (#56 second half)** — the local bedtime reminder shipped; remote push

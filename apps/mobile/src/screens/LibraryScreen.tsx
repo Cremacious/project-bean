@@ -14,6 +14,7 @@ import { PressableCard } from "../ui/Card";
 import { Pill } from "../ui/Pill";
 import { StoryCover } from "../components/StoryCover";
 import { TopBar } from "../components/TopBar";
+import { UpdateReadyNotice } from "../components/UpdateReadyNotice";
 import { useAppData } from "../data/store";
 import { useNav } from "../navigation/Navigator";
 
@@ -48,6 +49,11 @@ export function LibraryScreen() {
   return (
     <Screen scroll>
       <TopBar />
+
+      {/* Optional OTA "update ready" notice (#67): shows only when an update was
+          downloaded in the background and will apply on the next cold start. It lives
+          here on the calm library, never inside a story, and never forces a reload. */}
+      <UpdateReadyNotice />
 
       <Text style={styles.h1}>
         What shall we read, <Text style={styles.h1Name}>{name}</Text>?

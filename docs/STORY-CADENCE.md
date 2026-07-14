@@ -78,6 +78,17 @@ Both paths validate the same way (`lib/stories/validate.ts`) and write to the sa
 
 `npm run db:seed` writes to whichever Neon database `DATABASE_URL` points at, so it publishes to production only when it runs against the production database. Keep the story `.ts` files in the repo, and run the seed against the production database as the publish step for the batch. The admin builder publishes directly to whatever database the running site is connected to, so publishing through the builder on the live site reaches production immediately. Do not read or print `.env.local`.
 
+### The native app: publish the batch over the air
+
+The two paths above ship a story to the **web** app. The **native** app (`apps/mobile`) bundles the same authored `content/stories/*.ts` files, so a new story is a content only change that reaches installed phones **over the air**, with no App Store or Play review, via EAS Update (issue #67). The full command list, channels, rollback, and the OTA vs new build boundary live in [OTA-UPDATES.md](OTA-UPDATES.md); the short version for the monthly batch, once the stories are seeded to the web database:
+
+1. From `apps/mobile`, publish to the preview channel and smoke test on a preview build: `eas update --branch preview --message "<month> stories" --environment preview`.
+2. Promote the tested bundle to production: `eas update:republish --destination-channel production --message "<month> stories"`.
+3. Verify with `eas update:list --branch production` and by opening a production or TestFlight build cold twice so it downloads then applies the new story cards.
+4. If anything is wrong, roll back with `eas update:roll-back-to-embedded --channel production` and fix forward.
+
+Adding a story does not change the native runtime version, so every installed production build is eligible; a normal monthly batch never needs a store submission.
+
 ---
 
 ## 4. Seasonal and themed content
@@ -119,11 +130,13 @@ Publish
 [ ] Story files added to content/stories/ (or built in /admin)
 [ ] Ran npm run test and npm run build clean
 [ ] Seeded to production (npm run db:seed against the production database) or published via /admin
+[ ] Native app: published the batch over the air (eas update to preview, then republish to production; see OTA-UPDATES.md)
 [ ] Updated the balance ledger with the four new stories
 
 Verify
 [ ] Each new story appears in the live library with the right cover and age band
 [ ] Walked at least one path to an ending in each new story
+[ ] Native app: opened a production or TestFlight build cold twice and confirmed the new story cards appear (OTA applied)
 
 Done: new stories live and verified in the library
 ```
