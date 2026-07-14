@@ -17,7 +17,9 @@ import { join, resolve } from "node:path";
 
 const ROOT = resolve(__dirname, "..");
 const BRAND_DIR = join(ROOT, "public", "brand");
+const MOBILE_ASSETS = join(ROOT, "apps", "mobile", "assets");
 mkdirSync(BRAND_DIR, { recursive: true });
+mkdirSync(MOBILE_ASSETS, { recursive: true });
 
 const NAVY = "#16283A";
 
@@ -48,6 +50,41 @@ const roundedSvg = (px: number) =>
 const squareSvg = (px: number) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 100 100" role="img" aria-label="Bedtime Quests">` +
   `<rect width="100" height="100" fill="${NAVY}"/>${INNER}</svg>`;
+
+// --- Native (Expo) assets -------------------------------------------------
+// Android adaptive icons are a 108dp canvas with only the central ~72dp
+// guaranteed visible (the launcher masks the rest to a circle/squircle). So the
+// adaptive FOREGROUND and MONOCHROME layers must keep all art inside that safe
+// zone: we scale the 0..100 art to 64 units and center it (18px inset each
+// side), well within the safe circle. The iOS icon and the Android background
+// stay full-bleed (they are meant to reach the edges).
+const safeZone = (inner: string) =>
+  `<g transform="translate(18 18) scale(0.64)">${inner}</g>`;
+
+// Transparent-background art for the adaptive foreground and the splash mark.
+const artSvg = (px: number, inner: string) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 100 100" role="img" aria-label="Bedtime Quests">${inner}</svg>`;
+
+// A single-color (white-on-transparent) silhouette for Android 13+ themed
+// icons. The launcher recolors it via the wallpaper, so only shape/alpha
+// matters. The crescent is carved with a mask so the moon still reads; the tiny
+// scattered background stars are dropped because they vanish once tinted small.
+const MONO = `
+  <defs>
+    <mask id="moon">
+      <circle cx="73" cy="27" r="13" fill="#fff"/>
+      <circle cx="79" cy="23" r="10.5" fill="#000"/>
+    </mask>
+  </defs>
+  <g fill="#FFFFFF">
+    <circle cx="73" cy="27" r="13" mask="url(#moon)"/>
+    <path d="M27 61 L73 61 L64 74 L36 74 Z"/>
+    <path d="M40 61 L51 46 L61 61 Z"/>
+    <rect x="50.1" y="38.5" width="1.8" height="9" rx="0.9"/>
+    <path d="M51.9 39 L60 42 L51.9 45 Z"/>
+  </g>
+  <path d="M8 78 Q24 72 40 78 T72 78 T96 78" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"/>
+`;
 
 // Multi-size .ico is hand-built: an ICONDIR header + one ICONDIRENTRY per image,
 // each wrapping a full PNG (the modern .ico form all current browsers read).
@@ -108,9 +145,38 @@ async function main() {
   // google-play-512.png for "maskable"; only this 192 rounded size was missing.
   await sharp(roundedBuf).resize(192, 192).png().toFile(join(BRAND_DIR, "icon-192.png"));
 
+  // --- Native (Expo) app icons + splash, issue #57 ------------------------
+  // Same paper-boat art, emitted into apps/mobile/assets and wired in
+  // apps/mobile/app.json. iOS wants a full-bleed 1024 square with NO alpha
+  // (Apple rejects transparency and applies its own corner mask); Android's
+  // adaptive icon is a transparent foreground over a solid navy background,
+  // plus a monochrome layer for Android 13+ themed icons.
+  const foregroundBuf = Buffer.from(artSvg(1024, safeZone(INNER)));
+  const monochromeBuf = Buffer.from(artSvg(1024, safeZone(MONO)));
+  const splashBuf = Buffer.from(artSvg(1024, INNER));
+  // Solid navy (no art) for the adaptive background layer.
+  const navyBgBuf = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 100 100"><rect width="100" height="100" fill="${NAVY}"/></svg>`,
+  );
+
+  // iOS + legacy Android + top-level icon: full-bleed square, no alpha.
+  await noAlpha(squareBuf, 1024).toFile(join(MOBILE_ASSETS, "icon.png"));
+  // Android adaptive foreground: paper-boat art on transparency, safe-zoned.
+  await sharp(foregroundBuf).resize(1024, 1024).png().toFile(join(MOBILE_ASSETS, "android-icon-foreground.png"));
+  // Android adaptive background: solid navy, no alpha (matches backgroundColor).
+  await noAlpha(navyBgBuf, 1024).toFile(join(MOBILE_ASSETS, "android-icon-background.png"));
+  // Android 13+ themed (monochrome) layer: white silhouette on transparency.
+  await sharp(monochromeBuf).resize(1024, 1024).png().toFile(join(MOBILE_ASSETS, "android-icon-monochrome.png"));
+  // Splash mark: transparent so the navy carve blends into the navy splash
+  // backgroundColor; centered small via expo-splash-screen's imageWidth.
+  await sharp(splashBuf).resize(1024, 1024).png().toFile(join(MOBILE_ASSETS, "splash-icon.png"));
+  // Expo web favicon (rounded, matches the web app).
+  await sharp(roundedBuf).resize(48, 48).png().toFile(join(MOBILE_ASSETS, "favicon.png"));
+
   console.log("Regenerated icon set:");
   console.log("  app/icon.svg, app/favicon.ico, app/apple-icon.png");
   console.log("  public/brand/{icon-square.svg,icon-rounded.svg,app-store-ios-1024.png,google-play-512.png,icon-rounded-512.png,icon-192.png}");
+  console.log("  apps/mobile/assets/{icon.png,android-icon-foreground.png,android-icon-background.png,android-icon-monochrome.png,splash-icon.png,favicon.png}");
   console.log("Remember: keep components/brand-mark.tsx in sync with INNER.");
 }
 

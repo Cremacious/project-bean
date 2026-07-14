@@ -40,6 +40,7 @@ What the script produces (art authored in a `0..100` square):
 - `app/favicon.ico` — legacy favicon, real 16/32/48 sizes.
 - `app/apple-icon.png` — iOS home-screen icon, 180×180.
 - `public/brand/app-store-ios-1024.png` (Apple), `google-play-512.png` (Play), `icon-rounded-512.png` (preview), plus `icon-square.svg` / `icon-rounded.svg` sources.
+- `apps/mobile/assets/*` — the native Expo icon + splash (issue #57), from the same art: `icon.png` (iOS full-bleed no-alpha), `android-icon-{foreground,background,monochrome}.png` (adaptive icon, navy background, art inset to Android's safe zone), `splash-icon.png` (transparent mark for `expo-splash-screen`, navy background), and `favicon.png`. Wired in `apps/mobile/app.json`; see `apps/mobile/README.md`.
 
 **Rounded vs square is a real distinction, not a bug:** the web favicon and the in-app `<BrandMark>` use rounded corners (`rx=22`); the apple-icon and both store rasters are **full-bleed square (`rx=0`) with NO alpha channel**, because iOS and Play apply their own corner masking and Apple rejects icons with alpha. There is no `app/apple-icon.tsx` — the apple icon is a static PNG (the standard for store submission).
 

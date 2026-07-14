@@ -84,6 +84,37 @@ endpoint spec are in `docs/NOTIFICATIONS.md`. Local notifications work in Expo G
 SDK 57 once the module is installed; this repo runs the in-memory mock so the whole
 flow is exercisable with no native module.
 
+## App icons & splash (#57) — implemented
+
+The native icon and launch splash use the **same paper-boat brand art** as the web
+favicon, apple-icon, and store icons, so nothing drifts. All of it is emitted by the
+shared generator `scripts/gen-icons.ts` from the single `INNER` art definition — do
+**not** hand-edit the files in `assets/`. To change the mark, edit `INNER` (and keep
+`components/brand-mark.tsx` in sync), then from the repo root run:
+
+```
+npm run gen:icons
+```
+
+That (re)writes the web assets **and** these native ones in `apps/mobile/assets/`:
+
+| File | Used by | Format |
+| --- | --- | --- |
+| `icon.png` | iOS + top-level + legacy Android icon | 1024×1024 full-bleed square, **no alpha** (Apple rejects transparency) |
+| `android-icon-foreground.png` | Android adaptive foreground | 1024×1024 transparent, art scaled to the central safe zone |
+| `android-icon-background.png` | Android adaptive background | 1024×1024 solid navy `#16283A`, no alpha |
+| `android-icon-monochrome.png` | Android 13+ themed icon | 1024×1024 white silhouette on transparency |
+| `splash-icon.png` | `expo-splash-screen` mark | 1024×1024 transparent; the navy moon-carve blends into the navy splash |
+| `favicon.png` | Expo web favicon | 48×48 rounded |
+
+Wiring lives in `app.json`: the top-level `icon`, `android.adaptiveIcon` (navy
+`backgroundColor` + the three layers), and the `expo-splash-screen` plugin
+(`resizeMode: contain`, `backgroundColor: #16283A`, matching dark variant, no text).
+The adaptive foreground and monochrome art is inset to Android's ~66% safe zone so
+the launcher's circle/squircle mask never clips the boat. The splash and icon render
+natively at **prebuild / EAS build** time (not in Expo Go's default splash); verify
+on a dev build or `npx expo prebuild`.
+
 ## Intentionally deferred (not this issue)
 
 - **Remote push (#56 second half)** and **native offline (#66)** — the local
