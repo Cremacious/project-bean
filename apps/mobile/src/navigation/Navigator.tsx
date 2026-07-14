@@ -9,7 +9,8 @@
 //
 // SEAM: swapping in React Navigation or Expo Router later means replacing this
 // file and the useNav() calls in screens; the screens themselves are unchanged.
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { DeepLinkTarget } from "@bedtime-quests/core/deep-links";
 import { useAppData } from "../data/store";
 import type { Route } from "./types";
 import { AuthScreen } from "../screens/AuthScreen";
@@ -20,6 +21,7 @@ import { PaywallScreen } from "../screens/PaywallScreen";
 import { AchievementsScreen } from "../screens/AchievementsScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { useReminders } from "../notifications/context";
+import { useLinking } from "../linking/context";
 
 type Nav = {
   navigate: (route: Route) => void;
@@ -39,26 +41,76 @@ export function useNav(): Nav {
 const HOME: Route = { name: "Library" };
 
 export function Navigator() {
-  const { session, activeChild } = useAppData();
+  const { session, activeChild, getStory } = useAppData();
   const { addTapListener } = useReminders();
+  const { initialTarget, addTargetListener } = useLinking();
   const [stack, setStack] = useState<Route[]>([HOME]);
-
-  // Whenever the active reader changes (picked, switched, or cleared), start the
-  // stack fresh at the library so a new reader never lands mid-flow.
-  useEffect(() => {
-    setStack([HOME]);
-  }, [activeChild?.id, session.status]);
 
   const navigate = useCallback((route: Route) => setStack((s) => [...s, route]), []);
   const goBack = useCallback(() => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)), []);
   const resetToLibrary = useCallback(() => setStack([HOME]), []);
 
-  // Tapping a bedtime reminder deep-links to a sensible screen: the library
-  // (issue #56 requirement 3). The gate states still apply, so a tap while signed
-  // out lands on auth; once past the gates the reset puts the reader at the library.
+  // Turn a deep-link target (issue #65) into a full stack, rooted at the library
+  // so system "back" always returns there. An unknown story slug degrades to the
+  // library rather than opening a broken reader (requirement 2).
+  const stackForTarget = useCallback(
+    (target: DeepLinkTarget): Route[] => {
+      switch (target.screen) {
+        case "reader":
+          return getStory(target.slug) ? [HOME, { name: "Reader", slug: target.slug }] : [HOME];
+        case "collection":
+          return [HOME, { name: "Achievements" }];
+        case "library":
+        default:
+          return [HOME];
+      }
+    },
+    [getStory],
+  );
+
+  // A cold-start link (app launched from a tap) can arrive BEFORE the auth/reader
+  // gates are passed. We stash it and honor it the moment the app is ready, so a
+  // tapped story link still lands on that story after sign in + reader pick.
+  const canHonor = session.status === "signedIn" && !!activeChild;
+  const canHonorRef = useRef(canHonor);
+  canHonorRef.current = canHonor;
+  const pendingRef = useRef<DeepLinkTarget | null>(null);
+
+  const goToTarget = useCallback(
+    (target: DeepLinkTarget) => {
+      if (canHonorRef.current) setStack(stackForTarget(target));
+      else pendingRef.current = target; // honor after the gates (see effect below)
+    },
+    [stackForTarget],
+  );
+
+  // Gate transitions (reader picked/switched/cleared, or sign in/out): normally
+  // start fresh at the library so a new reader never lands mid-flow. But if a link
+  // is waiting (cold start, or arrived while signed out), honor it now instead.
   useEffect(() => {
-    return addTapListener(() => setStack([HOME]));
-  }, [addTapListener]);
+    if (session.status === "signedIn" && activeChild) {
+      const pending = pendingRef.current;
+      pendingRef.current = null;
+      setStack(pending ? stackForTarget(pending) : [HOME]);
+    } else {
+      setStack([HOME]);
+    }
+    // Intentionally keyed only on the gate identity, not on stackForTarget, so a
+    // reader switch resets to the library exactly as before (#54 behavior).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeChild?.id, session.status]);
+
+  // The link that cold-started the app (resolved async by the linking context).
+  useEffect(() => {
+    if (initialTarget) goToTarget(initialTarget);
+  }, [initialTarget, goToTarget]);
+
+  // Links delivered while the app is already running (backgrounded -> foreground).
+  useEffect(() => addTargetListener(goToTarget), [addTargetListener, goToTarget]);
+
+  // Tapping a bedtime reminder (issue #56) reuses the SAME routing as a link to the
+  // library target, so the notification tap and a home deep link land identically.
+  useEffect(() => addTapListener(() => goToTarget({ screen: "library" })), [addTapListener, goToTarget]);
 
   const nav = useMemo<Nav>(
     () => ({ navigate, goBack, resetToLibrary, canGoBack: stack.length > 1 }),

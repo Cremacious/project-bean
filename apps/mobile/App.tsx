@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { AppDataProvider } from "./src/data/store";
 import { NotificationsProviderScope } from "./src/notifications/context";
+import { LinkingProviderScope } from "./src/linking/context";
 import { Navigator } from "./src/navigation/Navigator";
 
 // Bedtime Quests native app (issue #54). The UI is a faithful port of the web
@@ -8,13 +9,16 @@ import { Navigator } from "./src/navigation/Navigator";
 // layer is local/in-memory for this UI port (see README): auth is a stub, and
 // purchasing is deferred to native billing (#55). AppDataProvider holds session +
 // gameplay state; NotificationsProviderScope owns the bedtime reminder (#56);
+// LinkingProviderScope turns incoming deep / universal links into targets (#65);
 // Navigator decides the screen flow from that state.
 export default function App() {
   return (
     <AppDataProvider>
       <NotificationsProviderScope>
-        <StatusBar style="dark" />
-        <Navigator />
+        <LinkingProviderScope>
+          <StatusBar style="dark" />
+          <Navigator />
+        </LinkingProviderScope>
       </NotificationsProviderScope>
     </AppDataProvider>
   );

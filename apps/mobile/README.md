@@ -84,6 +84,38 @@ endpoint spec are in `docs/NOTIFICATIONS.md`. Local notifications work in Expo G
 SDK 57 once the module is installed; this repo runs the in-memory mock so the whole
 flow is exercisable with no native module.
 
+## Deep & universal / app links (#65) — implemented
+
+Links open the app on the right screen. A custom scheme (`bedtimequests://`)
+handles internal deep links, and verified Universal Links (iOS) / App Links
+(Android) let a `https://bedtimequests.com/...` URL open the app. Routing goes
+through the SAME navigation as everything else: `src/linking/` is a provider seam
+(`LinkingProvider` interface + real React Native `Linking` provider + mock +
+factory + context, mirroring billing/notifications), the context turns an incoming
+URL into a `DeepLinkTarget` via the pure `parseDeepLink` in `@bedtime-quests/core`,
+and `Navigator.tsx` maps that target onto its screen stack. The bedtime-reminder
+tap (#56) now reuses the same library target.
+
+URL to screen map (full table + how to verify end to end in
+[`docs/DEEP-LINKS.md`](../../docs/DEEP-LINKS.md)):
+
+| Link | Screen |
+| --- | --- |
+| `bedtimequests://` / `://library` / `://home` | Library |
+| `https://bedtimequests.com/story/<slug>` / `bedtimequests://story/<slug>` | Reader for that story |
+| `https://bedtimequests.com/collection` / `bedtimequests://collection` | Collection / Achievements |
+| unknown or malformed | Library (never crashes) |
+
+Native config lives in `app.json`: `scheme` (custom scheme, from #58),
+`ios.associatedDomains` (`applinks:bedtimequests.com`), and `android.intentFilters`
+with `autoVerify` for the `/story` and `/collection` path prefixes. These only take
+effect in a real build (prebuild / EAS), not Expo Go. A cold-start link is honored
+after the auth + reader gates; a link while running routes immediately. Simulate a
+cold-start link locally with `EXPO_PUBLIC_LINK_INITIAL_URL`. **Universal/App link
+verification needs the deployed association files (served by the root web app at
+`/.well-known/*`) plus the real Apple Team ID and Android signing SHA-256** — set
+those and confirm on a device per `docs/DEEP-LINKS.md`.
+
 ## App icons & splash (#57) — implemented
 
 The native icon and launch splash use the **same paper-boat brand art** as the web

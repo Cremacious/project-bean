@@ -55,6 +55,13 @@ const PUBLIC_PATHS = [
   "/sitemap.xml",
   "/robots.txt",
   "/manifest.webmanifest",
+  // Deep/universal link association files (issue #65): iOS fetches
+  // /.well-known/apple-app-site-association and Android fetches
+  // /.well-known/assetlinks.json to verify the native app may open our URLs.
+  // These extensionless/.json paths are NOT excluded by the matcher below, so
+  // without this allowlist the auth gate would 302 the OS verifier to /sign-in
+  // and links would never verify. They are public JSON with no personal data.
+  "/.well-known",
 ];
 
 const isDev = process.env.NODE_ENV === "development";

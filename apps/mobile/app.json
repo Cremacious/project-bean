@@ -9,7 +9,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bedtimequests.app"
+      "bundleIdentifier": "com.bedtimequests.app",
+      "associatedDomains": ["applinks:bedtimequests.com"]
     },
     "android": {
       "package": "com.bedtimequests.app",
@@ -19,7 +20,18 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https", "host": "bedtimequests.com", "pathPrefix": "/story" },
+            { "scheme": "https", "host": "bedtimequests.com", "pathPrefix": "/collection" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
