@@ -43,6 +43,13 @@
       "when": 1783699008602,
       "tag": "0005_wakeful_blockbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784050743349,
+      "tag": "0006_jazzy_stone_men",
+      "breakpoints": true
     }
   ]
 }

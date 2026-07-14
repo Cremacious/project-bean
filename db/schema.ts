@@ -121,6 +121,19 @@ export const choice = pgTable("choice", {
   order: integer("order").notNull().default(0),
 });
 
+// --- Marketing waitlist (issue #68). A PARENT (never a child) opting in to be
+// emailed at launch from the public /welcome page. Email is unique so a repeat
+// signup is a graceful no-op, not a duplicate. Name is optional. `source` records
+// where the signup came from (e.g. "welcome") for future attribution. This holds
+// only an adult's email + optional name; no child data ever lands here. ---
+export const waitlist = pgTable("waitlist", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  source: text("source").notNull().default("welcome"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // --- Per-child ending progress. ---
 export const endingFound = pgTable(
   "ending_found",

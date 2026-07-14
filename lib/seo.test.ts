@@ -14,6 +14,7 @@ describe("buildSitemap", () => {
     const entries = buildSitemap(BASE, NOW);
     expect(entries.map((e) => e.url)).toEqual([
       "https://bedtimequests.com/",
+      "https://bedtimequests.com/welcome",
       "https://bedtimequests.com/sign-up",
       "https://bedtimequests.com/sign-in",
       "https://bedtimequests.com/privacy",

@@ -109,3 +109,36 @@ export function resetPasswordEmail({ name, url }: { name?: string | null; url: s
 
   return { subject, html: shell({ preview, bodyHtml }), text };
 }
+
+/**
+ * The marketing waitlist confirmation email (issue #68). Sent best effort when a
+ * parent joins the launch list on /welcome. `name` is their first name when they
+ * gave one. Warm, short, and dash free.
+ */
+export function waitlistConfirmationEmail({ name }: { name?: string | null }): EmailContent {
+  const trimmed = name?.trim();
+  const greeting = trimmed ? `Hi ${trimmed},` : "Hi there,";
+  const subject = "You are on the Bedtime Quests list";
+  const preview = "Thanks for joining. We will let you know the moment we launch.";
+
+  const bodyHtml = `
+    <p style="margin:0 0 16px;">${escapeHtml(greeting)}</p>
+    <p style="margin:0 0 16px;">Thanks for joining the Bedtime Quests waitlist. You are on the list, and we will email you the moment we launch.</p>
+    <p style="margin:0 0 16px;">Bedtime Quests turns story time into a ritual you build together. You read aloud, your little one chooses what happens next, and their name is woven right into the tale.</p>
+    <p style="margin:0;color:${COLOR.sub};font-size:14px;">If you did not sign up for this, you can safely ignore this email and we will not contact you again.</p>
+  `;
+
+  const text = [
+    greeting,
+    "",
+    "Thanks for joining the Bedtime Quests waitlist. You are on the list, and we will email you the moment we launch.",
+    "",
+    "Bedtime Quests turns story time into a ritual you build together. You read aloud, your little one chooses what happens next, and their name is woven right into the tale.",
+    "",
+    "If you did not sign up for this, you can safely ignore this email and we will not contact you again.",
+    "",
+    "Bedtime Quests",
+  ].join("\n");
+
+  return { subject, html: shell({ preview, bodyHtml }), text };
+}

@@ -21,6 +21,10 @@ export const PUBLIC_ROUTES: ReadonlyArray<{
   priority: number;
 }> = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
+  // Marketing landing page (issue #68). Public and indexable; the acquisition
+  // page anonymous visitors to the root are routed to, so it ranks just below the
+  // bare origin.
+  { path: "/welcome", changeFrequency: "weekly", priority: 0.9 },
   { path: "/sign-up", changeFrequency: "monthly", priority: 0.8 },
   { path: "/sign-in", changeFrequency: "monthly", priority: 0.5 },
   // Legal + support pages (issue #49). Public and indexable; they change rarely.

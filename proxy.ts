@@ -36,6 +36,10 @@ import { getSessionCookie } from "better-auth/cookies";
 const PUBLIC_PATHS = [
   "/sign-in",
   "/sign-up",
+  // Marketing landing page (issue #68): the public front door. Signed out
+  // visitors (and crawlers) must reach it, and the site root redirects anonymous
+  // visitors here (see the auth gate below).
+  "/welcome",
   // Legal + support pages (issue #49): public and indexable, so a signed out
   // visitor (or crawler) must reach them instead of being bounced to /sign-in.
   "/privacy",
@@ -141,11 +145,15 @@ export function proxy(request: NextRequest) {
     ? "Content-Security-Policy"
     : "Content-Security-Policy-Report-Only";
 
-  // Auth gate (behaviour preserved exactly from the previous middleware.ts).
+  // Auth gate (behaviour preserved from the previous middleware.ts, with one
+  // addition for issue #68). Signed out visitors are sent to /sign-in for any
+  // protected path, EXCEPT the site root, which is the marketing front door:
+  // there they get the public /welcome landing page instead. Signed in parents
+  // still get the app at / unchanged.
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
   if (!isPublic && !getSessionCookie(request)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/sign-in";
+    url.pathname = pathname === "/" ? "/welcome" : "/sign-in";
     const redirect = NextResponse.redirect(url);
     redirect.headers.set(responseCspHeader, csp);
     return redirect;
