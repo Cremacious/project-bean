@@ -18,15 +18,13 @@ import { join, resolve } from "node:path";
 const ROOT = resolve(__dirname, "..");
 const BRAND_DIR = join(ROOT, "public", "brand");
 const MOBILE_ASSETS = join(ROOT, "apps", "mobile", "assets");
-mkdirSync(BRAND_DIR, { recursive: true });
-mkdirSync(MOBILE_ASSETS, { recursive: true });
 
-const NAVY = "#16283A";
+export const NAVY = "#16283A";
 
 // A paper boat sailing a sea of stars toward a crescent moon: quest (voyage) +
 // choice + bedtime (moon). Authored in a 0..100 square. Literal Paper Cut hex
 // (not CSS vars) so the raster files and the React component match exactly.
-const INNER = `
+export const INNER = `
   <circle cx="73" cy="27" r="13" fill="#FFF1DC"/>
   <circle cx="79" cy="23" r="10.5" fill="${NAVY}"/>
   <circle cx="24" cy="25" r="2" fill="#FFC24B"/>
@@ -113,6 +111,9 @@ function buildIco(images: { size: number; png: Buffer }[]): Buffer {
 }
 
 async function main() {
+  mkdirSync(BRAND_DIR, { recursive: true });
+  mkdirSync(MOBILE_ASSETS, { recursive: true });
+
   const roundedBuf = Buffer.from(roundedSvg(512));
   const squareBuf = Buffer.from(squareSvg(1024));
 
@@ -180,7 +181,11 @@ async function main() {
   console.log("Remember: keep components/brand-mark.tsx in sync with INNER.");
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+// Only regenerate when run directly (`npm run gen:icons`); importing this module
+// (e.g. from scripts/gen-feature-graphic.ts to reuse NAVY/INNER) must not write files.
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

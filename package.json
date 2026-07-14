@@ -21,6 +21,7 @@
     "db:apply": "tsx scripts/apply-migrations.ts",
     "db:seed": "tsx scripts/seed-stories.ts",
     "gen:icons": "tsx scripts/gen-icons.ts",
+    "gen:feature-graphic": "tsx scripts/gen-feature-graphic.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
