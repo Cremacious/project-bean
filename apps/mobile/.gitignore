@@ -33,6 +33,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# store submission credentials (Play service account JSON, ASC API keys) — never commit
+credentials/
+
 # typescript
 *.tsbuildinfo
 

@@ -1,15 +1,18 @@
 {
   "expo": {
     "name": "Bedtime Quests",
-    "slug": "mobile",
+    "slug": "bedtime-quests",
+    "scheme": "bedtimequests",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bedtimequests.app"
     },
     "android": {
+      "package": "com.bedtimequests.app",
       "adaptiveIcon": {
         "backgroundColor": "#16283A",
         "foregroundImage": "./assets/android-icon-foreground.png",

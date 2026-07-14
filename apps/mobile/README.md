@@ -115,6 +115,26 @@ the launcher's circle/squircle mask never clips the boat. The splash and icon re
 natively at **prebuild / EAS build** time (not in Expo Go's default splash); verify
 on a dev build or `npx expo prebuild`.
 
+## Store identifiers & submission (#58)
+
+The app's **final, permanent** store identifiers are locked in `app.json`:
+
+| Identifier | Value |
+| --- | --- |
+| iOS bundle identifier | `com.bedtimequests.app` |
+| Android package name | `com.bedtimequests.app` |
+| App display name | `Bedtime Quests` |
+| Expo slug | `bedtime-quests` |
+| Deep-link scheme | `bedtimequests://` |
+
+Build/submit is via **EAS** (`eas.json`): `development` / `preview` / `production` build
+profiles and `internal` / `production` submit profiles (iOS → TestFlight / App Store,
+Android → internal / production track). No signing keys or service-account JSON live in the
+repo — iOS/ASC credentials are EAS-managed and the Play service-account key goes in the
+gitignored `credentials/` folder. Account enrollment (Apple Developer Program, Google Play
+Console), the IDs you must reuse, and the `eas init` / `eas submit` steps that are blocked
+until the accounts exist are all in [`docs/STORE-ACCOUNTS.md`](../../docs/STORE-ACCOUNTS.md).
+
 ## Intentionally deferred (not this issue)
 
 - **Remote push (#56 second half)** and **native offline (#66)** — the local
