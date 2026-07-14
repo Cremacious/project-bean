@@ -18,6 +18,8 @@ import { LibraryScreen } from "../screens/LibraryScreen";
 import { StoryReaderScreen } from "../screens/StoryReaderScreen";
 import { PaywallScreen } from "../screens/PaywallScreen";
 import { AchievementsScreen } from "../screens/AchievementsScreen";
+import { SettingsScreen } from "../screens/SettingsScreen";
+import { useReminders } from "../notifications/context";
 
 type Nav = {
   navigate: (route: Route) => void;
@@ -38,6 +40,7 @@ const HOME: Route = { name: "Library" };
 
 export function Navigator() {
   const { session, activeChild } = useAppData();
+  const { addTapListener } = useReminders();
   const [stack, setStack] = useState<Route[]>([HOME]);
 
   // Whenever the active reader changes (picked, switched, or cleared), start the
@@ -49,6 +52,13 @@ export function Navigator() {
   const navigate = useCallback((route: Route) => setStack((s) => [...s, route]), []);
   const goBack = useCallback(() => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)), []);
   const resetToLibrary = useCallback(() => setStack([HOME]), []);
+
+  // Tapping a bedtime reminder deep-links to a sensible screen: the library
+  // (issue #56 requirement 3). The gate states still apply, so a tap while signed
+  // out lands on auth; once past the gates the reset puts the reader at the library.
+  useEffect(() => {
+    return addTapListener(() => setStack([HOME]));
+  }, [addTapListener]);
 
   const nav = useMemo<Nav>(
     () => ({ navigate, goBack, resetToLibrary, canGoBack: stack.length > 1 }),
@@ -74,6 +84,9 @@ export function Navigator() {
         break;
       case "Achievements":
         body = <AchievementsScreen />;
+        break;
+      case "Settings":
+        body = <SettingsScreen />;
         break;
     }
   }

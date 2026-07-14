@@ -70,9 +70,24 @@ no store products configured the mock provider drives the whole flow so it is fu
 exercisable today. Store/RevenueCat setup and the deferred (live-store) checks are
 in `docs/BILLING-REVENUECAT.md`. IAP needs a dev build, not Expo Go.
 
+## Bedtime reminder (#56) — implemented (local)
+
+A gentle, optional nightly "storytime" reminder for the PARENT, scheduled on-device
+with `expo-notifications`. It is OFF until the parent turns it on from **Settings**
+(reached through the parental gate), which explains what it is for BEFORE the OS
+prompt, lets them pick the time, reflects the OS permission state, and offers a path
+to the OS settings if permission was declined. A tap deep-links to the library. No
+server and no personal data: the reminder copy carries no child name or profile
+(docs/COMPLIANCE-COPPA.md sections 2 and 6). Remote push is deferred (the native app
+has no real parent session yet to attach a token to); the seam and the backend
+endpoint spec are in `docs/NOTIFICATIONS.md`. Local notifications work in Expo Go on
+SDK 57 once the module is installed; this repo runs the in-memory mock so the whole
+flow is exercisable with no native module.
+
 ## Intentionally deferred (not this issue)
 
-- **Push (#56)** and **native offline (#66)** — separate issues.
+- **Remote push (#56 second half)** and **native offline (#66)** — the local
+  bedtime reminder shipped; remote push is deferred (see `docs/NOTIFICATIONS.md`).
 - **Real font loading** — this build maps Baloo 2 / Nunito / the reading fonts onto
   the system font (dependency-light). Seam documented in `src/theme/typography.ts`
   (`useFonts` + `@expo-google-fonts/*`).
@@ -97,6 +112,7 @@ an existing server-side function; nothing here is a workaround, per the issue):
 | Reading prefs | `setChildReadingPrefs` action | `PUT /api/children/:id/reading-prefs` |
 | Collection | `getCollection(childId)` | `GET /api/children/:id/collection` |
 | Current entitlement | session + RevenueCat webhook | `GET /api/entitlements/current` (added in #55) |
+| Register push token (deferred, #56) | none yet | `POST/DELETE /api/notifications/token` (spec in `docs/NOTIFICATIONS.md`) |
 
 Config is via Expo public env / `app.json` (e.g. the API base URL). No secrets are
 embedded in the app, and `.env.local` is never read or committed.

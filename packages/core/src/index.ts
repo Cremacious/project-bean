@@ -36,6 +36,9 @@ export * from "./consent";
 export * from "./parental-gate";
 export * from "./pii-keys";
 
+// Notifications (bedtime reminder) model
+export * from "./notifications";
+
 // Admin helpers
 export * from "./admin/slugs";
 

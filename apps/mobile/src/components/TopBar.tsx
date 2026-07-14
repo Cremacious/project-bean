@@ -5,16 +5,21 @@
 // + Sign out. In sub mode (onBack given) it shows a Back control and a title.
 // Every control is a real Paper Cut affordance (UI rule 2) with high-contrast
 // text (UI rule 3).
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, space } from "../theme/tokens";
 import { size, type } from "../theme/typography";
 import { BrandMark } from "./BrandMark";
 import { useAppData } from "../data/store";
 import { useNav } from "../navigation/Navigator";
+import { ParentalGate } from "../screens/ParentalGate";
 
 export function TopBar({ onBack, title }: { onBack?: () => void; title?: string }) {
   const { activeChild, clearActiveChild, signOut } = useAppData();
   const { navigate } = useNav();
+  // Settings holds parent controls (notifications, and later account/privacy), so
+  // it sits behind the parental gate (docs/COMPLIANCE-COPPA.md section 4).
+  const [gateOpen, setGateOpen] = useState(false);
 
   if (onBack) {
     return (
@@ -51,6 +56,14 @@ export function TopBar({ onBack, title }: { onBack?: () => void; title?: string 
             Reading: <Text style={styles.readerName}>{activeChild.name}</Text>
           </Text>
           <View style={styles.readerActions}>
+            <Pressable
+              onPress={() => setGateOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Settings, for grown ups"
+              style={({ pressed }) => [styles.chip, pressed ? styles.pressed : null]}
+            >
+              <Text style={styles.chipText}>Settings</Text>
+            </Pressable>
             <Pressable onPress={clearActiveChild} accessibilityRole="button" style={({ pressed }) => [styles.chip, pressed ? styles.pressed : null]}>
               <Text style={styles.chipText}>Switch</Text>
             </Pressable>
@@ -60,6 +73,15 @@ export function TopBar({ onBack, title }: { onBack?: () => void; title?: string 
           </View>
         </View>
       )}
+
+      <ParentalGate
+        visible={gateOpen}
+        onPass={() => {
+          setGateOpen(false);
+          navigate({ name: "Settings" });
+        }}
+        onCancel={() => setGateOpen(false)}
+      />
     </View>
   );
 }
@@ -76,7 +98,7 @@ const styles = StyleSheet.create({
   readerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: space.sm },
   reader: { ...type.body, fontSize: size.sm, color: colors.sub, flexShrink: 1 },
   readerName: { ...type.display, color: colors.ink },
-  readerActions: { flexDirection: "row", gap: space.sm },
+  readerActions: { flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: space.sm },
   chip: { backgroundColor: colors.card, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line, paddingHorizontal: space.md, paddingVertical: space.xs + 2 },
   chipText: { ...type.display, fontSize: size.xs, color: colors.ink },
 

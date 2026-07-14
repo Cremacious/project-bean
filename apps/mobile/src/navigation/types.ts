@@ -8,6 +8,7 @@ export type Route =
   | { name: "Library" }
   | { name: "Reader"; slug: string }
   | { name: "Paywall"; storySlug: string; storyTitle: string }
-  | { name: "Achievements" };
+  | { name: "Achievements" }
+  | { name: "Settings" };
 
 export type RouteName = Route["name"];
