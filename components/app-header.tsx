@@ -7,6 +7,7 @@ import { signOut } from "@/lib/auth-client";
 import { clearActiveChild } from "@/lib/active-child-actions";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
+import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
 
 function PersonIcon() {
   return (
@@ -39,6 +40,7 @@ export function AppHeader({
   isAdmin?: boolean;
 }) {
   const router = useRouter();
+  const requireAdult = useParentalGate();
   const [open, setOpen] = useState(false);
 
   // Keyboard users open the menu with Enter/Space; Escape must close it and
@@ -68,6 +70,17 @@ export function AppHeader({
     await signOut();
     router.push("/sign-in");
     router.refresh();
+  }
+
+  // Family and Account settings hold the parent controls a child should not reach:
+  // per child delete, full account delete, and billing (docs/COMPLIANCE-COPPA.md
+  // section 4, issue #64 GAP 4). Gate the entry with the same grown up check the
+  // sign up and purchase flows use, so a child cannot wander into data controls.
+  async function openBehindGate(href: string) {
+    setOpen(false);
+    const ok = await requireAdult("settings");
+    if (!ok) return;
+    router.push(href);
   }
 
   return (
@@ -159,22 +172,20 @@ export function AppHeader({
                   </div>
                 )}
 
-                <Link
-                  href="/family"
+                <button
                   role="menuitem"
-                  onClick={() => setOpen(false)}
+                  onClick={() => openBehindGate("/family")}
                   className="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   Family
-                </Link>
-                <Link
-                  href="/account"
+                </button>
+                <button
                   role="menuitem"
-                  onClick={() => setOpen(false)}
+                  onClick={() => openBehindGate("/account")}
                   className="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   Account settings
-                </Link>
+                </button>
                 {isAdmin && (
                   <Link
                     href="/admin"

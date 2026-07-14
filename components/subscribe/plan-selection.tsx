@@ -134,8 +134,8 @@ export function PlanSelection() {
         </button>
 
         <p className="text-center text-sm font-semibold text-[var(--pc-ink)]">
-          {TRIAL_DAYS} day free trial, then {formatUsd(selectedPlan.priceCents)} a {selectedPlan.period}. Cancel
-          anytime.
+          {TRIAL_DAYS} day free trial, then {formatUsd(selectedPlan.priceCents)} a {selectedPlan.period}. Your
+          subscription renews automatically until you cancel, and you can cancel anytime.
         </p>
 
         {flow.step === "cancelled" && (

@@ -10,7 +10,7 @@
 // ended. Prices come from the live offering; plan names, trial length, and savings
 // come from core so web and native stay in step.
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Linking, StyleSheet, Text, View } from "react-native";
 import { TRIAL_DAYS, formatUsd, yearlySavings, type PlanKey } from "@bedtime-quests/core/plans";
 import { colors, radius, space } from "../theme/tokens";
 import { size, type } from "../theme/typography";
@@ -32,6 +32,42 @@ const FEATURES = [
   "Fresh quests added every month",
   "Cancel anytime, no fuss",
 ];
+
+// Legal links shown at the point of sale (issue #64). Apple guideline 3.1.2 requires
+// FUNCTIONAL links to the Terms of Use and Privacy Policy wherever a subscription is
+// offered, so these open the live first party web pages. Required legal links are the
+// accepted exception to the kids external link gate, so they are not themselves gated.
+const LEGAL_URLS = {
+  terms: "https://bedtimequests.com/terms",
+  privacy: "https://bedtimequests.com/privacy",
+} as const;
+
+// The "By continuing you agree to..." line with the two functional legal links.
+// Shared by the value screen and the plan picker so both points of sale disclose the
+// same thing (issue #64, GAP 2).
+function LegalConsentLine() {
+  return (
+    <Text style={styles.fine}>
+      By continuing you agree to our{" "}
+      <Text
+        style={styles.fineLink}
+        accessibilityRole="link"
+        onPress={() => void Linking.openURL(LEGAL_URLS.terms)}
+      >
+        Terms of Service
+      </Text>{" "}
+      and{" "}
+      <Text
+        style={styles.fineLink}
+        accessibilityRole="link"
+        onPress={() => void Linking.openURL(LEGAL_URLS.privacy)}
+      >
+        Privacy Policy
+      </Text>
+      .
+    </Text>
+  );
+}
 
 export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: string }) {
   const { resetToLibrary } = useNav();
@@ -257,9 +293,12 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
           />
           {selectedOffer && (
             <Text style={styles.summary}>
-              {TRIAL_DAYS} day free trial, then {selectedOffer.priceString} a {selectedOffer.period}. Cancel anytime.
+              {TRIAL_DAYS} day free trial, then {selectedOffer.priceString} a {selectedOffer.period}. Your subscription
+              renews automatically until you cancel, and you can cancel anytime.
             </Text>
           )}
+
+          <LegalConsentLine />
 
           {isPreview && (
             <Text style={styles.fine}>
@@ -319,7 +358,7 @@ export function PaywallScreen({ storyTitle }: { storySlug: string; storyTitle?: 
 
         <PaperButton label="Start your free trial" variant="cta" onPress={() => setGateVisible(true)} style={styles.cta} />
         <Text style={styles.fine}>A grown up confirms this step. Plans and pricing are shown before anything is charged.</Text>
-        <Text style={styles.fine}>By continuing you agree to our Terms of Service and Privacy Policy.</Text>
+        <LegalConsentLine />
 
         <Text
           style={styles.footerLink}
@@ -358,6 +397,7 @@ const styles = StyleSheet.create({
   featureText: { ...type.body, fontSize: size.sm, color: colors.ink, flex: 1 },
   cta: { alignSelf: "stretch", marginTop: space.md },
   fine: { ...type.bodyRegular, fontSize: size.xs, color: colors.sub, textAlign: "center" },
+  fineLink: { color: colors.plumInk, textDecorationLine: "underline" },
   footerLink: { ...type.display, fontSize: size.sm, color: colors.plumInk, textDecorationLine: "underline", marginTop: space.sm },
 
   loadingRow: { flexDirection: "row", alignItems: "center", gap: space.sm, alignSelf: "stretch", justifyContent: "center", paddingVertical: space.md },
