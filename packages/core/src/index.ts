@@ -31,6 +31,10 @@ export * from "./reading-prefs";
 // Help / FAQ content (parent-facing, shared by web and native so they never drift)
 export * from "./faq";
 
+// First-time parent tutorial (gating decision + walkthrough copy, shared by web
+// and native so the tour never drifts)
+export * from "./onboarding";
+
 // Validation
 export * from "./validation";
 

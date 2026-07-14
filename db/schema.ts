@@ -78,6 +78,20 @@ export const subscription = pgTable("subscription", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// --- First-time parent tutorial completion (issue #73). ONE row per PARENT,
+// created when the parent finishes or skips the walkthrough. Kept in its own
+// table (like `subscription`) rather than as a column on `user`, because
+// BetterAuth's Drizzle adapter selects every `user` column on each account
+// lookup, so an app-only field there would couple auth to this migration. The
+// presence of a row means "completed"; there is no row until then. Storing this
+// per parent account (never per child, never per device) is what stops the tour
+// repeating on a new device and keeps it from greeting a returning parent.
+// Deleting the parent cascades this row away with the rest of the account. ---
+export const parentOnboarding = pgTable("parent_onboarding", {
+  parentId: text("parent_id").primaryKey().references(() => user.id, { onDelete: "cascade" }),
+  completedAt: timestamp("completed_at").notNull().defaultNow(),
+});
+
 // --- Story catalog (global; no per-user access). ---
 export const story = pgTable("story", {
   id: serial("id").primaryKey(),

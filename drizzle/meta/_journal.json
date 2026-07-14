@@ -50,6 +50,13 @@
       "when": 1784050743349,
       "tag": "0006_jazzy_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784059965861,
+      "tag": "0007_nasty_saracen",
+      "breakpoints": true
     }
   ]
 }

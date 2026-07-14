@@ -8,6 +8,7 @@ import { PasswordForm } from "@/components/account/password-form";
 import { SessionsForm } from "@/components/account/sessions-form";
 import { SubscriptionPanel } from "@/components/account/subscription-panel";
 import { DeleteAccount } from "@/components/account/delete-account";
+import { OnboardingReplay } from "@/components/onboarding/onboarding-replay";
 
 export const metadata: Metadata = { title: "Account settings" };
 
@@ -66,6 +67,13 @@ export default async function AccountPage() {
         description="See your plan and status, manage or cancel it, or restore a purchase."
       >
         <SubscriptionPanel subscription={subscription} />
+      </Card>
+
+      <Card
+        title="How Bedtime Quests works"
+        description="New here, or want a refresher? Take the quick tour of reading together and choosing paths."
+      >
+        <OnboardingReplay />
       </Card>
 
       <Card title="Your name" description="This is the name shown when you are signed in.">

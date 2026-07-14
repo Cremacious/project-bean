@@ -10,7 +10,15 @@ import { FirstReaderOnboarding } from "@/components/profiles/first-reader-onboar
 
 const AVATAR_COLORS = ["var(--pc-poppy)", "var(--pc-leaf)", "var(--pc-plum)", "var(--pc-sun)"];
 
-export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: boolean }) {
+export function ChildPicker({
+  kids,
+  needsFirst,
+  showTutorial = false,
+}: {
+  kids: Child[];
+  needsFirst: boolean;
+  showTutorial?: boolean;
+}) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
   const [pendingId, setPendingId] = useState<number | null>(null);
@@ -77,7 +85,7 @@ export function ChildPicker({ kids, needsFirst }: { kids: Child[]; needsFirst: b
   }
 
   if (needsFirst) {
-    return <FirstReaderOnboarding />;
+    return <FirstReaderOnboarding showTutorial={showTutorial} />;
   }
 
   return (

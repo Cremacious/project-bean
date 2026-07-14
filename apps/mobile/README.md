@@ -293,6 +293,39 @@ and often will not appear in a simulator or dev build even when requested.
 - **Real auth + persistence** — auth is a local stub and progress is in-memory for
   the session. Seams are in `src/data/store.tsx`.
 
+## First-time parent tutorial (#73) — web shipped, native is a scoped follow-up
+
+The first-time parent tutorial shipped on **web** in issue #73. The reusable half
+already lives in the shared core and is ready for the native app to consume, so
+the two surfaces will not drift:
+
+- **Copy + gating are in core** — `@bedtime-quests/core/onboarding` exports the
+  walkthrough steps (`ONBOARDING_STEPS`, one warm dash-free card per topic), the
+  button/heading strings (`ONBOARDING_COPY`), and the pure gating decision
+  (`shouldAutoShowOnboarding({ onboardingCompletedAt, hasChildren })`). The Expo
+  app already imports from this same package, so the native tour must render these
+  exact steps rather than re-authoring copy.
+
+**What the native follow-up needs to build:**
+
+1. **A native walkthrough UI** — a lightweight, swipeable card sequence (a few
+   `View`-based cards, no tour dependency) that renders `ONBOARDING_STEPS` and is
+   skippable at any point, mirroring `components/onboarding/parent-onboarding.tsx`
+   on web. Map each step's `icon` key to a native glyph.
+2. **A completion flag read/write** — web stores it per parent account in the
+   `parent_onboarding` table. Native has no REST layer yet, so this depends on the
+   children/session endpoints in the table below; add a
+   `GET/POST /api/onboarding` (read the completion timestamp / stamp it) alongside
+   them, or fold it into the session payload. Until then, the local store
+   (`src/data/store.tsx`) can hold a per-device flag as the interim secondary,
+   matching the web local fallback (`lib/onboarding-local.ts`).
+3. **Trigger + re-open** — auto-show once via `shouldAutoShowOnboarding` when a new
+   parent has no children yet; add a "Show me around" entry in
+   `src/screens/SettingsScreen.tsx` to replay it (the same `ONBOARDING_COPY.reopen`
+   label web uses).
+
+Nothing here re-authors content: it is UI + one endpoint on top of the shared core.
+
 ## Backend endpoints the native app still needs
 
 The web backend is Next.js server components + server actions with **no callable
@@ -311,6 +344,7 @@ an existing server-side function; nothing here is a workaround, per the issue):
 | Reading prefs | `setChildReadingPrefs` action | `PUT /api/children/:id/reading-prefs` |
 | Collection | `getCollection(childId)` | `GET /api/children/:id/collection` |
 | Current entitlement | session + RevenueCat webhook | `GET /api/entitlements/current` (added in #55) |
+| Tutorial completion (#73) | `getOnboardingCompletedAt` / `completeOnboarding` | `GET/POST /api/onboarding` |
 | Register push token (deferred, #56) | none yet | `POST/DELETE /api/notifications/token` (spec in `docs/NOTIFICATIONS.md`) |
 
 Config is via Expo public env / `app.json` (e.g. the API base URL). No secrets are

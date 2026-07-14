@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createChild } from "@/lib/children-actions";
+import { ParentOnboarding } from "@/components/onboarding/parent-onboarding";
+import { isOnboardingDoneLocally } from "@/lib/onboarding-local";
 
 // Purpose-built first-run screen. Unlike the compact family form, this one is the
 // child's warm introduction to the app: it explains that the name becomes the hero
@@ -47,12 +49,26 @@ const MODES = [
   },
 ] as const;
 
-export function FirstReaderOnboarding() {
+export function FirstReaderOnboarding({ showTutorial = false }: { showTutorial?: boolean }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [readingMode, setReadingMode] = useState<string>("read_to_me");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  // The tutorial floats over this add-child screen (issue #73), so dismissing it
+  // lands the parent exactly where they need to be, never at a dead end. Honour
+  // the per-device local flag too, so a parent who already skipped it on this
+  // device does not see it flash again before the server state catches up.
+  const [tourOpen, setTourOpen] = useState(showTutorial);
+  // Reconcile against the per-device local flag, which can only be read on the
+  // client (localStorage is unavailable during SSR render). This one-shot,
+  // conditional close is a legitimate effect: it syncs React state to a browser
+  // API, not a cascading render. The interactive close path uses setTourOpen in a
+  // click handler, not here.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- see note above
+    if (showTutorial && isOnboardingDoneLocally()) setTourOpen(false);
+  }, [showTutorial]);
 
   const clean = name.trim();
   const initial = clean.charAt(0).toUpperCase();
@@ -75,7 +91,9 @@ export function FirstReaderOnboarding() {
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6">
+    <>
+      {tourOpen && <ParentOnboarding onDone={() => setTourOpen(false)} />}
+      <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6">
       <header className="flex flex-col items-center gap-3 text-center">
         <span
           className="grid h-16 w-16 place-items-center rounded-3xl font-display text-3xl font-extrabold text-white shadow-[0_10px_22px_-10px_rgba(22,40,58,0.6)]"
@@ -211,5 +229,6 @@ export function FirstReaderOnboarding() {
         </button>
       </form>
     </section>
+    </>
   );
 }
