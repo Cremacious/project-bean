@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth-client";
 import { SocialButtons } from "@/components/auth/social-buttons";
+import { PasswordStrengthMeter, PasswordMatch } from "@/components/auth/password-feedback";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { isValidEmail, PASSWORD_MIN } from "@bedtime-quests/core/validation";
@@ -16,25 +18,26 @@ import { BrandMark } from "@/components/brand-mark";
 import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
 import { track } from "@/lib/analytics";
 
-type Errors = { name?: string; email?: string; password?: string };
+type Errors = { email?: string; password?: string; confirm?: string };
 
 export default function SignUpPage() {
   const router = useRouter();
   const requireAdult = useParentalGate();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   function validate(): Errors {
     const next: Errors = {};
-    if (!name.trim()) next.name = "Please tell us your name.";
     if (!email.trim()) next.email = "Please enter your email.";
     else if (!isValidEmail(email)) next.email = "That email does not look right. Please check for typos.";
     if (!password) next.password = "Please choose a password.";
     else if (password.length < PASSWORD_MIN) next.password = `Please use at least ${PASSWORD_MIN} characters so your account stays safe.`;
+    if (!confirm) next.confirm = "Please type your password again.";
+    else if (confirm !== password) next.confirm = "Those passwords do not match. Please try again.";
     return next;
   }
 
@@ -52,7 +55,10 @@ export default function SignUpPage() {
     if (!passedGate) return;
 
     setLoading(true);
-    const { error } = await signUp.email({ name, email, password });
+    // We no longer collect a name: sign-in identity is the email address. BetterAuth
+    // still expects a name field, so we send an empty string (the reset-email
+    // greeting falls back to "Hi there," when it is blank).
+    const { error } = await signUp.email({ name: "", email, password });
     setLoading(false);
     if (error) {
       setFormError(
@@ -60,7 +66,7 @@ export default function SignUpPage() {
       );
       return;
     }
-    // Non-personal: records that an account was created and how. No name/email.
+    // Non-personal: records that an account was created and how. No email.
     track("signup_completed", { method: "email" });
     router.push("/");
     router.refresh();
@@ -79,24 +85,6 @@ export default function SignUpPage() {
           </div>
         </div>
         <form onSubmit={onSubmit} noValidate className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="name" className="font-semibold text-[var(--pc-ink)]">Your name</Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((p) => ({ ...p, name: undefined }));
-              }}
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "name-error" : undefined}
-              className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-            />
-            <FieldError id="name-error">{errors.name}</FieldError>
-          </div>
           <div className="space-y-1.5">
             <Label htmlFor="email" className="font-semibold text-[var(--pc-ink)]">Email</Label>
             <Input
@@ -117,10 +105,9 @@ export default function SignUpPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="password" className="font-semibold text-[var(--pc-ink)]">Password</Label>
-            <Input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               autoComplete="new-password"
               value={password}
               onChange={(e) => {
@@ -129,12 +116,32 @@ export default function SignUpPage() {
               }}
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? "password-error" : "password-hint"}
-              className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             />
             {errors.password ? (
               <FieldError id="password-error">{errors.password}</FieldError>
             ) : (
               <p id="password-hint" className="text-xs font-semibold text-[var(--pc-sub)]">At least {PASSWORD_MIN} characters.</p>
+            )}
+            <PasswordStrengthMeter value={password} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="confirm" className="font-semibold text-[var(--pc-ink)]">Confirm password</Label>
+            <PasswordInput
+              id="confirm"
+              name="confirm"
+              autoComplete="new-password"
+              value={confirm}
+              onChange={(e) => {
+                setConfirm(e.target.value);
+                if (errors.confirm) setErrors((p) => ({ ...p, confirm: undefined }));
+              }}
+              aria-invalid={!!errors.confirm}
+              aria-describedby={errors.confirm ? "confirm-error" : "confirm-match"}
+            />
+            {errors.confirm ? (
+              <FieldError id="confirm-error">{errors.confirm}</FieldError>
+            ) : (
+              <PasswordMatch id="confirm-match" password={password} confirm={confirm} />
             )}
           </div>
           {formError && <p role="alert" className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{formError}</p>}

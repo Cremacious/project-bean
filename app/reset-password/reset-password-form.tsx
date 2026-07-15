@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/auth-client";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { PasswordStrengthMeter, PasswordMatch } from "@/components/auth/password-feedback";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { PASSWORD_MIN } from "@bedtime-quests/core/validation";
@@ -147,10 +148,9 @@ export function ResetPasswordForm({
           <Label htmlFor="password" className="font-semibold text-[var(--pc-ink)]">
             New password
           </Label>
-          <Input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             autoComplete="new-password"
             autoFocus
             value={password}
@@ -160,7 +160,6 @@ export function ResetPasswordForm({
             }}
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? "password-error" : "password-hint"}
-            className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           />
           {errors.password ? (
             <FieldError id="password-error">{errors.password}</FieldError>
@@ -169,15 +168,15 @@ export function ResetPasswordForm({
               At least {PASSWORD_MIN} characters.
             </p>
           )}
+          <PasswordStrengthMeter value={password} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="confirm" className="font-semibold text-[var(--pc-ink)]">
             Confirm new password
           </Label>
-          <Input
+          <PasswordInput
             id="confirm"
             name="confirm"
-            type="password"
             autoComplete="new-password"
             value={confirm}
             onChange={(e) => {
@@ -185,10 +184,13 @@ export function ResetPasswordForm({
               if (errors.confirm) setErrors((p) => ({ ...p, confirm: undefined }));
             }}
             aria-invalid={!!errors.confirm}
-            aria-describedby={errors.confirm ? "confirm-error" : undefined}
-            className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            aria-describedby={errors.confirm ? "confirm-error" : "confirm-match"}
           />
-          <FieldError id="confirm-error">{errors.confirm}</FieldError>
+          {errors.confirm ? (
+            <FieldError id="confirm-error">{errors.confirm}</FieldError>
+          ) : (
+            <PasswordMatch id="confirm-match" password={password} confirm={confirm} />
+          )}
         </div>
         {formError && (
           <p role="alert" className="text-sm font-semibold text-[var(--pc-poppy-ink)]">

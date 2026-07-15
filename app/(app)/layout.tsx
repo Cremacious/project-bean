@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--pc-sky)] text-[var(--pc-ink)]">
       <AppHeader
-        parentName={parent.name}
+        parentEmail={parent.email}
         activeChildName={active?.name ?? null}
         isAdmin={isAdmin(parent.email)}
         whatsNew={{ latestEntryId: latestChangelogEntry()?.id ?? null, seenEntryId }}

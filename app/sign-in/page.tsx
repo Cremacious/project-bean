@@ -7,6 +7,7 @@ import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { isValidEmail } from "@bedtime-quests/core/validation";
@@ -93,10 +94,9 @@ export default function SignInPage() {
                 Forgot password?
               </Link>
             </div>
-            <Input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => {
@@ -105,7 +105,6 @@ export default function SignInPage() {
               }}
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? "password-error" : undefined}
-              className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             />
             <FieldError id="password-error">{errors.password}</FieldError>
           </div>

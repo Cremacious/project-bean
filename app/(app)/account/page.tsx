@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getParent } from "@/lib/session";
 import { getSubscription } from "@/lib/entitlements";
-import { NameForm } from "@/components/account/name-form";
 import { PasswordForm } from "@/components/account/password-form";
 import { SessionsForm } from "@/components/account/sessions-form";
 import { SubscriptionPanel } from "@/components/account/subscription-panel";
@@ -58,7 +57,7 @@ export default async function AccountPage() {
           Account settings
         </h1>
         <p className="text-base font-semibold text-[var(--pc-sub)]">
-          Manage your subscription, name, password, and account.
+          Manage your subscription, password, and account.
         </p>
       </div>
 
@@ -76,11 +75,7 @@ export default async function AccountPage() {
         <OnboardingReplay />
       </Card>
 
-      <Card title="Your name" description="This is the name shown when you are signed in.">
-        <NameForm currentName={parent.name} />
-      </Card>
-
-      <Card title="Email" description="The address you use to sign in.">
+      <Card title="Email" description="The address you use to sign in and how you appear when signed in.">
         <div className="space-y-3">
           <div className="space-y-1.5">
             <span className="text-sm font-bold text-[var(--pc-ink)]">Current email</span>
