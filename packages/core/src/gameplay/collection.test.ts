@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { buildCollection, type CollectionStory } from "./collection";
 
 const stories = [
-  { id: 1, slug: "bean-whispering-woods", title: "Bean Whispering Woods", ageBand: "2-4" },
-  { id: 2, slug: "sleepy-shore", title: "The Sleepy Shore", ageBand: "5-7" },
+  { id: 1, slug: "bean-whispering-woods", title: "Bean Whispering Woods", ageBand: "2-4", coverImageUrl: null, coverMotif: null },
+  { id: 2, slug: "sleepy-shore", title: "The Sleepy Shore", ageBand: "5-7", coverImageUrl: null, coverMotif: null },
 ];
 
 const endingPages = [
@@ -31,10 +31,12 @@ describe("buildCollection", () => {
     const [s1, s2] = collection.stories as CollectionStory[];
     expect(s1).toEqual({
       slug: "bean-whispering-woods", title: "Bean Whispering Woods", ageBand: "2-4",
+      coverImageUrl: null, coverMotif: null,
       goodFound: 2, goodTotal: 2, complete: true, surprises: 1,
     });
     expect(s2).toEqual({
       slug: "sleepy-shore", title: "The Sleepy Shore", ageBand: "5-7",
+      coverImageUrl: null, coverMotif: null,
       goodFound: 1, goodTotal: 2, complete: false, surprises: 0,
     });
   });

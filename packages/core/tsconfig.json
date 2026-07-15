@@ -21,9 +21,8 @@
     "forceConsistentCasingInFileNames": true,
     "types": []
   },
+  // Includes the core source AND its test files, so type errors in core tests are
+  // caught by `npm run typecheck` (the root script chains this config into CI).
   "include": ["src/**/*.ts"],
-  // Tests carry partial fixtures that intentionally do not satisfy the strict
-  // source types (same policy as the web tsconfig.typecheck.json). They are run
-  // for real by `npm run test`, not type-checked here.
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "exclude": ["node_modules"]
 }

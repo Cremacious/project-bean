@@ -21,7 +21,7 @@ describe("buildLivenessBody", () => {
         VERCEL_ENV: "production",
         VERCEL_GIT_COMMIT_SHA: "abc123",
         VERCEL_GIT_COMMIT_REF: "master",
-      } as NodeJS.ProcessEnv,
+      },
       FIXED,
     );
     expect(body).toEqual({
@@ -34,13 +34,13 @@ describe("buildLivenessBody", () => {
   });
 
   it("falls back to NODE_ENV and nulls when Vercel metadata is absent (local dev)", () => {
-    const body = buildLivenessBody({ NODE_ENV: "development" } as NodeJS.ProcessEnv, FIXED);
+    const body = buildLivenessBody({ NODE_ENV: "development" }, FIXED);
     expect(body).toMatchObject({ status: "ok", env: "development", commit: null, branch: null });
   });
 
   it("never carries anything but whitelisted keys (no secret leakage)", () => {
     const body = buildLivenessBody(
-      { DATABASE_URL: "postgres://secret", BETTER_AUTH_SECRET: "shh" } as NodeJS.ProcessEnv,
+      { DATABASE_URL: "postgres://secret", BETTER_AUTH_SECRET: "shh" },
       FIXED,
     );
     expect(Object.keys(body).sort()).toEqual(["branch", "commit", "env", "status", "time"]);
@@ -49,7 +49,7 @@ describe("buildLivenessBody", () => {
 });
 
 describe("buildReadiness", () => {
-  const env = { VERCEL_ENV: "production" } as NodeJS.ProcessEnv;
+  const env = { VERCEL_ENV: "production" };
 
   it("returns 200 ok when the db check passes", () => {
     const { status, body } = buildReadiness("ok", env, FIXED);

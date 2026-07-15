@@ -79,7 +79,7 @@ function parseNetwork(value: string | undefined): AdNetwork {
  * network degrades to "no ads" rather than a broken or non-compliant slot. House
  * ads need no unit id, so they are ready as soon as the kill switch is on.
  */
-export function getAdsConfig(env: NodeJS.ProcessEnv = process.env): AdsConfig {
+export function getAdsConfig(env: Partial<NodeJS.ProcessEnv> = process.env): AdsConfig {
   const killSwitch = parseBool(env.ADS_ENABLED);
   const network = parseNetwork(env.NEXT_PUBLIC_ADS_NETWORK);
   const superawesomePlacementId = cleanId(env.NEXT_PUBLIC_SUPERAWESOME_PLACEMENT_ID);

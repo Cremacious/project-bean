@@ -107,7 +107,7 @@ function cleanId(value: string | undefined): string | null {
  * separate "require consent" env flag. See components/analytics/analytics-scripts.tsx
  * and track() in this file, both of which check the shared consent state.
  */
-export function getAnalyticsConfig(env: NodeJS.ProcessEnv = process.env): AnalyticsConfig {
+export function getAnalyticsConfig(env: Partial<NodeJS.ProcessEnv> = process.env): AnalyticsConfig {
   const measurementId = cleanId(env.NEXT_PUBLIC_GA_MEASUREMENT_ID);
   return {
     enabled: measurementId !== null && !isKilled(env.NEXT_PUBLIC_ANALYTICS_ENABLED),

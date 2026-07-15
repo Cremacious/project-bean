@@ -74,7 +74,7 @@ export function validateSupportRequest(input: SupportRequestInput): SupportValid
  * placeholder). A null result means "no support inbox is configured", which the
  * action treats as a safe no-op, mirroring how sendEmail degrades with no provider.
  */
-export function resolveSupportInbox(env: NodeJS.ProcessEnv = process.env): string | null {
+export function resolveSupportInbox(env: Partial<NodeJS.ProcessEnv> = process.env): string | null {
   const fromEnv = env.SUPPORT_EMAIL?.trim();
   if (fromEnv && isValidEmail(fromEnv)) return fromEnv;
 

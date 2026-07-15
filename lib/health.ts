@@ -51,7 +51,7 @@ function clean(value: string | undefined): string | null {
 }
 
 /** Non-personal build identity shared by both probe bodies (sourced from Vercel). */
-function buildInfo(env: NodeJS.ProcessEnv) {
+function buildInfo(env: Partial<NodeJS.ProcessEnv>) {
   return {
     env: clean(env.VERCEL_ENV) ?? clean(env.NODE_ENV),
     commit: clean(env.VERCEL_GIT_COMMIT_SHA),
@@ -61,7 +61,7 @@ function buildInfo(env: NodeJS.ProcessEnv) {
 
 /** The liveness body: status ok plus non-secret build metadata. Pure. */
 export function buildLivenessBody(
-  env: NodeJS.ProcessEnv = process.env,
+  env: Partial<NodeJS.ProcessEnv> = process.env,
   now: Date = new Date(),
 ): LivenessBody {
   return { status: "ok", ...buildInfo(env), time: now.toISOString() };
@@ -100,7 +100,7 @@ export async function runDbProbe(
  */
 export function buildReadiness(
   db: DbCheck,
-  env: NodeJS.ProcessEnv = process.env,
+  env: Partial<NodeJS.ProcessEnv> = process.env,
   now: Date = new Date(),
 ): { status: number; body: ReadinessBody } {
   const state: HealthState = db === "ok" ? "ok" : "degraded";

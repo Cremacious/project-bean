@@ -67,7 +67,7 @@ function cleanId(value: string | undefined): string | null {
  * With no DSN, reporting is off: local dev and CI initialize nothing and make no
  * reporting network calls.
  */
-export function getReportingConfig(env: NodeJS.ProcessEnv = process.env): ReportingConfig {
+export function getReportingConfig(env: Partial<NodeJS.ProcessEnv> = process.env): ReportingConfig {
   const dsn = cleanId(env.NEXT_PUBLIC_SENTRY_DSN);
   const environment =
     cleanId(env.NEXT_PUBLIC_SENTRY_ENVIRONMENT) ?? cleanId(env.NODE_ENV) ?? "development";
@@ -81,7 +81,7 @@ export function getReportingConfig(env: NodeJS.ProcessEnv = process.env): Report
 }
 
 /** Convenience predicate used by the instrumentation hooks. */
-export function isReportingEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+export function isReportingEnabled(env: Partial<NodeJS.ProcessEnv> = process.env): boolean {
   return getReportingConfig(env).enabled;
 }
 
