@@ -1,6 +1,9 @@
 // content/stories/_story-types.ts
 import type { MotifKey } from "./covers";
 
+/** The story age bands (stored codes). Shown to parents as "Ages 2 to 4" etc. */
+export type AgeBand = "2-4" | "5-7" | "8+";
+
 export type ChoiceInput = {
   label: string;
   to: string; // target page key
@@ -18,7 +21,7 @@ export type StoryInput = {
   slug: string;
   title: string;
   description?: string;
-  ageBand?: "2-4" | "5-7" | "8+";
+  ageBand?: AgeBand;
   start: string;     // page key to start on
   coverImageUrl?: string;
   coverMotif?: MotifKey; // pins a StoryCover motif (#26); omit to auto-derive from slug

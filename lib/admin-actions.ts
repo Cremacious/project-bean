@@ -5,7 +5,7 @@ import { db } from "@/db/client";
 import { story, page, choice } from "@/db/schema";
 import { isValidSlug, isValidSlug as isValidKey } from "@bedtime-quests/core/admin/slugs";
 import { buildStoryInput } from "@/lib/admin/story-to-input";
-import { validateStory } from "@bedtime-quests/core/stories/validate";
+import { validateStoryComplete } from "@bedtime-quests/core/stories/wizard/validate-complete";
 import { isMotifKey } from "@bedtime-quests/core/stories/covers";
 import { isAdminRequest } from "@/lib/admin-session";
 
@@ -78,7 +78,7 @@ export async function setPublished(storyId: number, published: boolean): Promise
     const pageIds = new Set(pages.map((p) => p.id));
     const allChoices = await db.select().from(choice);
     const choices = allChoices.filter((c) => pageIds.has(c.pageId));
-    const errors = validateStory(buildStoryInput(s, pages, choices));
+    const errors = validateStoryComplete(buildStoryInput(s, pages, choices)).blocking.map((i) => i.message);
     if (errors.length) return { ok: false, errors };
   }
   await db.update(story).set({ published, updatedAt: new Date() }).where(eq(story.id, storyId));

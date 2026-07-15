@@ -238,3 +238,22 @@ Walk this list before pressing Publish. The builder enforces the items marked (e
 - [ ] **Pages are short** and every choice reads clearly and differently.
 - [ ] You have **previewed** the draft and walked every path start to finish.
 - [ ] Then, and only then, **publish**.
+
+---
+
+## 9. The story creation wizard
+
+Most stories now start in the **wizard** (`/admin/stories/new`) rather than the blank builder. The wizard plans everything except the words: you pick an age group, how many endings, and a template shape, and it generates all the pages, choices, and endings as empty slots. You then only write the text into those slots, watching a branch graph fill in green as you go.
+
+### Scene pages and the rhythm
+
+The wizard builds stories on one simple rhythm: **a scene, then a choice, then a scene**, all the way to an ending. To make this work there are two kinds of page:
+
+- A **scene page** carries story text and a single **Turn the page** button that moves the reader on. It is a gentle beat of the story, not a decision. (This is the one place a page has a single choice; the "two or three choices" rule in section 4 is about **choice pages**.)
+- A **choice page** carries a short prompt and two or three real choices, each leading to the next scene.
+
+A reader never meets a choice unless the page before it was a scene, and every choice leads into a scene next. Endings are simply the scene that follows the last choice. A **good** ending sits several choices deep (three for the youngest, more for older readers); a **surprise** ending is a gentler early exit for a reader who wanders off sooner.
+
+### Ghost text hints
+
+Every empty slot shows a faint grey **hint** describing what to write there, like "Describe what they find here. Keep it calm and short." The hint is only a guide. It is never saved: as soon as you type, it disappears, and a page counts as written once it has real text. Write over every hint in your own warm words, following all the rules above.

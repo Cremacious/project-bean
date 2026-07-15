@@ -15,6 +15,16 @@ export * from "./stories/validate";
 export * from "./stories/access";
 export * from "./stories/story-types";
 
+// Story creation wizard (#86): planning, templates, placeholders, status, and
+// completeness validation. Platform agnostic so a future end-user and native
+// wizard reuse it. Web renders + persists; this is all the logic.
+export * from "./stories/wizard/types";
+export * from "./stories/wizard/endings";
+export * from "./stories/wizard/placeholders";
+export * from "./stories/wizard/templates";
+export * from "./stories/wizard/plan-status";
+export * from "./stories/wizard/validate-complete";
+
 // Gameplay
 export * from "./gameplay/progress";
 export * from "./gameplay/collection";
