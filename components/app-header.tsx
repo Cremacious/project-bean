@@ -8,6 +8,15 @@ import { clearActiveChild } from "@/lib/active-child-actions";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
+import { hasUnseenWhatsNew, WHATS_NEW_COPY } from "@bedtime-quests/core/changelog";
+import { markWhatsNewSeen } from "@/lib/whats-new-actions";
+import { WhatsNewDialog } from "@/components/whats-new/whats-new-dialog";
+
+// Per-device fallback for the "What's new" seen marker (issue #74), so the unseen
+// dot clears immediately even if the server table is not present yet. The server
+// marker (per parent account) is the source of truth; this only ever clears the
+// dot sooner, never re-shows it.
+const WHATS_NEW_LS_KEY = "bq_whats_new_seen";
 
 function PersonIcon() {
   return (
@@ -34,14 +43,55 @@ export function AppHeader({
   parentName,
   activeChildName,
   isAdmin = false,
+  whatsNew,
 }: {
   parentName: string;
   activeChildName: string | null;
   isAdmin?: boolean;
+  /** Drives the "What's new" dot (issue #74): the newest changelog entry id and
+   *  the entry id this parent has already seen (from the per-account marker). */
+  whatsNew: { latestEntryId: string | null; seenEntryId: string | null };
 }) {
   const router = useRouter();
   const requireAdult = useParentalGate();
   const [open, setOpen] = useState(false);
+
+  // "What's new" state (issue #74). `seenEntryId` starts from the server marker
+  // and is reconciled with the per-device local storage fallback on mount, then
+  // advanced optimistically when the parent opens the panel so the dot clears at
+  // once. The dialog is dismissible and never blocks the app.
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+  const [seenEntryId, setSeenEntryId] = useState<string | null>(whatsNew.seenEntryId);
+  const unseenWhatsNew = hasUnseenWhatsNew(whatsNew.latestEntryId, seenEntryId);
+
+  useEffect(() => {
+    try {
+      const local = window.localStorage.getItem(WHATS_NEW_LS_KEY);
+      // Only ever use the local value to CLEAR the dot (mark the latest as seen),
+      // never to re-show it, so a stale local value cannot resurrect a seen dot.
+      if (local && whatsNew.latestEntryId && local === whatsNew.latestEntryId) {
+        setSeenEntryId(whatsNew.latestEntryId);
+      }
+    } catch {
+      // localStorage can throw in private modes; the server marker still governs.
+    }
+  }, [whatsNew.latestEntryId]);
+
+  function openWhatsNew() {
+    setOpen(false);
+    setWhatsNewOpen(true);
+    const latest = whatsNew.latestEntryId;
+    if (!latest) return;
+    // Clear the dot immediately (optimistic), persist per device, and record the
+    // per-account marker. All failures are soft: the panel still opened.
+    setSeenEntryId(latest);
+    try {
+      window.localStorage.setItem(WHATS_NEW_LS_KEY, latest);
+    } catch {
+      /* ignore private-mode storage errors */
+    }
+    void markWhatsNewSeen(latest);
+  }
 
   // Keyboard users open the menu with Enter/Space; Escape must close it and
   // return focus to the trigger (issue #13).
@@ -136,6 +186,14 @@ export function AppHeader({
             <span className="text-sm font-bold">Menu</span>
             <ChevronIcon open={open} />
           </button>
+          {/* Unseen "What's new" dot (issue #74). Decorative here; the menu item
+              below carries the accessible "New" label. */}
+          {unseenWhatsNew && !open && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-[var(--pc-plum)] bg-[var(--pc-poppy)]"
+            />
+          )}
           {open && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
@@ -172,6 +230,21 @@ export function AppHeader({
                   </div>
                 )}
 
+                {/* What's new (issue #74). A parent facing item with a high
+                    contrast "New" pill when there is an unseen update. Opening it
+                    clears the marker; it is dismissible and never blocks the app. */}
+                <button
+                  role="menuitem"
+                  onClick={openWhatsNew}
+                  className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--pc-ink)] outline-none hover:bg-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  <span>{WHATS_NEW_COPY.menuItem}</span>
+                  {unseenWhatsNew && (
+                    <span className="inline-flex items-center rounded-full bg-[var(--pc-poppy)] px-2 py-0.5 text-xs font-extrabold text-white">
+                      New
+                    </span>
+                  )}
+                </button>
                 <button
                   role="menuitem"
                   onClick={() => openBehindGate("/family")}
@@ -208,6 +281,10 @@ export function AppHeader({
           )}
         </div>
       </div>
+
+      {/* What's new modal (issue #74). Lives at the header root so it overlays the
+          whole app; dismissible and never blocking. */}
+      <WhatsNewDialog open={whatsNewOpen} onClose={() => setWhatsNewOpen(false)} />
     </header>
   );
 }

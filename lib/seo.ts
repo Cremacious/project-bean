@@ -27,6 +27,10 @@ export const PUBLIC_ROUTES: ReadonlyArray<{
   { path: "/welcome", changeFrequency: "weekly", priority: 0.9 },
   { path: "/sign-up", changeFrequency: "monthly", priority: 0.8 },
   { path: "/sign-in", changeFrequency: "monthly", priority: 0.5 },
+  // What's new / changelog (issue #74). Public and indexable; it refreshes with
+  // each release, so it changes more often than the legal pages and shows a
+  // returning or prospective family that the library keeps growing.
+  { path: "/whats-new", changeFrequency: "monthly", priority: 0.6 },
   // Press / media kit page (issue #70). Public and indexable; a landing spot for
   // journalists and app-review sites, linking the downloadable brand assets.
   { path: "/press", changeFrequency: "monthly", priority: 0.4 },

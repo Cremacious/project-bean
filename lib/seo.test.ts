@@ -17,6 +17,7 @@ describe("buildSitemap", () => {
       "https://bedtimequests.com/welcome",
       "https://bedtimequests.com/sign-up",
       "https://bedtimequests.com/sign-in",
+      "https://bedtimequests.com/whats-new",
       "https://bedtimequests.com/press",
       "https://bedtimequests.com/privacy",
       "https://bedtimequests.com/terms",

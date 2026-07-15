@@ -326,6 +326,31 @@ the two surfaces will not drift:
 
 Nothing here re-authors content: it is UI + one endpoint on top of the shared core.
 
+## What's new / changelog (issue #74) — native follow-up
+
+The web app ships the full "What's new" surface: a public `/whats-new` page, an
+in app dismissible panel with a small unseen dot on the menu, and a "New" badge on
+recently published library stories. The **changelog data is already in the shared
+core** ([`packages/core/src/changelog.ts`](../../packages/core/src/changelog.ts)),
+so the native app reads the same entries with zero risk of drift. Only the native
+presentation is deferred here. Two ways to bring it to the app, smallest first:
+
+1. **Link out (quickest, mirrors Help).** Add a "What's new" row in
+   `src/screens/SettingsScreen.tsx` that opens the web page with
+   `Linking.openURL(<site>/whats-new)`, exactly like the existing "Open help and
+   FAQ" button. No new endpoint, no new screen.
+2. **In app screen (fuller).** Render `CHANGELOG` from the shared core in a native
+   `View`-based list (reuse `WHATS_NEW_COPY` for headings), and drive an unseen
+   dot with `hasUnseenWhatsNew(latestChangelogEntry()?.id, seen)`. The "last seen"
+   marker follows the same path as the tutorial flag: a `GET/POST /api/whats-new`
+   endpoint over the `whats_new_seen` table (added in #74), with the local store
+   (`src/data/store.tsx`) holding a per-device id as the interim fallback. The
+   library "New" badge can reuse `isNewStory(publishedAt, now)` against the story
+   `createdAt` once the catalog endpoint returns it.
+
+Content only, so it reaches installed builds over the air (EAS Update); no store
+submission is needed for a changelog change once the native surface exists.
+
 ## Backend endpoints the native app still needs
 
 The web backend is Next.js server components + server actions with **no callable
@@ -345,6 +370,7 @@ an existing server-side function; nothing here is a workaround, per the issue):
 | Collection | `getCollection(childId)` | `GET /api/children/:id/collection` |
 | Current entitlement | session + RevenueCat webhook | `GET /api/entitlements/current` (added in #55) |
 | Tutorial completion (#73) | `getOnboardingCompletedAt` / `completeOnboarding` | `GET/POST /api/onboarding` |
+| What's new seen marker (#74) | `getWhatsNewSeenEntryId` / `markWhatsNewSeen` | `GET/POST /api/whats-new` |
 | Register push token (deferred, #56) | none yet | `POST/DELETE /api/notifications/token` (spec in `docs/NOTIFICATIONS.md`) |
 
 Config is via Expo public env / `app.json` (e.g. the API base URL). No secrets are

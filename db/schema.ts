@@ -92,6 +92,22 @@ export const parentOnboarding = pgTable("parent_onboarding", {
   completedAt: timestamp("completed_at").notNull().defaultNow(),
 });
 
+// --- "What's new" seen marker (issue #74). ONE row per PARENT, recording the id
+// of the newest changelog entry they have opened the "What's new" panel on. Kept
+// in its own table (like `parent_onboarding`) rather than as a column on `user`,
+// because BetterAuth's Drizzle adapter selects every `user` column on each
+// account lookup, so an app-only field there would couple auth to this migration.
+// The shared core (hasUnseenWhatsNew) compares this id against the latest entry
+// id to decide whether to show the unseen dot; storing it per parent account
+// (never per child, never per device) keeps the dot honest across devices.
+// Deleting the parent cascades this row away with the rest of the account. ---
+export const whatsNewSeen = pgTable("whats_new_seen", {
+  parentId: text("parent_id").primaryKey().references(() => user.id, { onDelete: "cascade" }),
+  // The id of the newest changelog entry this parent has seen (e.g. "2026-07").
+  lastSeenEntryId: text("last_seen_entry_id").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // --- Story catalog (global; no per-user access). ---
 export const story = pgTable("story", {
   id: serial("id").primaryKey(),

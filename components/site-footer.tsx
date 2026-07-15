@@ -46,6 +46,9 @@ export function SiteFooter({
           <Link href="/support" className={linkClass}>
             Support
           </Link>
+          <Link href="/whats-new" className={linkClass}>
+            What&apos;s new
+          </Link>
           <Link href="/press" className={linkClass}>
             Press
           </Link>

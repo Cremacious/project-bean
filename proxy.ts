@@ -45,6 +45,9 @@ const PUBLIC_PATHS = [
   "/privacy",
   "/terms",
   "/support",
+  // What's new / changelog page (issue #74): public and indexable, so a signed
+  // out visitor (or crawler) must reach it instead of being bounced to /sign-in.
+  "/whats-new",
   // Press / media kit page (issue #70): public and indexable, and it serves its
   // assets from /press-kit/, so press must reach it without hitting the auth gate.
   "/press",

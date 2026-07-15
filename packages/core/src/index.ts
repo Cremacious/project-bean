@@ -31,6 +31,10 @@ export * from "./reading-prefs";
 // Help / FAQ content (parent-facing, shared by web and native so they never drift)
 export * from "./faq";
 
+// What's new / changelog (parent-facing history + unseen decision + new-story
+// window, shared by web and native so the release notes never drift)
+export * from "./changelog";
+
 // First-time parent tutorial (gating decision + walkthrough copy, shared by web
 // and native so the tour never drifts)
 export * from "./onboarding";

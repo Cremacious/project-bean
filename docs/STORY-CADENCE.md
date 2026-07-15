@@ -131,6 +131,7 @@ Publish
 [ ] Ran npm run test and npm run build clean
 [ ] Seeded to production (npm run db:seed against the production database) or published via /admin
 [ ] Native app: published the batch over the air (eas update to preview, then republish to production; see OTA-UPDATES.md)
+[ ] Added a What's new entry for the batch (see section 7)
 [ ] Updated the balance ledger with the four new stories
 
 Verify
@@ -151,3 +152,35 @@ Keep the cadence visible in GitHub so it stays tracked and never silently slips.
 - **Put the checklist in the issue body.** Paste section 5 into the issue so the whole cycle lives in one place, including the balance ledger snapshot.
 - **Work it as its own session.** Per WORKFLOW, each issue is worked one at a time in a fresh Claude Code session from a paste ready prompt. Work directly on `master`, do not branch, and hold the commit until the batch is approved. Then commit closing the issue with `Closes #N`.
 - **Close when verified.** The issue is done only when the last checklist line is true: new stories live and verified in the library.
+
+---
+
+## 7. Announce the batch: add a What's new entry (issue #74)
+
+Every batch (and any notable non content change) gets one line in the changelog so returning families see what is new. The changelog is the single source of truth behind both the in app **What's new** panel and the public **/whats-new** page, and the shared native app reads the same data, so one edit updates every surface at once.
+
+**The source of truth is one typed file:** [`packages/core/src/changelog.ts`](../packages/core/src/changelog.ts). To add an entry, prepend one object to the top of the `CHANGELOG` array (newest first):
+
+```
+{
+  id: "2027-03",            // stable, dash free, unique; never change it once shipped
+  date: "2027-03-18",       // ISO YYYY-MM-DD, the day the batch went live
+  title: "March 2027",      // short and human
+  newStories: [
+    "Three new quests joined the library, including a cozy winter tale.",
+  ],
+  improvements: [           // optional; leave the group off if empty
+    "Reading settings now remember your last font per child.",
+  ],
+  // fixes: [ ... ],        // optional
+}
+```
+
+Rules that keep it honest and on brand:
+
+- **Dash free and parent facing** (WORKFLOW rule 1). Describe what a family gains, not issue numbers or internals. Leave any empty group off entirely.
+- **The `id` is permanent.** It is what each parent's "last seen" marker stores, so changing it would re show the entry as new to everyone. Pick it once (the batch month works well) and leave it.
+- **Newest first.** `CHANGELOG[0]` is always the latest; prepend, do not append. A brand new entry automatically lights the small **New** dot on the in app menu until each parent opens the panel.
+- **New stories also self badge.** Freshly published stories wear a **New** pill in the library on their own for `NEW_STORY_WINDOW_DAYS` (14) days, from the story's publish date, so the "New stories" line here is the readable summary rather than the only signal.
+
+Do this as the announce step of the Publish block above, right after seeding. A unit test (`packages/core/src/changelog.test.ts`) guards the shape and the no dashes rule, so `npm run test` will catch a malformed entry before it ships.

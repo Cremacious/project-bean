@@ -1,5 +1,6 @@
 // components/library.tsx
 import Link from "next/link";
+import { isNewStory } from "@bedtime-quests/core/changelog";
 import type { Child } from "@/lib/children";
 import { getCatalog } from "@/lib/stories/queries";
 import { StoryCover } from "@/components/story/story-cover";
@@ -21,6 +22,9 @@ function ageBandLabel(ageBand: string): string {
 
 export async function Library({ activeChild, ageBand }: { activeChild: Child; ageBand?: string }) {
   const stories = await getCatalog(ageBand);
+  // "New" badge window (issue #74): stamped once per render so every card is
+  // judged against the same moment.
+  const now = new Date();
   const nameParts = activeChild.name.trim().split(/\s+/);
   const lastWord = nameParts[nameParts.length - 1] ?? activeChild.name;
   const nameLead = nameParts.slice(0, -1).join(" ");
@@ -100,6 +104,14 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
                 <h2 className="font-display text-lg font-bold leading-tight text-[var(--pc-ink)]">{s.title}</h2>
                 <p className="text-sm text-[var(--pc-sub)]">{s.description}</p>
                 <div className="mt-auto flex flex-wrap items-center gap-1.5">
+                  {/* Decorative "New" badge for recently published stories (issue
+                      #74). Not interactive: the card is the clickable thing (UI
+                      rule 2), so this carries no button affordance or cursor. */}
+                  {isNewStory(s.createdAt, now) && (
+                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[var(--pc-poppy)] px-2.5 py-1 text-xs font-extrabold text-white">
+                      New
+                    </span>
+                  )}
                   {s.ageBand && (
                     <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#F0EEFF] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-plum-ink)]">
                       Ages {ageBandLabel(s.ageBand)}
