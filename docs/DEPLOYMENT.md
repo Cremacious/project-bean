@@ -275,7 +275,8 @@ boot and are its public surfaces serving?*
 It targets `SMOKE_URL` (falls back to `BASE_URL`, then `http://localhost:3000`) and asserts:
 
 - `GET /api/health` → `200 { status: "ok" }` (a secret-free liveness route added for this;
-  uptime monitoring in #75 can poll the same URL),
+  external uptime monitoring polls the same URL — see **`docs/MONITORING.md`** (#75), which
+  also adds an opt-in `?deep=1` readiness probe that checks Neon is reachable),
 - `/` (home) resolves and renders, `/sign-in` loads,
 - `GET /api/auth/ok` → `200 { ok: true }` (the BetterAuth handler is mounted),
 - `/privacy`, `/terms`, `/robots.txt`, and `/sitemap.xml` all resolve.
@@ -362,6 +363,15 @@ JSON
 If the CI job **names** in `ci.yml` ever change, update the `contexts` array to match, or the
 required checks will wait forever on a check that never reports. The release/promote flow
 that runs on top of this protection is in §10.
+
+## 12. Uptime monitoring (#75)
+
+External uptime monitoring and the "site is down" runbook live in **`docs/MONITORING.md`**.
+It polls the public liveness probe (`/api/health`), an opt-in DB readiness probe
+(`/api/health?deep=1`), and the public pages, and alerts fast when the site is unreachable.
+It is complementary to error reporting (#39, `lib/reporting.ts`): uptime = *is it reachable*,
+Sentry = *did code throw*. The monitor is set up in the service console (turnkey steps in that
+doc); nothing about it needs a secret or a new dependency.
 
 ## Pre-deploy checklist
 
