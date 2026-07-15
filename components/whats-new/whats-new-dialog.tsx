@@ -48,7 +48,7 @@ export function WhatsNewDialog({ open, onClose }: { open: boolean; onClose: () =
         className="absolute inset-0 cursor-pointer bg-[var(--pc-ink)]/40"
       />
 
-      <div className="relative z-10 flex max-h-[85dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border-2 border-[var(--pc-line)] bg-[var(--pc-cream)] shadow-2xl sm:rounded-3xl">
+      <div className="relative z-10 flex max-h-[85dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border-2 border-[var(--pc-line)] bg-white shadow-2xl sm:rounded-3xl">
         <header className="flex items-start justify-between gap-3 border-b-2 border-[var(--pc-line)] bg-white px-5 py-4">
           <div>
             <h2

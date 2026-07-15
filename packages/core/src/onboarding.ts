@@ -76,8 +76,8 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     icon: "reading",
     title: "Read your way",
     body: [
-      "Choose Read to me and you read the pages aloud, or I can read and the text starts larger for a child reading on their own. You can switch any time.",
-      "In the reading settings you can pick the font, including OpenDyslexic, and make the text bigger or smaller to suit young eyes.",
+      "Choose Read To Me and you read the pages aloud, or I Can Read and the text starts larger for a child reading on their own. You can switch any time.",
+      "In the reading settings you can choose from a range of fonts and make the text bigger or smaller to suit young eyes.",
     ],
   },
   {
@@ -86,7 +86,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     title: "Choices and endings",
     body: [
       "At key moments the story offers a couple of choices and your child picks one. Different paths reach different endings, and each ending your child finds is saved in their collection.",
-      "Some paths reach a gentle game over. Nothing is lost and nothing is scary. Your child is simply invited to try again and choose a new path.",
+      "Some paths reach a gentle game over, and your child is simply invited to try again and choose a new path.",
     ],
   },
   {

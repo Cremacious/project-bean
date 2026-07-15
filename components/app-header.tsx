@@ -40,12 +40,12 @@ function ChevronIcon({ open }: { open: boolean }) {
 }
 
 export function AppHeader({
-  parentName,
+  parentEmail,
   activeChildName,
   isAdmin = false,
   whatsNew,
 }: {
-  parentName: string;
+  parentEmail: string;
   activeChildName: string | null;
   isAdmin?: boolean;
   /** Drives the "What's new" dot (issue #74): the newest changelog entry id and
@@ -201,8 +201,9 @@ export function AppHeader({
                 role="menu"
                 className="absolute right-0 z-20 mt-2 w-56 rounded-2xl border border-[var(--pc-line)] bg-white p-1.5 shadow-xl"
               >
-                <p className="px-3 py-2 text-sm text-[var(--pc-sub)]">
-                  Signed in as <b className="text-[var(--pc-ink)]">{parentName}</b>
+                <p className="px-3 pt-2 text-sm text-[var(--pc-sub)]">Signed in as</p>
+                <p className="px-3 pb-2 text-sm break-all font-semibold text-[var(--pc-ink)]">
+                  {parentEmail}
                 </p>
 
                 {/* Mobile only: the reader controls that show inline on desktop. */}
