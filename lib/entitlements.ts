@@ -38,12 +38,17 @@ export async function getSubscription(parent: Parent | null): Promise<Subscripti
     const status = normalizeStatus(row.status);
     const source = row.source === "revenuecat" ? "revenuecat" : "internal";
     const currentPeriodEnd = row.currentPeriodEnd ?? null;
+    // Admin override (issue #85) wins over the billing-driven computation: true
+    // forces premium ON, false forces it OFF, null defers to the normal rules.
+    // This is what makes an admin grant/revoke stick even against RevenueCat.
+    const billingActive = computeIsActive(status, currentPeriodEnd);
+    const isActive = row.adminOverride ?? billingActive;
     return {
       status,
       productId: row.productId ?? null,
       source,
       currentPeriodEnd,
-      isActive: computeIsActive(status, currentPeriodEnd),
+      isActive,
     };
   } catch (err) {
     // Fail safe: a DB or billing error must never unlock content or crash a page.

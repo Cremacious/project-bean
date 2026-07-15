@@ -3,16 +3,18 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { story, page, choice } from "@/db/schema";
-import { getParent } from "@/lib/session";
-import { isAdmin } from "@/lib/admin";
 import { isValidSlug, isValidSlug as isValidKey } from "@bedtime-quests/core/admin/slugs";
 import { buildStoryInput } from "@/lib/admin/story-to-input";
 import { validateStory } from "@bedtime-quests/core/stories/validate";
 import { isMotifKey } from "@bedtime-quests/core/stories/covers";
+import { isAdminRequest } from "@/lib/admin-session";
 
+// Admin gating is now the dedicated /admin session (issue #85), not a signed-in
+// parent: access requires the ADMIN_EMAILS + ADMIN_PASSWORD login, whose session
+// cookie is verified here. A direct POST to any of these actions is checked the
+// same way, so hiding the UI is never the only line of defence.
 async function requireAdmin(): Promise<boolean> {
-  const parent = await getParent();
-  return !!parent && isAdmin(parent.email);
+  return isAdminRequest();
 }
 
 const AGE_BANDS = ["2-4", "5-7", "8+"];

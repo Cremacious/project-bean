@@ -16,6 +16,10 @@ export type EntitlementRow = {
   productId: string | null;
   source: string;
   currentPeriodEnd: Date | null;
+  // Admin override (issue #85): null/undefined = defer to billing, true/false =
+  // force. Optional so callers and tests that predate it stay valid; the store
+  // select always populates it.
+  adminOverride?: boolean | null;
 };
 
 export type EntitlementPatch = {
@@ -34,11 +38,27 @@ export async function getEntitlementRow(parentId: string): Promise<EntitlementRo
       productId: subscription.productId,
       source: subscription.source,
       currentPeriodEnd: subscription.currentPeriodEnd,
+      adminOverride: subscription.adminOverride,
     })
     .from(subscription)
     .where(eq(subscription.parentId, parentId))
     .limit(1);
   return row ?? null;
+}
+
+/**
+ * Set (or clear) the admin premium override for a parent (issue #85). Upserts a
+ * row so an override can be applied to a parent who has never had a billing row.
+ * Pass null to clear it and defer to the billing-driven state again.
+ */
+export async function setAdminOverride(parentId: string, override: boolean | null): Promise<void> {
+  await db
+    .insert(subscription)
+    .values({ parentId, adminOverride: override })
+    .onConflictDoUpdate({
+      target: subscription.parentId,
+      set: { adminOverride: override, updatedAt: new Date() },
+    });
 }
 
 /** Create or update the parent's single entitlement row. */

@@ -11,6 +11,13 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  // Admin moderation (issue #85). A non-null timestamp marks the account as
+  // disabled: getParent (lib/session.ts) then treats it as signed out app-wide,
+  // so a disabled parent cannot reach any authed page even with a live session.
+  // Reversible: clearing this back to null re-enables the account. BetterAuth
+  // does not know about this column (it is app-only), so it never selects or
+  // writes it; only the admin tools do.
+  disabledAt: timestamp("disabled_at"),
 });
 
 export const session = pgTable("session", {
@@ -75,6 +82,11 @@ export const subscription = pgTable("subscription", {
   source: text("source").notNull().default("internal"), // internal | revenuecat
   // End of the paid or trial period. null means no expiry (e.g. an internal comp grant).
   currentPeriodEnd: timestamp("current_period_end"),
+  // Admin premium override (issue #85). null = defer to the billing-driven state
+  // above (the normal case); true = force premium ON; false = force premium OFF.
+  // Applied in getSubscription (lib/entitlements.ts) so it wins over RevenueCat
+  // and survives a later webhook, which is what makes an admin grant/revoke stick.
+  adminOverride: boolean("admin_override"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -175,3 +187,19 @@ export const endingFound = pgTable(
   },
   (t) => ({ pk: primaryKey({ columns: [t.childId, t.pageId] }) }),
 );
+
+// --- Admin action audit log (issue #85). An append-only trail of the sensitive
+// actions taken from the /admin panel (grant/revoke premium, disable/enable, and
+// account removal). It is deliberately NOT a foreign key to `user`: a removal
+// deletes the target row, but the audit entry (recording that the removal
+// happened, and by whom) must outlive it. `adminEmail` is the allowlisted admin
+// who acted; `targetId` is the affected account id (kept as free text so it
+// survives the row it points at). No child data is ever written here. ---
+export const adminAudit = pgTable("admin_audit", {
+  id: serial("id").primaryKey(),
+  action: text("action").notNull(), // e.g. "premium_grant" | "premium_revoke" | "premium_clear" | "account_disable" | "account_enable" | "account_remove"
+  targetId: text("target_id"), // the affected parent account id, if any
+  adminEmail: text("admin_email").notNull(),
+  detail: text("detail"), // short human-readable note (e.g. the removed email)
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

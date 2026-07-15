@@ -36,6 +36,13 @@ import { getSessionCookie } from "better-auth/cookies";
 const PUBLIC_PATHS = [
   "/sign-in",
   "/sign-up",
+  // Admin panel (issue #85): /admin has its OWN email + password gate and its own
+  // session cookie, independent of the parent BetterAuth login. It must skip the
+  // parent cookie gate here, or an admin (who need not be a signed-in parent)
+  // would be bounced to /sign-in and never reach the admin login. The real
+  // protection is enforced server-side in app/admin/layout.tsx and in every admin
+  // server action (requireAdminEmail); /admin stays disallowed in robots (#46).
+  "/admin",
   // Marketing landing page (issue #68): the public front door. Signed out
   // visitors (and crawlers) must reach it, and the site root redirects anonymous
   // visitors here (see the auth gate below).
