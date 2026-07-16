@@ -233,7 +233,19 @@ const styles = StyleSheet.create({
   settingsLabel: { ...type.display, fontSize: sz.xs, color: colors.ink },
 
   body: { padding: space.lg, paddingBottom: space.xxl, flexGrow: 1, justifyContent: "center" },
-  article: { width: "100%", maxWidth: 620, alignSelf: "center" },
+  // Dusk Blue (issue #90): the reader body sits on a white card, so the story
+  // text and choices read on white rather than directly on the darker canvas.
+  article: {
+    width: "100%",
+    maxWidth: 620,
+    alignSelf: "center",
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderBottomWidth: EDGE,
+    padding: space.lg,
+  },
   prose: { ...type.body, color: colors.ink, marginBottom: space.xxl },
   choices: { gap: space.md },
   choicePrompt: { ...type.display, color: colors.ink },

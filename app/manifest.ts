@@ -14,7 +14,7 @@ import { BRAND } from "@/lib/brand";
 //   - theme_color matches the viewport themeColor in app/layout.tsx (#6C5CE7,
 //     the plum used by the navbar/footer and browser chrome).
 //   - background_color matches the app's --background token in globals.css
-//     (#EAF2FB) so the launch splash blends into the loaded page.
+//     (#BCCAE2, the Dusk Blue canvas) so the launch splash blends into the page.
 // Both are literal Paper Cut brand values, kept in sync with #46's metadata.
 //
 // Icons reuse the existing generated brand assets in public/brand/*; only the
@@ -32,7 +32,7 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#EAF2FB",
+    background_color: "#BCCAE2",
     theme_color: "#6C5CE7",
     icons: [
       {

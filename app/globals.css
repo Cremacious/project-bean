@@ -49,8 +49,13 @@
 }
 
 :root {
-  /* Paper Cut palette */
-  --background: #EAF2FB;
+  /* Paper Cut palette — Dusk Blue re-tune (issue #90): the canvas drops from the
+     bright #EAF2FB sky to a deeper periwinkle so it sits closer to the #16283A
+     logo, while cards stay white and text stays #16283A ink. Neutrals that were
+     tuned to the old light canvas are darkened to keep WCAG AA on the new canvas
+     (--pc-sub) and to stay visible on it (--pc-line). Brights + primary/card are
+     unchanged. */
+  --background: #BCCAE2;         /* was #EAF2FB */
   --foreground: #16283A;
   --card: #FFFFFF;
   --card-foreground: #16283A;
@@ -60,22 +65,23 @@
   --primary-foreground: #FFFFFF;
   --secondary: #FFFFFF;
   --secondary-foreground: #16283A;
-  --muted: #DCEAFB;
-  --muted-foreground: #5A7089;
-  --accent: #F0EEFF;
+  --muted: #CFDCEF;             /* was #DCEAFB */
+  --muted-foreground: #3C5172;  /* was #5A7089: darker so it clears AA on the darker canvas */
+  --accent: #E6EAFB;            /* was #F0EEFF */
   --accent-foreground: #574BC0;
   --destructive: #E14A2B;
-  --border: #D4E3F2;
-  --input: #D4E3F2;
+  --border: #9FB2D2;            /* was #D4E3F2: darker so borders/edges read on the darker canvas */
+  --input: #9FB2D2;
   --ring: #6C5CE7;
   --radius: 0.9rem;
 
   /* Paper Cut brights (decoration) + ink variants (white-text fills) */
-  --pc-sky: #EAF2FB;
+  --pc-sky: #BCCAE2;           /* canvas, mirrors --background */
   --pc-cream: #FFF1DC;
   --pc-ink: #16283A;
-  --pc-sub: #5A7089;
-  --pc-line: #D4E3F2;
+  --pc-sub: #3C5172;           /* mirrors --muted-foreground */
+  --pc-line: #9FB2D2;          /* mirrors --border */
+  --pc-accent: #E6EAFB;        /* mirrors --accent (was referenced but undefined) */
   --pc-poppy: #FF6B4A;   --pc-poppy-ink: #E14A2B;
   --pc-leaf: #2FB98A;    --pc-leaf-ink: #1E8F6A;
   --pc-sun: #FFC24B;     --pc-sun-ink: #D99A1C;

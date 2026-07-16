@@ -34,8 +34,8 @@ export function StatusScreen({
   const panel = (
     <div className="flex w-full max-w-md flex-col items-center gap-5 rounded-3xl border border-[var(--pc-line)] bg-white p-8 text-center shadow-[0_6px_0_var(--pc-line)] sm:p-10">
       <div className="flex items-center gap-2">
-        <BrandMark size="sm" />
-        <span className="font-display text-sm font-extrabold text-[var(--pc-ink)]">
+        <BrandMark size="md" />
+        <span className="font-display text-[1.75rem] font-extrabold leading-none text-[var(--pc-ink)]">
           {BRAND.name}
         </span>
       </div>

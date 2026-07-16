@@ -36,7 +36,7 @@ export default function GlobalError({
             gap: 20,
             padding: 24,
             textAlign: "center",
-            background: "#EAF2FB",
+            background: "#BCCAE2",
             color: "#16283A",
             fontFamily:
               "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
@@ -52,16 +52,16 @@ export default function GlobalError({
               width: "100%",
               padding: 32,
               borderRadius: 24,
-              border: "1px solid #D4E3F2",
+              border: "1px solid #9FB2D2",
               background: "#FFFFFF",
-              boxShadow: "0 6px 0 #D4E3F2",
+              boxShadow: "0 6px 0 #9FB2D2",
             }}
           >
             <span aria-hidden="true" style={{ fontSize: 44 }}>
               🌙
             </span>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Something went wrong</h1>
-            <p style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#5A7089" }}>
+            <p style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#3C5172" }}>
               An unexpected problem stopped the app from loading. Please try again.
             </p>
             <button

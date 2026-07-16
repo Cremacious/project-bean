@@ -161,7 +161,7 @@ export function StoryReader({
             preview={preview}
           />
         ) : (
-          <article className="mx-auto w-full max-w-[38rem]">
+          <article className="mx-auto w-full max-w-[38rem] rounded-3xl border border-[var(--pc-line)] bg-white p-6 shadow-[0_5px_0_var(--pc-line)] sm:p-8">
             <p className="reader-prose mb-10" style={proseStyle}>
               {personalize(pageData.body, childName)}
             </p>

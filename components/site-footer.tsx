@@ -27,7 +27,7 @@ export function SiteFooter({
         } flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between`}
       >
         <div className="flex items-center gap-2.5">
-          <BrandMark size="sm" />
+          <BrandMark size={36} />
           <div className="leading-tight">
             <p className="font-display text-sm font-extrabold text-white">
               {BRAND.name}

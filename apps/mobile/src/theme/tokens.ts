@@ -10,17 +10,22 @@
 // labels and small caps and still clears AA on white. There are deliberately no
 // faint/low-opacity text tokens.
 
+// Dusk Blue re-tune (issue #90): kept byte-for-byte in step with the web
+// globals.css tokens. The canvas drops from the bright #EAF2FB sky to a deeper
+// periwinkle so it sits closer to the #16283A logo; cards stay white and text
+// stays #16283A ink. `sub` and `line` are darkened so secondary text clears AA
+// and borders stay visible on the darker canvas. Brights + ink are unchanged.
 export const colors = {
   // Surfaces
-  sky: "#EAF2FB", // app background
+  sky: "#BCCAE2", // app background (was #EAF2FB)
   card: "#FFFFFF",
-  muted: "#DCEAFB",
-  accent: "#F0EEFF",
-  line: "#D4E3F2", // borders + inactive edges
+  muted: "#CFDCEF", // was #DCEAFB
+  accent: "#E6EAFB", // was #F0EEFF
+  line: "#9FB2D2", // borders + inactive edges (was #D4E3F2)
 
   // Text
   ink: "#16283A", // primary text on light surfaces
-  sub: "#5A7089", // secondary text (still AA on white/sky)
+  sub: "#3C5172", // secondary text, darker so it clears AA on the darker canvas (was #5A7089)
   onDark: "#FFFFFF", // text on plum / poppy fills
   cream: "#FFF1DC", // text/art on the deep navy night surface
 

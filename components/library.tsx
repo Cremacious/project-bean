@@ -113,7 +113,7 @@ export async function Library({ activeChild, ageBand }: { activeChild: Child; ag
                     </span>
                   )}
                   {s.ageBand && (
-                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#F0EEFF] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-plum-ink)]">
+                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[var(--pc-accent)] px-2.5 py-1 text-xs font-extrabold text-[var(--pc-plum-ink)]">
                       Ages {ageBandLabel(s.ageBand)}
                     </span>
                   )}

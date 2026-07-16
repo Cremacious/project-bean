@@ -15,8 +15,8 @@ const COLOR = {
   plum: "#6C5CE7",
   plumInk: "#574BC0",
   ink: "#16283A",
-  sub: "#5A7089",
-  line: "#D4E3F2",
+  sub: "#3C5172", // Dusk Blue re-tune (issue #90), in sync with globals.css
+  line: "#9FB2D2", // Dusk Blue re-tune (issue #90), in sync with globals.css
   white: "#FFFFFF",
 } as const;
 

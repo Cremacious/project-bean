@@ -19,8 +19,11 @@ import { useId } from "react";
 
 const SIZES = { sm: 18, md: 28, lg: 40 } as const;
 
-export function BrandMark({ size = "md" }: { size?: keyof typeof SIZES }) {
-  const px = SIZES[size];
+// `size` accepts a named step (sm/md/lg) or an exact pixel number for per-instance
+// tuning (e.g. the footer uses a custom 36px). Named steps keep the common sizes
+// consistent across the app; numbers cover the one-off placements.
+export function BrandMark({ size = "md" }: { size?: keyof typeof SIZES | number }) {
+  const px = typeof size === "number" ? size : SIZES[size];
   // Strip colons so the id is safe inside an SVG url(#...) reference.
   const uid = useId().replace(/:/g, "");
   const moonId = `mF-${uid}`;

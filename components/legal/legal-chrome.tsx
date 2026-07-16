@@ -18,7 +18,7 @@ export function LegalChrome({ children }: { children: React.ReactNode }) {
             href="/"
             className="flex items-center gap-2.5 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <BrandMark size="sm" />
+            <BrandMark size="md" />
             <span className="font-display text-lg font-extrabold text-white">
               {BRAND.name}
             </span>

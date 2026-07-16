@@ -25,7 +25,7 @@ function formatDate(iso: string): string {
 
 const GROUPS: Array<{ key: "newStories" | "improvements" | "fixes"; label: string; tone: string }> = [
   { key: "newStories", label: WHATS_NEW_COPY.groups.newStories, tone: "bg-[#E6F7F0] text-[var(--pc-leaf-ink)]" },
-  { key: "improvements", label: WHATS_NEW_COPY.groups.improvements, tone: "bg-[#F0EEFF] text-[var(--pc-plum-ink)]" },
+  { key: "improvements", label: WHATS_NEW_COPY.groups.improvements, tone: "bg-[var(--pc-accent)] text-[var(--pc-plum-ink)]" },
   { key: "fixes", label: WHATS_NEW_COPY.groups.fixes, tone: "bg-[#FFF3D6] text-[var(--pc-ink)]" },
 ];
 
