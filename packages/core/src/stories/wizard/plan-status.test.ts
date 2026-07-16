@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildStoryGraph } from "../graph";
-import { deriveRolesAndDepth, storyProgress, layoutGraph, pageNeedsText } from "./plan-status";
+import { deriveRolesAndDepth, storyProgress, layoutGraph, pageNeedsText, reachableKeys, enumeratePaths } from "./plan-status";
 
 // A tiny story: opening scene -> choice -> two endings.
 const pages = [
@@ -42,6 +42,43 @@ describe("storyProgress", () => {
     expect(p.written).toBe(3);
     expect(p.needsText).toBe(1);
     expect(p.percent).toBe(75);
+  });
+});
+
+describe("reachableKeys", () => {
+  it("returns every page reachable from the opening", () => {
+    const r = reachableKeys(graph, "opening");
+    expect([...r].sort()).toEqual(["loop", "opening", "pick", "warm"]);
+  });
+  it("leaves out an orphan page", () => {
+    const withOrphan = buildStoryGraph(
+      [...pages, { id: 5, key: "lost", body: "", isEnding: false, endingLabel: null, endingType: "good", imageUrl: null }],
+      choices,
+    );
+    expect(reachableKeys(withOrphan, "opening").has("lost")).toBe(false);
+  });
+});
+
+describe("enumeratePaths", () => {
+  it("lists each route from the opening to an ending", () => {
+    const paths = enumeratePaths(graph, "opening");
+    expect(paths).toContainEqual(["opening", "pick", "warm"]);
+    expect(paths).toContainEqual(["opening", "pick", "loop"]);
+    expect(paths).toHaveLength(2);
+  });
+  it("terminates on a cycle instead of looping forever", () => {
+    const cyclic = buildStoryGraph(
+      [
+        { id: 1, key: "a", body: "a", isEnding: false, endingLabel: null, endingType: "good", imageUrl: null },
+        { id: 2, key: "b", body: "b", isEnding: false, endingLabel: null, endingType: "good", imageUrl: null },
+      ],
+      [
+        { pageId: 1, toPageKey: "b", label: "to b", order: 0 },
+        { pageId: 2, toPageKey: "a", label: "back to a", order: 0 },
+      ],
+    );
+    const paths = enumeratePaths(cyclic, "a");
+    expect(paths).toEqual([["a", "b"]]);
   });
 });
 

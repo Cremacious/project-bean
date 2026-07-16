@@ -15,7 +15,7 @@ type EndingType = "good" | "game_over";
 type ChoiceRow = { label: string; toPageKey: string };
 
 const iconBtn =
-  "grid h-9 w-9 cursor-pointer place-items-center rounded-xl border border-[var(--pc-line)] bg-white text-sm font-extrabold text-[var(--pc-ink)] shadow-[0_3px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
+  "grid h-11 w-11 cursor-pointer place-items-center rounded-xl border border-[var(--pc-line)] bg-white text-sm font-extrabold text-[var(--pc-ink)] shadow-[0_3px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
 
 type Incoming = { fromKey: string; label: string; fromBody: string };
 
@@ -178,19 +178,23 @@ export function PageWorkspace({
       ) : (
         <div className="space-y-3 rounded-2xl border border-[var(--pc-line)] bg-[var(--pc-cream,#fffaf0)] p-4">
           <p className={labelCls}>Choices (each leads to a scene)</p>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {rows.map((row, i) => (
-              <div key={i} className="flex flex-wrap items-center gap-2">
-                <input className={`${field} min-w-[10rem] flex-1`} value={row.label} maxLength={120}
+              // Stack the label, destination, and controls on a phone; lay them
+              // out in a row once there is width for it.
+              <div key={i} className="flex flex-col gap-2 rounded-2xl border border-[var(--pc-line)] bg-white p-2.5 sm:flex-row sm:items-center sm:border-0 sm:bg-transparent sm:p-0">
+                <input className={`${field} sm:flex-1`} value={row.label} maxLength={120}
                   placeholder={choiceLabelHint(i % 2 === 0 ? "calm" : "curious")} disabled={isPending}
-                  onChange={(e) => updateRow(i, { label: e.target.value })} />
-                <select className={`${field} w-40`} value={row.toPageKey} disabled={isPending} onChange={(e) => updateRow(i, { toPageKey: e.target.value })}>
+                  onChange={(e) => updateRow(i, { label: e.target.value })} aria-label={`Choice ${i + 1} text`} />
+                <select className={`${field} sm:w-40`} value={row.toPageKey} disabled={isPending} onChange={(e) => updateRow(i, { toPageKey: e.target.value })} aria-label={`Choice ${i + 1} destination`}>
                   <option value="">Choose a page</option>
                   {otherPageKeys.map((k) => <option key={k} value={k}>{k}</option>)}
                 </select>
-                <button type="button" className={iconBtn} disabled={isPending || i === 0} onClick={() => move(i, -1)} aria-label="Move choice up">↑</button>
-                <button type="button" className={iconBtn} disabled={isPending || i === rows.length - 1} onClick={() => move(i, 1)} aria-label="Move choice down">↓</button>
-                <button type="button" className={iconBtn} disabled={isPending} onClick={() => removeRow(i)} aria-label="Remove choice">✕</button>
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <button type="button" className={iconBtn} disabled={isPending || i === 0} onClick={() => move(i, -1)} aria-label="Move choice up">↑</button>
+                  <button type="button" className={iconBtn} disabled={isPending || i === rows.length - 1} onClick={() => move(i, 1)} aria-label="Move choice down">↓</button>
+                  <button type="button" className={iconBtn} disabled={isPending} onClick={() => removeRow(i)} aria-label="Remove choice">✕</button>
+                </div>
               </div>
             ))}
           </div>

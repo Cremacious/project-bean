@@ -7,8 +7,7 @@ import { validateStoryComplete } from "@bedtime-quests/core/stories/wizard/valid
 import { storyProgress } from "@bedtime-quests/core/stories/wizard/plan-status";
 import { PublishControl } from "@/components/admin/publish-control";
 import { StoryProgress } from "@/components/admin/story-progress";
-import { StoryGraph } from "@/components/admin/story-graph";
-import { AddPageControl } from "@/components/admin/add-page-control";
+import { StoryEditor } from "@/components/admin/story-editor";
 
 const linkBtn =
   "rounded-2xl border border-[var(--pc-line)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--pc-ink)] shadow-[0_4px_0_var(--pc-line)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5";
@@ -45,15 +44,11 @@ export default async function StoryGraphPage({ params }: { params: Promise<{ slu
 
       <StoryProgress progress={progress} blocking={blocking} warnings={warnings} slug={slug} />
 
-      {/* The map breaks out of the page's max-w-4xl column to use the full screen
-          width, so a large branching story is easy to read. */}
-      <div className="relative left-1/2 w-[min(96vw,1600px)] -translate-x-1/2 space-y-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-display text-lg font-extrabold">Story map</h2>
-          <p className="text-sm text-[var(--pc-sub)]">Tap any page to write it. Green pages have text; amber pages still need some.</p>
-        </div>
-        <StoryGraph graph={graph} startKey={startKey} slug={slug} />
-        <AddPageControl storyId={story.id} slug={slug} />
+      {/* On desktop the map breaks out of the max-w-4xl column to use more of the
+          screen; on phones it stays in the column and the editor toggles to the
+          List and Paths views that fit a small screen. */}
+      <div className="lg:relative lg:left-1/2 lg:w-[min(96vw,1600px)] lg:-translate-x-1/2">
+        <StoryEditor graph={graph} startKey={startKey} slug={slug} storyId={story.id} />
       </div>
     </section>
   );

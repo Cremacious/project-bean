@@ -50,6 +50,40 @@ export function storyProgress(graph: StoryGraph): Progress {
   return { total, written, needsText, percent: total ? Math.round((written / total) * 100) : 0 };
 }
 
+/** Keys reachable from the opening by following choices. Pages outside this set
+ *  are orphans: a reader can never arrive there. */
+export function reachableKeys(graph: StoryGraph, startKey: string): Set<string> {
+  const seen = new Set<string>();
+  const q = [startKey];
+  while (q.length) {
+    const k = q.shift()!;
+    if (seen.has(k) || !graph.pages[k]) continue;
+    seen.add(k);
+    for (const c of graph.pages[k].choices) q.push(c.to);
+  }
+  return seen;
+}
+
+/** Every route a reader can take, from the opening to an ending or a dead end.
+ *  Cycle safe: a key already on the current trail closes that branch so the walk
+ *  always terminates. Each returned path is a list of page keys, start first. */
+export function enumeratePaths(graph: StoryGraph, startKey: string): string[][] {
+  const out: string[][] = [];
+  const walk = (key: string, trail: string[]) => {
+    const p = graph.pages[key];
+    // Missing target or a loop back onto the trail ends the route here.
+    if (!p || trail.includes(key)) {
+      if (trail.length) out.push(trail);
+      return;
+    }
+    const next = [...trail, key];
+    if (p.choices.length === 0) { out.push(next); return; } // ending or dead end
+    for (const c of p.choices) walk(c.to, next);
+  };
+  walk(startKey, []);
+  return out;
+}
+
 export type LayoutNode = {
   key: string; row: number; col: number;
   kind: "scene" | "choice"; isEnding: boolean; endingType: string;
