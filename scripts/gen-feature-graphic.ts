@@ -14,7 +14,7 @@
 import sharp from "sharp";
 import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { NAVY, INNER } from "./gen-icons";
+import { NAVY, FOREGROUND, WAVE } from "./gen-icons";
 
 const ROOT = resolve(__dirname, "..");
 const BRAND_DIR = join(ROOT, "public", "brand");
@@ -26,9 +26,18 @@ const SUN = "#FFC24B";
 // stack; librsvg (bundled in sharp) resolves it to the platform's default sans.
 const FONT = "Arial, 'Segoe UI', 'Helvetica Neue', Helvetica, sans-serif";
 
-// The mark (INNER art, authored in a 0..100 box) placed left-of-center and
-// vertically centered: scale 3.4 -> 340px tall, inset 80px top/bottom of the 500.
-const mark = `<g transform="translate(96 80) scale(3.4)">${INNER}</g>`;
+// The mark (the A2f rounded icon, authored in a 0..100 box) placed left-of-center
+// and vertically centered: scale 3.4 -> 340px tall, inset 80px top/bottom of the
+// 500. Rendered as a self-contained rounded badge (its own navy tile blends into
+// the navy banner) so the wave is clipped to the corners instead of bleeding
+// across the banner as a green block. The clip id is banner-local.
+const mark =
+  `<g transform="translate(96 80) scale(3.4)">` +
+  `<rect width="100" height="100" rx="22" fill="${NAVY}"/>` +
+  `<clipPath id="featTile"><rect width="100" height="100" rx="22"/></clipPath>` +
+  `${FOREGROUND}` +
+  `<g clip-path="url(#featTile)">${WAVE}</g>` +
+  `</g>`;
 
 // A few brand-color stars echoing the "sea of stars", kept sparse and clear of
 // the wordmark so contrast stays high.

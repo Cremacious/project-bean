@@ -29,6 +29,10 @@ Issues are worked one at a time, on the user's cue. For the chosen issue, do NOT
 
 ## Brand assets (logo & icons)
 
+For the complete asset manifest (every file, every dimension, every alpha /
+corner / platform rule) and the AI drop-in workflow for a logo refresh, see
+**[docs/BRAND-ASSETS.md](./BRAND-ASSETS.md)**. This section is the summary.
+
 The logo is a **paper boat with an adventurer's flag, sailing a green sea of stars toward a crescent moon on a deep-navy (`#16283A`) night sky** — quest and choice in the voyage, bedtime in the moon. Colors are literal Paper Cut hex (poppy `#FF6B4A`, sun `#FFC24B`, leaf `#2FB98A`, cream `#FFF1DC`, navy `#16283A`), **not** CSS vars, so every surface renders identically.
 
 All icon files are generated from ONE shared art definition. **Do not hand-edit the generated files.** To change the logo:

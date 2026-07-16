@@ -85,7 +85,7 @@ export const metadata: Metadata = {
     title: BRAND.name,
     statusBarStyle: "default",
   },
-  // favicon + apple-touch-icon come from app/icon.svg and app/apple-icon.tsx
+  // favicon + apple-touch-icon come from app/icon.svg and app/apple-icon.png
   // (file-based metadata), so no `icons` field is needed here.
 };
 
