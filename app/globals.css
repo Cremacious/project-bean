@@ -198,3 +198,51 @@
   text-underline-offset: 2px;
 }
 .legal-prose a:hover { text-decoration-thickness: 2px; }
+
+/* Marketing homepage (/welcome). Ported 1:1 from the approved Claude Design
+   ("Bedtime Quests Homepage"). The source is a richly inline styled, SVG driven,
+   multi column page. To keep the port faithful to that source, the component
+   stays mostly inline styled; the rules below add only what an inline style
+   cannot express: the responsive column collapse the desktop first export lacked,
+   the single keyframe it uses, and the shared pressable affordance (UI rule 2:
+   every clickable element presses down and shows a focus ring). The one keyframe
+   is still covered by the global prefers-reduced-motion guard above. */
+@keyframes bq-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.bq-hero-grid { display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 30px; align-items: end; }
+.bq-hero-h1 { font-size: 66px; line-height: 1.0; }
+.bq-hero-scene { min-height: 440px; }
+.bq-map-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; align-items: stretch; }
+.bq-families-grid { display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 56px; align-items: center; }
+.bq-steps { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+
+/* Tablet and below: every multi column band folds to a single column, the five
+   stepping stones wrap two-up and drop their decorative vertical stagger, and the
+   hero headline steps down so it never overflows a phone. */
+@media (max-width: 900px) {
+  .bq-hero-grid,
+  .bq-map-grid,
+  .bq-families-grid { grid-template-columns: 1fr; }
+  .bq-families-grid { gap: 36px; }
+  .bq-hero-h1 { font-size: 46px; }
+  .bq-hero-scene { min-height: 380px; }
+  .bq-steps { flex-wrap: wrap; }
+  .bq-steps > * { flex: 1 1 42%; margin-top: 0 !important; }
+}
+@media (max-width: 560px) {
+  .bq-hero-h1 { font-size: 36px; }
+  .bq-steps > * { flex-basis: 100%; }
+}
+
+/* Shared pressable affordance for the homepage's buttons and link-buttons. The
+   solid bottom edge (an inline box-shadow) already reads as chunky; this adds the
+   press-down and the visible focus ring. .bq-press is for elements with no other
+   transform; .bq-focus adds only the ring, for the few buttons that carry a
+   decorative rotate we must not clobber on press. */
+.bq-press { transition: transform 0.06s ease, box-shadow 0.06s ease; }
+.bq-press:active { transform: translateY(2px); }
+.bq-press:focus-visible,
+.bq-focus:focus-visible { outline: 3px solid var(--pc-ink); outline-offset: 3px; }
