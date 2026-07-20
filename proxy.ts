@@ -36,6 +36,13 @@ import { getSessionCookie } from "better-auth/cookies";
 const PUBLIC_PATHS = [
   "/sign-in",
   "/sign-up",
+  // Password reset flow: both pages are reached by signed OUT visitors (you
+  // request a reset because you cannot sign in, and you follow the emailed link
+  // while still logged out). Without these the auth gate would 302 the "Forgot
+  // password?" link and the emailed reset link back to /sign-in, so the flow
+  // would appear to do nothing.
+  "/forgot-password",
+  "/reset-password",
   // Admin panel (issue #85): /admin has its OWN email + password gate and its own
   // session cookie, independent of the parent BetterAuth login. It must skip the
   // parent cookie gate here, or an admin (who need not be a signed-in parent)
