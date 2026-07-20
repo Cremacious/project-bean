@@ -1,21 +1,13 @@
 // components/auth/social-buttons.tsx
 "use client";
 import { signIn } from "@/lib/auth-client";
-import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
 
-// The same Google/Apple buttons serve both sign in and sign up. A social login
-// can silently create a brand new account, so on the sign up page we pass
-// `gatePurpose="signup"` to run the parental gate first (issue #32). The sign in
-// page renders these ungated, since gating an existing parent's ordinary sign in
-// is not required and would just be annoying.
-export function SocialButtons({ gatePurpose }: { gatePurpose?: string }) {
-  const requireAdult = useParentalGate();
-
+// The same Google/Apple buttons serve both sign in and sign up. Neither flow is
+// gated: signing in an existing parent never needed a gate, and account creation
+// is not one of the store's gate-required actions (purchases and account
+// settings still run the parental gate elsewhere).
+export function SocialButtons() {
   const go = async (provider: "google" | "apple") => {
-    if (gatePurpose) {
-      const ok = await requireAdult(gatePurpose);
-      if (!ok) return;
-    }
     // Analytics (issue #38): a social login silently creates an account for a
     // first-time user. BetterAuth sends only those NEW users to newUserCallbackURL
     // (returning users go to callbackURL), so the `signup_new` marker lands solely

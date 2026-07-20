@@ -35,7 +35,7 @@ export async function passParentalGate(page: Page): Promise<void> {
   await expect(dialog).toBeHidden();
 }
 
-/** Fill and submit the sign-up form (does not handle the gate that follows). */
+/** Fill and submit the sign-up form. Sign-up is not parental-gated. */
 export async function submitSignUpForm(
   page: Page,
   { name, email, password }: { name: string; email: string; password: string },

@@ -8,7 +8,7 @@ these E2E tests live here in `e2e/` and run with `npm run test:e2e`.
 
 | Spec                 | Journey                                                                                  |
 | -------------------- | ---------------------------------------------------------------------------------------- |
-| `signup.spec.ts`     | Sign up a new parent. The parental gate (#32) must be passed before the account is made; then add the first child and reach the library. |
+| `signup.spec.ts`     | Sign up a new parent (no parental gate on sign-up), then add the first child and reach the library. |
 | `signin.spec.ts`     | Sign in an existing parent and pick a child on the "Who stars tonight" screen.           |
 | `read-story.spec.ts` | Read a free story from start to a good ending, making choices, with the child's name personalized and the ending screen shown. |
 | `paywall.spec.ts`    | A free-tier parent hits the paywall (#34) on a premium story.                             |

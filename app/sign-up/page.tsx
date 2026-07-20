@@ -13,16 +13,13 @@ import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { isValidEmail, PASSWORD_MIN } from "@bedtime-quests/core/validation";
 import { friendlyAuthError } from "@/lib/auth-errors";
-import { BRAND } from "@/lib/brand";
-import { BrandMark } from "@/components/brand-mark";
-import { useParentalGate } from "@/components/parental-gate/parental-gate-provider";
+import { AuthShell, authSubmitClass } from "@/components/auth/auth-shell";
 import { track } from "@/lib/analytics";
 
 type Errors = { email?: string; password?: string; confirm?: string };
 
 export default function SignUpPage() {
   const router = useRouter();
-  const requireAdult = useParentalGate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -48,12 +45,6 @@ export default function SignUpPage() {
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
-    // Creating an account is a grown up action, so pass the parental gate first
-    // (issue #32). A pass is remembered for this flow, so a parent who also tries
-    // a social button is not challenged twice.
-    const passedGate = await requireAdult("signup");
-    if (!passedGate) return;
-
     setLoading(true);
     // We no longer collect a name: sign-in identity is the email address. BetterAuth
     // still expects a name field, so we send an empty string (the reset-email
@@ -73,18 +64,8 @@ export default function SignUpPage() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-[var(--pc-sky)] p-4">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-[0_20px_44px_-18px_rgba(22,40,58,0.4)] sm:p-8">
-        <div className="mb-6 flex flex-col items-center gap-2.5 text-center">
-          <BrandMark size="lg" />
-          <div>
-            <h1 className="font-display text-2xl font-extrabold tracking-tight text-[var(--pc-ink)]">
-              {BRAND.name}
-            </h1>
-            <p className="text-sm font-semibold text-[var(--pc-sub)]">Create your account</p>
-          </div>
-        </div>
-        <form onSubmit={onSubmit} noValidate className="space-y-4">
+    <AuthShell heading="Create your account" subheading="Free to start. Read your first quest in minutes.">
+      <form onSubmit={onSubmit} noValidate className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="font-semibold text-[var(--pc-ink)]">Email</Label>
             <Input
@@ -99,7 +80,7 @@ export default function SignUpPage() {
               }}
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
-              className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="h-11 rounded-xl border-[var(--pc-line)] bg-white px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             />
             <FieldError id="email-error">{errors.email}</FieldError>
           </div>
@@ -109,6 +90,7 @@ export default function SignUpPage() {
               id="password"
               name="password"
               autoComplete="new-password"
+              className="bg-white"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -130,6 +112,7 @@ export default function SignUpPage() {
               id="confirm"
               name="confirm"
               autoComplete="new-password"
+              className="bg-white"
               value={confirm}
               onChange={(e) => {
                 setConfirm(e.target.value);
@@ -145,25 +128,21 @@ export default function SignUpPage() {
             )}
           </div>
           {formError && <p role="alert" className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{formError}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full cursor-pointer rounded-xl bg-[var(--pc-plum)] py-3 font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="submit" disabled={loading} className={authSubmitClass}>
             {loading ? "Creating account..." : "Create account"}
           </button>
-          <p className="text-center text-xs font-semibold text-[var(--pc-sub)]">
+          <p className="text-center text-xs font-semibold text-[var(--pc-sub)] lg:text-left">
             By continuing you agree to our{" "}
             <Link
               href="/terms"
-              className="cursor-pointer font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="cursor-pointer font-bold text-[var(--pc-plum-ink)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               Terms of Service
             </Link>{" "}
             and{" "}
             <Link
               href="/privacy"
-              className="cursor-pointer font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="cursor-pointer font-bold text-[var(--pc-plum-ink)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               Privacy Policy
             </Link>
@@ -176,15 +155,14 @@ export default function SignUpPage() {
           <span className="text-xs font-semibold uppercase tracking-wide text-[var(--pc-sub)]">or</span>
           <span className="h-px flex-1 bg-[var(--pc-line)]" />
         </div>
-        <SocialButtons gatePurpose="signup" />
+        <SocialButtons />
 
-        <p className="mt-6 text-center text-sm text-[var(--pc-sub)]">
+        <p className="mt-6 text-center text-sm font-semibold text-[var(--pc-sub)] lg:text-left">
           Already have an account?{" "}
-          <Link href="/sign-in" className="font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline">
+          <Link href="/sign-in" className="font-bold text-[var(--pc-plum-ink)] underline-offset-2 hover:underline">
             Sign in
           </Link>
         </p>
-      </div>
-    </main>
+      </AuthShell>
   );
 }

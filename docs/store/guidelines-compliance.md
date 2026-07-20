@@ -125,9 +125,9 @@ policy.
 
 ## 5. What passed cleanly (summary)
 
-- Parental gate: correct challenge, present before **signup** (`sign-up/page.tsx:51`),
-  before **social signup** (`social-buttons.tsx:15-18`), and before **every purchase**
-  path on web and native.
+- Parental gate: correct challenge, present before **every purchase** path and
+  before **account settings / data controls** on web and native. Sign-up itself is
+  intentionally not gated (account creation is not a store gate-required action).
 - Ads: `house` default, contextual, free tier only, off for subscribers, off by
   default, no identifiers.
 - Analytics: consent gated, PII scrubbed, off by default, no user id, ad signals off;

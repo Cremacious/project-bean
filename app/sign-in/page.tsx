@@ -12,8 +12,7 @@ import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { isValidEmail } from "@bedtime-quests/core/validation";
 import { friendlyAuthError } from "@/lib/auth-errors";
-import { BRAND } from "@/lib/brand";
-import { BrandMark } from "@/components/brand-mark";
+import { AuthShell, authSubmitClass } from "@/components/auth/auth-shell";
 
 type Errors = { email?: string; password?: string };
 
@@ -54,18 +53,8 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-[var(--pc-sky)] p-4">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-[0_20px_44px_-18px_rgba(22,40,58,0.4)] sm:p-8">
-        <div className="mb-6 flex flex-col items-center gap-2.5 text-center">
-          <BrandMark size="lg" />
-          <div>
-            <h1 className="font-display text-2xl font-extrabold tracking-tight text-[var(--pc-ink)]">
-              {BRAND.name}
-            </h1>
-            <p className="text-sm font-semibold text-[var(--pc-sub)]">{BRAND.subtitle}</p>
-          </div>
-        </div>
-        <form onSubmit={onSubmit} noValidate className="space-y-4">
+    <AuthShell heading="Welcome back" subheading="Sign in to keep the story going.">
+      <form onSubmit={onSubmit} noValidate className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="font-semibold text-[var(--pc-ink)]">Email</Label>
             <Input
@@ -80,7 +69,7 @@ export default function SignInPage() {
               }}
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
-              className="h-11 rounded-xl border-[var(--pc-line)] px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="h-11 rounded-xl border-[var(--pc-line)] bg-white px-3.5 text-base focus-visible:border-[var(--pc-plum)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             />
             <FieldError id="email-error">{errors.email}</FieldError>
           </div>
@@ -89,7 +78,7 @@ export default function SignInPage() {
               <Label htmlFor="password" className="font-semibold text-[var(--pc-ink)]">Password</Label>
               <Link
                 href="/forgot-password"
-                className="cursor-pointer text-sm font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className="cursor-pointer text-sm font-bold text-[var(--pc-plum-ink)] underline-offset-2 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 Forgot password?
               </Link>
@@ -98,6 +87,7 @@ export default function SignInPage() {
               id="password"
               name="password"
               autoComplete="current-password"
+              className="bg-white"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -109,11 +99,7 @@ export default function SignInPage() {
             <FieldError id="password-error">{errors.password}</FieldError>
           </div>
           {formError && <p role="alert" className="text-sm font-semibold text-[var(--pc-poppy-ink)]">{formError}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full cursor-pointer rounded-xl bg-[var(--pc-plum)] py-3 font-display font-bold text-white shadow-[0_5px_0_var(--pc-plum-ink)] outline-none transition-transform focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="submit" disabled={loading} className={authSubmitClass}>
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
@@ -125,13 +111,12 @@ export default function SignInPage() {
         </div>
         <SocialButtons />
 
-        <p className="mt-6 text-center text-sm text-[var(--pc-sub)]">
+        <p className="mt-6 text-center text-sm font-semibold text-[var(--pc-sub)] lg:text-left">
           New here?{" "}
-          <Link href="/sign-up" className="font-bold text-[var(--pc-plum)] underline-offset-2 hover:underline">
+          <Link href="/sign-up" className="font-bold text-[var(--pc-plum-ink)] underline-offset-2 hover:underline">
             Create an account
           </Link>
         </p>
-      </div>
-    </main>
+      </AuthShell>
   );
 }
